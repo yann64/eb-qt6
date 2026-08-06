@@ -20,6 +20,10 @@ the development host this was built/verified against.
 - **v0.4.0** - `QProgressBar`, `QStatusBar`, `QTreeWidget` (simple
   item-based API), `QScrollArea`, `QSplitter`, and `QToolBar` (toolbar
   buttons reuse the same `QAction` type `QMenu` already uses).
+- **v0.5.0** - `QStackedWidget`, `QColorDialog`/`QFontDialog` (more
+  static convenience dialogs, alongside `QMessageBox`/`QFileDialog`),
+  `QDial`/`QLCDNumber`, and `QDockWidget`. No new honest exceptions this
+  round - every signal and dialog round trip was confirmed live.
 
 Every widget's real signal-forwarding has been screenshot-verified live
 via keyboard interaction (`Tab`/`Space`/typing - see "Verifying" below
@@ -473,6 +477,71 @@ act = ToolBarAddAction(bar, "Increment")
 CALL ActionConnectTriggered(act, @OnIncrement, 0)
 ```
 
+## Phase 5 widgets
+
+`QStackedWidget` - like `QTabWidget` (see "Phase 3 widgets" above),
+adding the first page makes it current, so `StackedWidgetAddWidget` can
+fire `currentChanged(0)` synchronously - construct anything the handler
+touches first:
+
+```basic
+DIM stack AS StackedWidget
+stack = NewStackedWidget()
+CALL StackedWidgetConnectCurrentChanged(stack, @OnPageChanged, 0)
+CALL StackedWidgetAddWidget(stack, page1)
+CALL StackedWidgetAddWidget(stack, page2)
+CALL StackedWidgetSetCurrentIndex(stack, 1)
+```
+
+`QColorDialog`/`QFontDialog` - more static convenience dialogs, same
+shape as `QMessageBox`/`QFileDialog`: every `parent` parameter takes a
+plain `QtWidget`, pass an unassigned `DIM x AS QtWidget` for "no parent
+window". Both fill their `BYREF` out-parameters only when the user
+actually picks something (returning non-zero) - on cancel, the
+out-parameters are left untouched:
+
+```basic
+DIM r AS UBYTE, g AS UBYTE, b AS UBYTE
+DIM noParent AS QtWidget
+IF ColorDialogGetColor(noParent, "Pick a Color", 255, 0, 0, r, g, b) <> 0 THEN
+    ' r/g/b now hold the picked color
+END IF
+
+DIM pointSize AS INTEGER, valid AS INTEGER
+DIM raw AS ANY PTR
+raw = FontDialogGetFont(noParent, pointSize, valid)
+' raw is the family name (ANY PTR, see the FreeQtString bridge pattern)
+' - only meaningful when valid <> 0.
+```
+
+`QDial` mirrors `QSlider`'s own function shape exactly (both are real
+`QAbstractSlider` subclasses) - no orientation parameter, a dial is
+always circular. `QLCDNumber` only displays integers (real Qt also
+supports double/`QString`, not bound):
+
+```basic
+DIM knob AS Dial
+knob = NewDial()
+CALL DialSetRange(knob, 0, 100)
+CALL DialConnectValueChanged(knob, @OnChanged, 0)
+
+DIM lcd AS LCDNumber
+lcd = NewLCDNumber()
+CALL LCDNumberDisplay(lcd, 42)
+```
+
+`QDockWidget` - a real `QWidget` subclass, so `WidgetSetLayout`
+composes its contents like any other container; `MainWindowAddDockWidget`
+takes a `Qt::DockWidgetArea` value (`QtLeftDockWidgetArea`/
+`QtRightDockWidgetArea`/`QtTopDockWidgetArea`/`QtBottomDockWidgetArea`):
+
+```basic
+DIM dock AS DockWidget
+dock = NewDockWidget("Tools")
+CALL DockWidgetSetWidget(dock, toolsWidget)
+CALL MainWindowAddDockWidget(win, QtLeftDockWidgetArea, dock)
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -538,3 +607,16 @@ screenshot-verified live on this host:
   proved `ActionConnectTriggered`'s own binding correct by calling
   `QAction::trigger()` directly, isolating the gap to input delivery,
   not the code.
+- `phase5_demo.bas` - a stacked widget (two pages, `Next`/`Back`
+  buttons), a dock widget with a dial synced to an LCD number, and
+  buttons opening a color dialog and a font dialog. Confirmed live via
+  keyboard: page switching (`currentChanged`), the dial driving the LCD
+  display (`valueChanged`), the full `QColorDialog` round trip
+  (`Escape` cancelling it, status bar showing "color: cancelled"), and
+  the full `QFontDialog` round trip (`Return` accepting the default
+  font, status bar showing the real picked family/point size, e.g.
+  "font: Ubuntu Sans 11"). **No new honest exceptions** - every signal
+  and dialog in this example was confirmed live. (The status bar was
+  again constructed before the stack's first page was added, applying
+  the same lesson `phase3_demo.bas`/`phase4_demo.bas` already
+  established.)
