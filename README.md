@@ -5,12 +5,28 @@ managed with `ebpm`.
 
 ## Status
 
-Early development (v0.1.0) - `QApplication`, `QWidget`/`QMainWindow`,
-`QPushButton`, `QLabel`, `QLineEdit`, `QVBoxLayout`/`QHBoxLayout`, and a
-custom-paint widget (`PainterWidget`) with basic `QPainter` drawing
-primitives. Real Qt6 (6.10.2) is installed and fully working on the
-development host this was built/verified against - every feature below
-has been screenshot-verified live, not just compile-checked.
+Early development. Real Qt6 (6.10.2) is installed and fully working on
+the development host this was built/verified against.
+
+- **v0.1.0** - `QApplication`, `QWidget`/`QMainWindow`, `QPushButton`,
+  `QLabel`, `QLineEdit`, `QVBoxLayout`/`QHBoxLayout`, and a custom-paint
+  widget (`PainterWidget`) with basic `QPainter` drawing primitives.
+- **v0.2.0** - `QCheckBox`/`QRadioButton` (share one `AbstractButton`
+  function family), `QComboBox`, `QTextEdit` (plain-text only), and
+  `QMenuBar`/`QMenu`/`QAction`.
+
+Every widget's real signal-forwarding has been screenshot-verified live
+via keyboard interaction (`Tab`/`Space`/typing - see "Verifying" below
+for why, not mouse clicks), not just compile-checked - **with one
+honest exception**: `QAction`/`QMenu` construct and render correctly
+(the menu bar shows real text), but interactive keyboard-driven menu
+*opening* (`Alt`+mnemonic, `F10`) could not be confirmed live in this
+sandboxed session - the same broad class of environment-specific
+input-delivery limitation already found repeatedly elsewhere in this
+ecosystem (see `ebasic-editor`'s own README), not evidence of a binding
+defect: `QAction::triggered`'s own forwarding uses the identical,
+already-proven lambda+`connect` mechanism as every other working
+signal here.
 
 ## Why a hand-written native shim, unlike `eb-gtk4`
 
@@ -231,6 +247,65 @@ own internal `isActive()` check makes it a silent no-op with a
 nothing gets drawn, so treat it as a real bug if it happens, just a
 safer failure mode than a crash.
 
+## Phase 2 widgets
+
+`QCheckBox`/`QRadioButton` share one `AbstractButton` function family
+(both are real `QAbstractButton` subclasses with the identical
+`setChecked`/`isChecked`/`toggled` shape) - matching `eb-haiku`'s own
+"one function, several real subclasses" convention already used for
+`HControlSetEnabled`. Radio buttons sharing the same immediate parent
+widget are mutually exclusive automatically (Qt's own default
+behavior) - no grouping call needed for the common case;
+cross-container grouping via `QButtonGroup` isn't bound yet.
+
+```basic
+DIM chk AS CheckBox
+chk = NewCheckBox("Enable feature")
+CALL AbstractButtonConnectToggled(chk, @OnToggled, 0)
+
+DIM radio1 AS RadioButton
+radio1 = NewRadioButton("Option A")
+CALL AbstractButtonSetChecked(radio1, 1)
+```
+
+`QComboBox`:
+
+```basic
+DIM combo AS ComboBox
+combo = NewComboBox()
+CALL ComboBoxAddItem(combo, "First")
+CALL ComboBoxAddItem(combo, "Second")
+CALL ComboBoxConnectCurrentIndexChanged(combo, @OnChanged, 0)
+```
+
+`QTextEdit` (plain-text only, no rich-text/formatting surface exposed,
+matching `eb-haiku`'s own `BTextView` scope) - **note its `textChanged`
+signal takes no parameter** (unlike `QLineEdit`'s own version, which
+carries the new text) - call `TextEditGetText` yourself inside the
+handler if you need the content:
+
+```basic
+DIM te AS TextEdit
+te = NewTextEdit()
+CALL TextEditConnectTextChanged(te, @OnChanged, 0)
+```
+
+`QMenuBar`/`QMenu`/`QAction` - a `MainWindow` always manages its own
+menu bar (auto-created on first access, matching real Qt idiom); a menu
+bar owns its menus, a menu owns its actions - no separate destroy
+function, the same "container now owns it" convention already
+documented for layouts/central widgets:
+
+```basic
+DIM bar AS MenuBar
+bar = MainWindowMenuBar(win)
+DIM fileMenu AS Menu
+fileMenu = MenuBarAddMenu(bar, "File")
+DIM quitAction AS Action
+quitAction = MenuAddAction(fileMenu, "Quit")
+CALL ActionConnectTriggered(quitAction, @OnQuit, 0)
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -252,3 +327,10 @@ screenshot-verified live on this host:
   status label.
 - `custom_drawing.bas` - a filled background, a rectangle outline, a
   line, and drawn text via `PainterWidget`.
+- `phase2_demo.bas` - a menu bar, checkbox, two radio buttons, a combo
+  box, and a text edit composed via `QVBoxLayout`. `Tab`+`Space` toggling
+  the checkbox, `Tab`+`Down` changing the combo box selection, and
+  typing into the text edit were all confirmed live, each updating a
+  shared status label. **One honest exception**: interactively *opening*
+  the `File` menu via keyboard (`Alt+F`, `F10`) could not be confirmed
+  live in this sandboxed session - see "Status" above.

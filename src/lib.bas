@@ -12,6 +12,10 @@
 #include once "raw/qt6_lineedit.bas"
 #include once "raw/qt6_painterwidget.bas"
 #include once "raw/qt6_painter.bas"
+#include once "raw/qt6_checkbox.bas"
+#include once "raw/qt6_combobox.bas"
+#include once "raw/qt6_textedit.bas"
+#include once "raw/qt6_menu.bas"
 
 #include once "common.bas"
 #include once "application.bas"
@@ -21,3 +25,7 @@
 #include once "lineedit.bas"
 #include once "painterwidget.bas"
 #include once "painter.bas"
+#include once "checkbox.bas"
+#include once "combobox.bas"
+#include once "textedit.bas"
+#include once "menu.bas"

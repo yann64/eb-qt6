@@ -28,6 +28,8 @@ extern "C" {
 
 typedef void (*EbQt6VoidCallback)(void* userData);
 typedef void (*EbQt6StringCallback)(void* userData, const char* text);
+typedef void (*EbQt6BoolCallback)(void* userData, int value);
+typedef void (*EbQt6IntCallback)(void* userData, int value);
 
 // QString has no stable-forever UTF-8 `const char*` the way a BString/
 // GString does, so every "get text" function here returns a freshly
