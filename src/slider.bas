@@ -1,11 +1,11 @@
 ' Idiomatic layer: QSlider.
+'
+' QtHorizontal/QtVertical (Qt::Orientation values, also used by
+' NewSplitter) live in common.bas.
 
 #include once "widget.bas"
+#include once "common.bas"
 #include once "raw/qt6_slider.bas"
-
-''' Matches real Qt::Orientation values - pass directly to NewSlider.
-CONST QtHorizontal = 1
-CONST QtVertical = 2
 
 TYPE Slider EXTENDS QtWidget
 END TYPE

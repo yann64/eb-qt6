@@ -33,6 +33,11 @@ typedef void (*EbQt6IntCallback)(void* userData, int value);
 // Shared by any signal shaped (userData, int, int) - e.g.
 // QTableWidget::cellClicked(row, column).
 typedef void (*EbQt6TwoIntCallback)(void* userData, int a, int b);
+// Shared by any signal shaped (userData, opaque handle) - e.g.
+// QTreeWidget::currentItemChanged's `current` parameter (the `previous`
+// parameter is dropped - callers needing it can track the last current
+// item themselves).
+typedef void (*EbQt6PtrCallback)(void* userData, void* ptr);
 
 // QString has no stable-forever UTF-8 `const char*` the way a BString/
 // GString does, so every "get text" function here returns a freshly

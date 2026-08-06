@@ -17,11 +17,14 @@ the development host this was built/verified against.
 - **v0.3.0** - `QTabWidget`, `QListWidget`/`QTableWidget` (simple
   item-based APIs, not the full model/view framework), `QDialog` plus
   `QMessageBox`/`QFileDialog`, and `QSlider`/`QSpinBox`/`QGroupBox`.
+- **v0.4.0** - `QProgressBar`, `QStatusBar`, `QTreeWidget` (simple
+  item-based API), `QScrollArea`, `QSplitter`, and `QToolBar` (toolbar
+  buttons reuse the same `QAction` type `QMenu` already uses).
 
 Every widget's real signal-forwarding has been screenshot-verified live
 via keyboard interaction (`Tab`/`Space`/typing - see "Verifying" below
-for why, not mouse clicks), not just compile-checked - **with two
-honest exceptions**, both the same broad class of environment-specific
+for why, not mouse clicks), not just compile-checked - **with three
+honest exceptions**, all the same broad class of environment-specific
 synthetic-input-delivery limitation already found repeatedly elsewhere
 in this ecosystem (see `ebasic-editor`'s own README), not evidence of a
 binding defect:
@@ -37,6 +40,15 @@ binding defect:
   too) - not confirmed live for the same reason synthetic X11 mouse
   clicks are unreliable throughout this sandbox. The table's own
   rendering and cell contents were confirmed live.
+- `QToolBar` actions aren't part of the normal `Tab` focus chain (real
+  Qt behavior - toolbar buttons are chrome, not main-content widgets),
+  and a real mouse click at verified-correct coordinates didn't
+  register either (same limitation as above) - **the binding itself was
+  proven correct anyway**, isolated from the input-delivery question, by
+  a small standalone C++ spike that calls the shim directly and invokes
+  `QAction::trigger()` programmatically (bypassing all synthetic input):
+  the connected callback fired exactly as expected. Not evidence of a
+  binding defect, purely an input-delivery gap in this sandbox.
 
 ## Why a hand-written native shim, unlike `eb-gtk4`
 
@@ -394,6 +406,73 @@ spin = NewSpinBox()
 CALL SpinBoxSetRange(spin, 0, 100)
 ```
 
+## Phase 4 widgets
+
+`QProgressBar`:
+
+```basic
+DIM prog AS ProgressBar
+prog = NewProgressBar()
+CALL ProgressBarSetRange(prog, 0, 100)
+CALL ProgressBarSetValue(prog, 50)
+```
+
+`QStatusBar` - a `MainWindow` always manages its own status bar
+(auto-created on first access, matching real Qt idiom) - there is no
+`NewStatusBar`, the same convention `MainWindowMenuBar` already uses:
+
+```basic
+DIM status AS StatusBar
+status = MainWindowStatusBar(win)
+CALL StatusBarShowMessage(status, "ready", 0)   ' 0 = until replaced
+```
+
+`QTreeWidget` (simple item-based API, not the full model/view
+framework) - items are opaque handles owned by the tree (or a parent
+item); a `currentItemChanged` handler receives a raw item handle, wrap
+it via `WrapTreeItem` before calling `TreeItemText`/`TreeItemAddChild`
+on it:
+
+```basic
+DIM tree AS TreeWidget
+tree = NewTreeWidget()
+DIM fruitItem AS TreeItem
+fruitItem = TreeWidgetAddTopLevelItem(tree, "Fruit")
+CALL TreeItemAddChild(fruitItem, "Apple")
+CALL TreeWidgetConnectCurrentItemChanged(tree, @OnItemChanged, 0)
+```
+
+`QScrollArea`/`QSplitter` - both real `QWidget` subclasses, so
+`WidgetSetLayout`/etc. already work; `ScrollAreaSetWidgetResizable`
+matters because real Qt defaults it to off, which often looks wrong
+(the inner widget stays at its own size instead of filling the
+viewport):
+
+```basic
+DIM area AS ScrollArea
+area = NewScrollArea()
+CALL ScrollAreaSetWidgetResizable(area, 1)
+CALL ScrollAreaSetWidget(area, innerWidget)
+
+DIM split AS Splitter
+split = NewSplitter(QtHorizontal)
+CALL SplitterAddWidget(split, leftWidget)
+CALL SplitterAddWidget(split, area)
+```
+
+`QToolBar` - a `MainWindow` creates and owns its own tool bars (no
+`NewToolBar`); a tool bar's buttons are the same `Action` type
+`QMenu` already uses (`ActionConnectTriggered` wires either one up
+identically):
+
+```basic
+DIM bar AS ToolBar
+bar = MainWindowAddToolBar(win, "Main")
+DIM act AS Action
+act = ToolBarAddAction(bar, "Increment")
+CALL ActionConnectTriggered(act, @OnIncrement, 0)
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -444,3 +523,18 @@ screenshot-verified live on this host:
   *synchronously* the moment its first tab is added (see "Phase 3
   widgets" above) - the original draft crashed here because the shared
   status label the handler touches hadn't been constructed yet.
+- `phase4_demo.bas` - a tool bar (`Increment` action), a status bar, a
+  splitter dividing a tree widget from a scroll area full of labels, and
+  a progress bar. Confirmed live: the tree/splitter/scroll area/progress
+  bar/status bar all render correctly, and selecting a tree item fires
+  `currentItemChanged` (the status bar immediately showed "tree: Fruit"
+  from the tree's own initial auto-selection - constructing the status
+  bar *before* adding any tree items, learned directly from
+  `phase3_demo.bas`'s `QTabWidget` crash, avoided a repeat here). **One
+  honest exception** (see "Status" above): the toolbar's `Increment`
+  action couldn't be activated via either `Tab`+`Space` (real Qt
+  behavior - toolbar buttons aren't in the normal focus chain) or a real
+  mouse click at verified coordinates - but a standalone C++ spike
+  proved `ActionConnectTriggered`'s own binding correct by calling
+  `QAction::trigger()` directly, isolating the gap to input delivery,
+  not the code.

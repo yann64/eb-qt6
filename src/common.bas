@@ -5,6 +5,11 @@
 
 #include once "raw/qt6_common.bas"
 
+''' Matches real Qt::Orientation values - pass directly to NewSlider/
+''' NewSplitter.
+CONST QtHorizontal = 1
+CONST QtVertical = 2
+
 ''' Frees a string returned by ButtonGetText/LabelGetText/
 ''' LineEditGetText (or any of this package's other functions with the
 ''' same "raw ANY PTR, caller frees it" shape).
