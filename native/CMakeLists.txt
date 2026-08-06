@@ -47,6 +47,13 @@ add_library(ebqt6shim STATIC
     shim_combobox.cpp
     shim_textedit.cpp
     shim_menu.cpp
+    shim_tabwidget.cpp
+    shim_listwidget.cpp
+    shim_tablewidget.cpp
+    shim_dialog.cpp
+    shim_slider.cpp
+    shim_spinbox.cpp
+    shim_groupbox.cpp
 )
 target_include_directories(ebqt6shim PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(ebqt6shim PUBLIC Qt6::Widgets)

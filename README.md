@@ -14,19 +14,29 @@ the development host this was built/verified against.
 - **v0.2.0** - `QCheckBox`/`QRadioButton` (share one `AbstractButton`
   function family), `QComboBox`, `QTextEdit` (plain-text only), and
   `QMenuBar`/`QMenu`/`QAction`.
+- **v0.3.0** - `QTabWidget`, `QListWidget`/`QTableWidget` (simple
+  item-based APIs, not the full model/view framework), `QDialog` plus
+  `QMessageBox`/`QFileDialog`, and `QSlider`/`QSpinBox`/`QGroupBox`.
 
 Every widget's real signal-forwarding has been screenshot-verified live
 via keyboard interaction (`Tab`/`Space`/typing - see "Verifying" below
-for why, not mouse clicks), not just compile-checked - **with one
-honest exception**: `QAction`/`QMenu` construct and render correctly
-(the menu bar shows real text), but interactive keyboard-driven menu
-*opening* (`Alt`+mnemonic, `F10`) could not be confirmed live in this
-sandboxed session - the same broad class of environment-specific
-input-delivery limitation already found repeatedly elsewhere in this
-ecosystem (see `ebasic-editor`'s own README), not evidence of a binding
-defect: `QAction::triggered`'s own forwarding uses the identical,
-already-proven lambda+`connect` mechanism as every other working
-signal here.
+for why, not mouse clicks), not just compile-checked - **with two
+honest exceptions**, both the same broad class of environment-specific
+synthetic-input-delivery limitation already found repeatedly elsewhere
+in this ecosystem (see `ebasic-editor`'s own README), not evidence of a
+binding defect:
+
+- `QAction`/`QMenu` construct and render correctly (the menu bar shows
+  real text), but interactive keyboard-driven menu *opening*
+  (`Alt`+mnemonic, `F10`) could not be confirmed live in this sandboxed
+  session - `QAction::triggered`'s own forwarding uses the identical,
+  already-proven lambda+`connect` mechanism as every other working
+  signal here.
+- `QTableWidget::cellClicked` specifically requires a real mouse click
+  (unlike most signals here, which fire from keyboard-driven activation
+  too) - not confirmed live for the same reason synthetic X11 mouse
+  clicks are unreliable throughout this sandbox. The table's own
+  rendering and cell contents were confirmed live.
 
 ## Why a hand-written native shim, unlike `eb-gtk4`
 
@@ -306,6 +316,84 @@ quitAction = MenuAddAction(fileMenu, "Quit")
 CALL ActionConnectTriggered(quitAction, @OnQuit, 0)
 ```
 
+## Phase 3 widgets
+
+`QTabWidget` - adding the first tab makes it current, so Qt fires
+`currentChanged(0)` **synchronously, during `TabWidgetAddTab` itself**,
+not later - construct anything that handler touches (e.g. a shared
+status label) *before* adding any tabs, not after. (This is a general
+Qt gotcha worth knowing beyond just this one signal: a widget can be
+made to emit a signal as a side effect of its own construction/setup,
+before the rest of your UI exists yet.)
+
+```basic
+DIM tabs AS TabWidget
+tabs = NewTabWidget()
+CALL TabWidgetConnectCurrentChanged(tabs, @OnTabChanged, 0)
+CALL TabWidgetAddTab(tabs, page1, "First")
+CALL TabWidgetAddTab(tabs, page2, "Second")
+```
+
+`QListWidget`/`QTableWidget` (simple item-based APIs, not the full
+model/view framework - no custom item delegates/models):
+
+```basic
+DIM list AS ListWidget
+list = NewListWidget()
+CALL ListWidgetAddItem(list, "Alpha")
+CALL ListWidgetConnectCurrentRowChanged(list, @OnRowChanged, 0)
+
+DIM table AS TableWidget
+table = NewTableWidget()
+CALL TableWidgetSetRowCount(table, 2)
+CALL TableWidgetSetColumnCount(table, 2)
+CALL TableWidgetSetItemText(table, 0, 0, "r0c0")
+```
+
+`QDialog` is a real `QWidget` subclass, so `WidgetShow`/`WidgetResize`/
+`WidgetSetWindowTitle`/`WidgetSetLayout`/`WidgetDestroy` already work on
+its handle - only `DialogExec`/`DialogAccept`/`DialogReject`/
+`DialogConnectFinished` are new:
+
+```basic
+DIM dlg AS Dialog
+dlg = NewDialog()
+CALL WidgetSetLayout(dlg, dialogLayout)
+DIM accepted AS INTEGER
+accepted = DialogExec(dlg)   ' blocks - a real Qt modal event loop
+```
+
+`QMessageBox`/`QFileDialog` are Qt's own static convenience dialogs, not
+persistent widgets - every `parent` parameter takes a plain `QtWidget`;
+pass an unassigned `DIM x AS QtWidget` (zero-initialized handle) for "no
+parent window":
+
+```basic
+DIM yes AS INTEGER
+yes = MessageBoxQuestion(win, "Confirm", "Continue?")
+
+DIM raw AS ANY PTR
+raw = FileDialogGetOpenFileName(win, "Open File", "", "All Files (*)")
+' ... bridge through ZSTRING/STRING, then CALL FreeQtString(raw) -
+' empty string means the user cancelled.
+```
+
+`QSlider`/`QSpinBox` (`CONST QtHorizontal`/`QtVertical` match real
+`Qt::Orientation` values, pass directly to `NewSlider`) and
+`QGroupBox` (a real `QWidget` subclass - `WidgetSetLayout` composes its
+contents the same as any other container):
+
+```basic
+DIM slider AS Slider
+slider = NewSlider(QtHorizontal)
+CALL SliderSetRange(slider, 0, 100)
+CALL SliderConnectValueChanged(slider, @OnValueChanged, 0)
+
+DIM spin AS SpinBox
+spin = NewSpinBox()
+CALL SpinBoxSetRange(spin, 0, 100)
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -334,3 +422,25 @@ screenshot-verified live on this host:
   shared status label. **One honest exception**: interactively *opening*
   the `File` menu via keyboard (`Alt+F`, `F10`) could not be confirmed
   live in this sandboxed session - see "Status" above.
+- `phase3_demo.bas` - a tab widget (one tab with a synced slider + spin
+  box inside a group box, another with a list widget + table widget),
+  plus buttons opening a custom `QDialog`, a `QMessageBox::question`,
+  and a `QFileDialog`. Confirmed live via keyboard: switching tabs
+  (`currentChanged`), dragging the slider syncing the spin box and vice
+  versa (`valueChanged`), selecting a list row (`currentRowChanged`),
+  the full dialog round trip (`Tab`+`Space` on its own OK button calling
+  `DialogAccept`, `DialogExec` returning, `finished` firing), and the
+  message box's Yes/No mapping. **Two honest exceptions** (see "Status"
+  above): `QTableWidget::cellClicked` (mouse-only) wasn't confirmed
+  live, though the table's own rendering was; `QFileDialog` was
+  confirmed to open as a real dialog window (found via `xwininfo`), but
+  the full pick-a-file-and-return round trip wasn't screenshot-verified
+  in this session (the screenshot tool raced the dialog's own window
+  lifecycle) - the code path is identical in shape to the
+  already-proven `QMessageBox` static-function pattern, so this is
+  treated as a verification-tooling gap, not a suspected code defect.
+  This example also caught a real, general Qt gotcha (not
+  eb-qt6-specific): `QTabWidget` fires `currentChanged(0)`
+  *synchronously* the moment its first tab is added (see "Phase 3
+  widgets" above) - the original draft crashed here because the shared
+  status label the handler touches hadn't been constructed yet.
