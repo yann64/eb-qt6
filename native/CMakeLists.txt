@@ -1,0 +1,48 @@
+# Standalone build for eb-qt6's native shim - NOT driven by ebpm (same
+# reasoning as eb-haiku's own native/CMakeLists.txt: neither ebc nor
+# ebpm compiles a package's own native code today). Produces
+# libebqt6shim.a, linked against real Qt6 shared libraries via the
+# package's own `Extern "C" Lib "ebqt6shim"` declarations in
+# src/raw/*.bas.
+#
+# Unlike eb-haiku (which only builds/links on real Haiku hardware over
+# SSH), Qt6 is fully installed on this development host - this can be
+# built and its GUI actually run/screenshotted locally, no remote
+# round-trip needed.
+#
+# Build:
+#   cmake -S native -B native/build
+#   cmake --build native/build
+# Produces native/build/libebqt6shim.a - see this package's own README
+# "Building" section for exactly which `-l` flags a downstream consumer
+# needs (Qt6 has no legitimate public C symbol anywhere in its core
+# libraries for ebpm's own `.libs` sidecar to auto-forward, confirmed
+# via `nm -D --defined-only` - unlike eb-haiku's `-l be`, this is never
+# automatic).
+
+cmake_minimum_required(VERSION 3.16)
+project(ebqt6shim CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Q_OBJECT (used by exactly one class in this shim, ShimWidget - see
+# shim_painterwidget.h's own top comment) needs moc, which AUTOMOC
+# drives automatically via the Qt6::Widgets imported target below - no
+# manual moc invocation anywhere in this file.
+set(CMAKE_AUTOMOC ON)
+
+find_package(Qt6 COMPONENTS Widgets REQUIRED)
+
+add_library(ebqt6shim STATIC
+    shim_common.cpp
+    shim_application.cpp
+    shim_widget.cpp
+    shim_button.cpp
+    shim_label.cpp
+    shim_lineedit.cpp
+    shim_painterwidget.cpp
+    shim_painter.cpp
+)
+target_include_directories(ebqt6shim PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(ebqt6shim PUBLIC Qt6::Widgets)

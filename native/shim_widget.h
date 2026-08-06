@@ -1,0 +1,52 @@
+// eb-qt6 native shim - QWidget/QMainWindow and the two stock layouts
+// (QVBoxLayout/QHBoxLayout).
+//
+// Ownership deliberately does NOT follow eb-gtk4's SinkHandle/ObjDestroy
+// ref-counting convention - Qt has no equivalent (QObject/QWidget use
+// single-owner parent-child tree deletion, not ref-counting). Once a
+// widget is added to a layout (WidgetLayoutAddWidget) or set as a main
+// window's central widget (MainWindowSetCentralWidget), Qt itself now
+// owns and destroys it - do NOT call eb_qt6_widget_destroy on it
+// afterwards (a double-free), the same "container now owns it, no
+// destroy function needed" convention eb-haiku's own README documents
+// for Haiku's menus/windows.
+//
+// Two deliberate deviations from both sibling packages, each with a
+// real Qt-specific reason (see README "Known gaps" for the full
+// rationale):
+//   - A QMainWindow closing HIDES it, not deletes it (Qt::
+//     WA_DeleteOnClose stays off) - matches eb-gtk4's own explicit-
+//     lifetime philosophy rather than a footgun where an eBasic-held
+//     handle dies the instant a user clicks the OS close button.
+//   - eb_qt6_widget_destroy calls deleteLater(), never a raw `delete` -
+//     a raw delete from inside the widget's own signal callback (a
+//     common real pattern: "close this window when this button is
+//     clicked") is a known Qt use-after-free hazard; deleteLater()
+//     defers to the next event-loop iteration and costs nothing in the
+//     common case.
+#pragma once
+
+extern "C" {
+
+void* eb_qt6_widget_create();
+void eb_qt6_widget_show(void* widget);
+void eb_qt6_widget_resize(void* widget, int width, int height);
+void eb_qt6_widget_set_window_title(void* widget, const char* title);
+// Only meaningful for a widget that hasn't been parented into a layout/
+// central-widget slot yet - see this file's own top comment.
+void eb_qt6_widget_destroy(void* widget);
+
+void* eb_qt6_mainwindow_create();
+void eb_qt6_mainwindow_set_central_widget(void* window, void* widget);
+
+void* eb_qt6_vboxlayout_create();
+void* eb_qt6_hboxlayout_create();
+// Works for either layout type (both are QBoxLayout subclasses) -
+// generic across the two, matching HControlSetEnabled's own "one
+// function, several real subclasses" convention in eb-haiku.
+void eb_qt6_boxlayout_add_widget(void* layout, void* widget);
+// Applies a constructed layout to a widget - the widget now owns the
+// layout (and, transitively, everything ever added to it).
+void eb_qt6_widget_set_layout(void* widget, void* layout);
+
+}
