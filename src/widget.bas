@@ -61,6 +61,33 @@ SUB WidgetSetToolTip(BYVAL w AS QtWidget, toolTip AS ZSTRING)
     CALL eb_qt6_widget_set_tool_tip(w.handle, toolTip)
 END SUB
 
+SUB WidgetSetMinimumSize(BYVAL w AS QtWidget, width AS INTEGER, height AS INTEGER)
+    CALL eb_qt6_widget_set_minimum_size(w.handle, width, height)
+END SUB
+
+SUB WidgetSetMaximumSize(BYVAL w AS QtWidget, width AS INTEGER, height AS INTEGER)
+    CALL eb_qt6_widget_set_maximum_size(w.handle, width, height)
+END SUB
+
+''' Real Qt requires the widget to have a focus policy for this to
+''' matter - most interactive widgets already default to one; a plain
+''' container QWidget from NewWidget() does not.
+'''
+''' CONFIRMED (via a minimal standalone spike, not assumed): NOT
+''' synchronous with WidgetHasFocus - real QWidget::setFocus() only
+''' posts a focus-change event, applied once the Qt event loop
+''' processes it. Calling WidgetHasFocus immediately afterward in the
+''' same call stack (e.g. inside the very handler that called this)
+''' will see the OLD focus state - real Qt semantics, not a binding
+''' bug. Check WidgetHasFocus from a later callback instead.
+SUB WidgetSetFocus(BYVAL w AS QtWidget)
+    CALL eb_qt6_widget_set_focus(w.handle)
+END SUB
+
+FUNCTION WidgetHasFocus(BYVAL w AS QtWidget) AS INTEGER
+    WidgetHasFocus = eb_qt6_widget_has_focus(w.handle)
+END FUNCTION
+
 ''' Loads a named icon from the current desktop icon theme (e.g.
 ''' "accessories-text-editor") as this window's title-bar/taskbar icon.
 SUB WidgetSetWindowIconFromTheme(BYVAL w AS QtWidget, themeIconName AS ZSTRING)

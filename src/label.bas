@@ -23,3 +23,11 @@ END SUB
 FUNCTION LabelGetText(BYVAL l AS Label) AS ANY PTR
     LabelGetText = eb_qt6_label_get_text(l.handle)
 END FUNCTION
+
+''' Loads an image file and displays it, replacing any text. Returns
+''' non-zero on success, zero if the file couldn't be loaded as an
+''' image (e.g. missing/unsupported format) - the label is left
+''' unchanged on failure.
+FUNCTION LabelSetPixmapFromFile(BYVAL l AS Label, path AS ZSTRING) AS INTEGER
+    LabelSetPixmapFromFile = eb_qt6_label_set_pixmap_from_file(l.handle, path)
+END FUNCTION

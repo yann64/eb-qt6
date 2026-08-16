@@ -36,3 +36,13 @@ END SUB
 SUB PainterDrawText(BYVAL painter AS ANY PTR, x AS INTEGER, y AS INTEGER, text AS ZSTRING)
     CALL eb_qt6_painter_draw_text(painter, x, y, text)
 END SUB
+
+''' Loads an image file fresh on every call (no caching) and draws it
+''' at (x, y) at its natural size - fine for one-off demos, but a real
+''' app repainting often (animation, resize) should prefer
+''' LabelSetPixmapFromFile instead, which only loads once. Returns
+''' non-zero on success, zero if the file couldn't be loaded as an
+''' image - nothing is drawn on failure.
+FUNCTION PainterDrawPixmap(BYVAL painter AS ANY PTR, x AS INTEGER, y AS INTEGER, path AS ZSTRING) AS INTEGER
+    PainterDrawPixmap = eb_qt6_painter_draw_pixmap(painter, x, y, path)
+END FUNCTION

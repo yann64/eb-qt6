@@ -1,5 +1,7 @@
-' Idiomatic layer: QTextEdit (plain-text mode only - no rich-text/
-' formatting surface exposed, matching eb-haiku's own BTextView scope).
+' Idiomatic layer: QTextEdit. Plain-text Get/SetText matches
+' eb-haiku's own BTextView scope; Get/SetHtml add real Qt rich-text (a
+' small HTML subset - see Qt's own "Supported HTML Subset" docs) as an
+' explicit opt-in, not the default.
 
 #include once "widget.bas"
 #include once "common.bas"
@@ -22,6 +24,20 @@ END SUB
 ''' FreeQtString convention.
 FUNCTION TextEditGetText(BYVAL t AS TextEdit) AS ANY PTR
     TextEditGetText = eb_qt6_textedit_get_text(t.handle)
+END FUNCTION
+
+''' Sets rich-text content from an HTML string (Qt's own supported
+''' subset) - overwrites any plain-text content set via
+''' TextEditSetText.
+SUB TextEditSetHtml(BYVAL t AS TextEdit, html AS ZSTRING)
+    CALL eb_qt6_textedit_set_html(t.handle, html)
+END SUB
+
+''' See ButtonGetText's own doc comment on the owned-allocation/
+''' FreeQtString convention. Returns the content as Qt's own generated
+''' HTML, even if it was set as plain text.
+FUNCTION TextEditGetHtml(BYVAL t AS TextEdit) AS ANY PTR
+    TextEditGetHtml = eb_qt6_textedit_get_html(t.handle)
 END FUNCTION
 
 ''' Connects `handler` (a top-level `SUB YourName(userData AS ANY

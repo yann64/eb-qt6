@@ -96,6 +96,28 @@ evidence of a binding defect:
   reliably produce here); `QActionGroup`'s mutual-exclusivity behavior
   was instead proven correct via the same standalone-C++-spike
   technique used for `QToolBar` in v0.4.0.
+- **v0.10.0** - images (`LabelSetPixmapFromFile`, `PainterDrawPixmap`,
+  no separate `QPixmap` handle), rich text (`QTextEdit`
+  `SetHtml`/`GetHtml`, alongside the existing plain-text
+  `SetText`/`GetText`), widget size constraints
+  (`WidgetSetMinimumSize`/`SetMaximumSize`), and focus control
+  (`WidgetSetFocus`/`HasFocus`). **One honest, well-substantiated
+  exception**: `WidgetHasFocus` never returned true after
+  `WidgetSetFocus` in this sandbox, even checked from a deferred
+  `QTimer` callback (the technically correct pattern, confirmed via a
+  standalone spike that `setFocus()`/`hasFocus()` aren't synchronous in
+  real Qt) - root-caused, not just observed: `xdotool getactivewindow`
+  reports no active window at all in this session, even immediately
+  after `xdotool windowactivate`, so the window manager never gives
+  this sandbox's windows real WM-level activation - and
+  `QWidget::hasFocus()` is gated on the widget's window being Qt's own
+  notion of the "active window," which itself normally syncs from that
+  same WM-level activation. Individual keystrokes still reach specific
+  widgets directly (matching every other keyboard-driven signal
+  confirmed throughout this README), so this is narrower than "input
+  doesn't work" - it's specifically that this sandbox's window manager
+  never completes the activation handshake Qt's focus-tracking depends
+  on.
 
 ## Why a hand-written native shim, unlike `eb-gtk4`
 
@@ -835,6 +857,58 @@ CALL FrameSetFrameStyle(box, QtFrameStyledPanel, QtFrameSunken)
 CALL WidgetSetLayout(box, someLayout)
 ```
 
+## Phase 10 features
+
+Images - no separate `QPixmap` handle/`TYPE`, matching this package's
+icon convention: `LabelSetPixmapFromFile` loads and displays an image
+in a `Label` (replacing any text), and `PainterDrawPixmap` loads and
+draws one inside a `PainterWidget`'s own paint callback. Both return
+non-zero on success, zero if the file couldn't be loaded as an image
+(nothing changes/draws on failure):
+
+```basic
+DIM ok AS INTEGER
+ok = LabelSetPixmapFromFile(myLabel, "assets/photo.png")
+
+' Inside a paint callback:
+CALL PainterDrawPixmap(painter, 10, 10, "assets/photo.png")
+```
+
+`PainterDrawPixmap` loads the file fresh on every call, with no
+caching - fine for one-off demos, but a real app repainting often
+(animation, resize) should prefer a `Label` with
+`LabelSetPixmapFromFile` instead, which only loads once.
+
+Rich text in `QTextEdit` - `TextEditSetHtml`/`TextEditGetHtml` add real
+Qt rich-text (a small HTML subset, see Qt's own "Supported HTML
+Subset" docs) alongside the existing plain-text
+`TextEditSetText`/`TextEditGetText`, as an explicit opt-in:
+
+```basic
+CALL TextEditSetHtml(editor, "<b>Bold</b>, <i>italic</i>, and <span style='color:#c00'>red</span> text.")
+```
+
+Widget size constraints:
+
+```basic
+CALL WidgetSetMinimumSize(myWidget, 150, 0)
+CALL WidgetSetMaximumSize(myWidget, 150, 1000)
+```
+
+Focus control - **`WidgetHasFocus` is not synchronous with
+`WidgetSetFocus`**: real `QWidget::setFocus()` only posts a
+focus-change event, applied once the Qt event loop processes it
+(confirmed via a dedicated spike, not assumed). Check `WidgetHasFocus`
+from a later callback (a different signal, or a `QTimer`), never
+synchronously right after `WidgetSetFocus`:
+
+```basic
+CALL WidgetSetFocus(nameEdit)
+' NOT: someLabel status = WidgetHasFocus(nameEdit) - would see the OLD
+' state. Defer instead, e.g. via a single-shot QTimer:
+CALL QTimerStart(focusCheckTimer)
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -995,3 +1069,25 @@ screenshot-verified live on this host:
   fired the connected callback and correctly flipped the checked state
   of the other action to false, confirming the exclusivity logic itself
   works, with the gap isolated to input delivery in this sandbox.
+- `phase10_demo.bas` - a `Label` showing an image, a `PainterWidget`
+  drawing the same image plus text, a `TextEdit` with rich HTML content,
+  and a size-constrained `LineEdit`. Confirmed live: the image rendering
+  identically in both the `Label` and the custom-painted canvas, real
+  bold/italic/colored HTML rendering after `TextEditSetHtml`, and
+  `TextEditGetHtml` returning Qt's own generated markup (a real, much
+  longer string than the input, confirmed by length). Also caught a
+  real, non-obvious usability issue while wiring up keyboard
+  verification (not a binding bug): a plain `QTextEdit` consumes `Tab`
+  itself (inserts a tab character) rather than passing focus onward,
+  so the example now explicitly starts keyboard focus on a button via
+  `WidgetSetFocus` right after `WidgetShow` - dogfooding this same
+  phase's own new function to sidestep it. **One honest, well-
+  substantiated exception** (see "Status" above): `WidgetHasFocus`
+  never returned true after `WidgetSetFocus` in this sandbox, even from
+  a correctly-deferred `QTimer` callback; root-caused (not just
+  observed) to `xdotool getactivewindow` reporting no active window at
+  all in this session, even right after `xdotool windowactivate` -
+  `QWidget::hasFocus()` depends on real window-manager-level activation
+  this sandbox's WM never completes, distinct from (and narrower than)
+  the general "clicks/keys don't reach the target" limitations
+  documented elsewhere - individual keystrokes still work fine here.

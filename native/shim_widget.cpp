@@ -27,6 +27,18 @@ void eb_qt6_widget_set_tool_tip(void* widget, const char* toolTip) {
     static_cast<QWidget*>(widget)->setToolTip(QString::fromUtf8(toolTip));
 }
 
+void eb_qt6_widget_set_minimum_size(void* widget, int width, int height) {
+    static_cast<QWidget*>(widget)->setMinimumSize(width, height);
+}
+
+void eb_qt6_widget_set_maximum_size(void* widget, int width, int height) {
+    static_cast<QWidget*>(widget)->setMaximumSize(width, height);
+}
+
+void eb_qt6_widget_set_focus(void* widget) { static_cast<QWidget*>(widget)->setFocus(); }
+
+int eb_qt6_widget_has_focus(void* widget) { return static_cast<QWidget*>(widget)->hasFocus() ? 1 : 0; }
+
 void eb_qt6_widget_destroy(void* widget) {
     // deleteLater(), never a raw `delete` - see this file's own header
     // comment on why (a common real pattern - "close this window when

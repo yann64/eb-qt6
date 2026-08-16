@@ -13,5 +13,10 @@ void eb_qt6_painter_fill_rect(void* painter, int x, int y, int width, int height
 void eb_qt6_painter_draw_rect(void* painter, int x, int y, int width, int height);
 void eb_qt6_painter_draw_line(void* painter, int x1, int y1, int x2, int y2);
 void eb_qt6_painter_draw_text(void* painter, int x, int y, const char* text);
+// Loads an image file fresh on every call (no caching/handle to
+// manage) and draws it at (x, y) at its natural size. Returns 1 on
+// success, 0 if the file couldn't be loaded as an image - nothing is
+// drawn on failure.
+int eb_qt6_painter_draw_pixmap(void* painter, int x, int y, const char* path);
 
 }

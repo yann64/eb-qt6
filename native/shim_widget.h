@@ -38,6 +38,26 @@ void eb_qt6_widget_set_style_sheet(void* widget, const char* styleSheet);
 // Shown after the mouse hovers over the widget for a moment - real Qt
 // handles the popup/timing itself, nothing for this shim to manage.
 void eb_qt6_widget_set_tool_tip(void* widget, const char* toolTip);
+void eb_qt6_widget_set_minimum_size(void* widget, int width, int height);
+void eb_qt6_widget_set_maximum_size(void* widget, int width, int height);
+// Widget input focus - see QWidget::setFocus/hasFocus. A widget must
+// have a real focus policy for this to matter (most interactive
+// widgets already default to one; a plain container QWidget from
+// NewWidget() does not).
+//
+// CONFIRMED (via a minimal standalone spike, not assumed): eb_qt6_
+// widget_set_focus is NOT synchronous with eb_qt6_widget_has_focus -
+// real QWidget::setFocus() only posts a focus-change event; the actual
+// focus state hasFocus() reports isn't updated until that event is
+// processed by the Qt event loop. Calling has_focus immediately after
+// set_focus in the same call stack (e.g. inside the very signal
+// handler that called set_focus) will see the OLD focus state, not the
+// new one - this is real Qt semantics, not a bug here. Check
+// has_focus from a later callback instead (e.g. a different signal
+// firing afterward, or a QTimer), never synchronously right after
+// set_focus.
+void eb_qt6_widget_set_focus(void* widget);
+int eb_qt6_widget_has_focus(void* widget);
 // Only meaningful for a widget that hasn't been parented into a layout/
 // central-widget slot yet - see this file's own top comment.
 void eb_qt6_widget_destroy(void* widget);
