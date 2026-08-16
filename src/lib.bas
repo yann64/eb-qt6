@@ -51,6 +51,7 @@
 #include once "raw/qt6_actiongroup.bas"
 #include once "raw/qt6_frame.bas"
 #include once "raw/qt6_scrollbar.bas"
+#include once "raw/qt6_dragdrop.bas"
 
 #include once "common.bas"
 #include once "application.bas"

@@ -145,6 +145,50 @@ evidence of a binding defect:
   now-standard standalone-C++-spike technique: calling
   `QWidget::setCursor()` directly and reading `cursor().shape()`
   afterward showed the shape change take effect exactly as requested.
+- **v0.13.0** - drag-and-drop: `WidgetEnableDragSource`/
+  `WidgetEnableDropTarget`, implemented via `QObject` event filters
+  (see "Why event filters, not a widget subclass" below) rather than a
+  dedicated `Shim*` subclass, so it works on any existing widget
+  (`Label`, `Button`, `LineEdit`, ...) without a new widget type. Only
+  plain-text MIME data is supported - no files/images. **A genuinely
+  new class of honest exception, more fundamental than every prior
+  one**: this feature could not be confirmed via *any* method attempted
+  - not live mouse interaction (the sandbox's already-documented
+  mouse-drag limitation), and, for the first time in this package's
+  history, not the standalone-C++-spike technique either. Investigated
+  thoroughly, not just assumed: a manually-constructed `QDropEvent` sent
+  via `QCoreApplication::sendEvent()` never reached the handler - traced
+  this to a real, general Qt behavior (not a bug in this binding) by
+  testing the *identical* synthetic event against a real `QWidget`
+  subclass with `dropEvent()` overridden the textbook way: it didn't
+  receive the event either. Real interactive drag-and-drop evidently
+  requires internal drag-session state (tied to a real `QDrag::exec()`
+  call) that a bare, synthetic `QDropEvent` cannot satisfy, for *either*
+  event filters or virtual overrides - this rules out a flaw specific to
+  the event-filter architecture chosen here, but leaves the feature's
+  actual runtime correctness unconfirmed in this sandbox. Shipped
+  anyway because the implementation follows Qt's own documented,
+  standard pattern for filter-based drag-and-drop, with this honestly
+  weaker confidence level stated plainly rather than glossed over.
+
+## Why event filters, not a widget subclass
+
+Every other custom-behavior widget in this package (`PainterWidget`,
+the one existing `Q_OBJECT` subclass before this version) needed a real
+`ShimWidget : public QWidget` subclass, because `QWidget::paintEvent`
+can only be overridden by subclassing - there is no other way to
+intercept it. Drag-and-drop is different: `QObject::installEventFilter`
+lets a *separate* `QObject` intercept another `QObject`'s events
+without subclassing it at all, which matters a lot here specifically
+because a subclass-based approach would need one dedicated `Shim*`
+class *per widget type* users might want to make draggable/droppable
+(`ShimDragLabel`, `ShimDropFrame`, ...) - multiplying against every
+existing widget type in this package - whereas two small event-filter
+classes (`ShimDragSourceFilter`/`ShimDropTargetFilter`) work on any of
+them uniformly. Each filter is constructed with the watched widget as
+its own `QObject` parent, so Qt manages its lifetime automatically,
+tied to the widget (matching the "container now owns it" convention
+already used for `QIntValidator`/`QDoubleValidator` in v0.8.0).
 
 ## Why a hand-written native shim, unlike `eb-gtk4`
 
@@ -1008,6 +1052,21 @@ CALL ComboBoxAddItemWithIconFromTheme(myCombo, "Documents", "folder")
 CALL ListWidgetAddItemWithIconFromTheme(myList, "Save", "document-save")
 ```
 
+## Phase 13 features
+
+Drag-and-drop - see "Why event filters, not a widget subclass" above
+for the implementation approach. Only plain-text MIME data:
+
+```basic
+CALL WidgetEnableDragSource(sourceLabel, "Hello from eb-qt6!")
+
+SUB OnDropped(userData AS ANY PTR, text AS ZSTRING)
+    ' text is borrowed - copy it into a STRING if you need it after
+    ' this call returns, same convention as LineEditConnectTextChanged.
+END SUB
+CALL WidgetEnableDropTarget(targetFrame, @OnDropped, 0)
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -1223,3 +1282,20 @@ screenshot-verified live on this host:
   a cursor-capture flag and finding none) - proven correct anyway via
   a standalone C++ spike reading `QWidget::cursor().shape()` before and
   after the call.
+- `phase13_demo.bas` - a draggable `Label` ("Drag me!") and a
+  drop-target `Frame` ("Drop here"). Both render correctly (confirmed
+  via screenshot) and the app doesn't crash. **Not confirmed as
+  actually working**, honestly: a real mouse-drag gesture (press,
+  move, release) via `xdotool` didn't produce any visible change,
+  matching the sandbox's already-documented mouse-interaction
+  limitation - but unlike every other such case in this README, this
+  one could **not** be independently confirmed via the standalone-spike
+  technique either, for a reason specific to drag-and-drop itself (see
+  "Status" above for the full investigation - a manually-constructed
+  `QDropEvent` doesn't reach *either* an event filter or a real
+  subclass's `dropEvent()` override via `sendEvent()`, ruling out a
+  flaw specific to this package's own implementation choice, but also
+  meaning the feature's actual correctness remains unconfirmed here).
+  This is the most honestly *uncertain* item published in this
+  package's history - flagged as such deliberately rather than
+  claimed as either working or broken.

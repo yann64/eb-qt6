@@ -23,6 +23,7 @@
 #include once "application.bas"
 #include once "raw/qt6_widget.bas"
 #include once "raw/qt6_icon.bas"
+#include once "raw/qt6_dragdrop.bas"
 
 TYPE QtWidget EXTENDS QtObject
 END TYPE
@@ -129,6 +130,28 @@ CONST QtForbiddenCursor = 14
 ''' one of the QtXxxCursor constants above.
 SUB WidgetSetCursor(BYVAL w AS QtWidget, shape AS INTEGER)
     CALL eb_qt6_widget_set_cursor(w.handle, shape)
+END SUB
+
+''' Makes this widget draggable: pressing the mouse on it and dragging
+''' past Qt's own real drag-start distance threshold starts a drag
+''' carrying `dragText` as plain-text MIME data. Implemented via a
+''' QObject event filter, not a widget subclass - works on any
+''' QtWidget (Label, Button, LineEdit, ...), not just a dedicated drag
+''' widget type. Only plain-text MIME data is supported - no
+''' files/images.
+SUB WidgetEnableDragSource(BYVAL w AS QtWidget, dragText AS ZSTRING)
+    CALL eb_qt6_widget_enable_drag_source(w.handle, dragText)
+END SUB
+
+''' Makes this widget a drop target: connects `handler` (a top-level
+''' `SUB YourName(userData AS ANY PTR, text AS ZSTRING)`) to fire when
+''' plain text is dropped onto it - `text` is borrowed, valid only for
+''' the duration of that one call, same convention as
+''' LineEditConnectTextChanged's own `text` parameter. Only accepts
+''' plain-text drops - drags carrying other MIME types are rejected
+''' (the drop cursor shows "forbidden" over this widget for them).
+SUB WidgetEnableDropTarget(BYVAL w AS QtWidget, handler AS ANY PTR, userData AS ANY PTR)
+    CALL eb_qt6_widget_enable_drop_target(w.handle, handler, userData)
 END SUB
 
 ''' Loads a named icon from the current desktop icon theme (e.g.
