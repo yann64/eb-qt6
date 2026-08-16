@@ -69,6 +69,15 @@ evidence of a binding defect:
   failed for tooling reasons in this session, a narrower variant of the
   general screenshot-tool flake noted below. Not evidence of a binding
   defect - every API call involved completed without error.
+- **v0.7.0** - `QTimer` (named `QTimer`, not `Timer` - see this
+  version's own section below for why), `QClipboard`, `QInputDialog`
+  (`getText`/`getInt`/`getItem`, alongside the existing `QMessageBox`/
+  `QColorDialog`/`QFontDialog`), and `WidgetSetStyleSheet` (CSS-like
+  styling for any existing widget - not a new widget type). No new
+  honest exceptions this round - every signal and dialog round trip was
+  confirmed live, though verifying it took noticeably more careful,
+  step-by-step keyboard navigation than earlier phases (see "Verifying"
+  below).
 
 ## Why a hand-written native shim, unlike `eb-gtk4`
 
@@ -635,6 +644,67 @@ internally, which is an invalid cast for these sibling
 own `QButtonGroup` handler, which needed to read a clicked radio
 button's label).
 
+## Phase 7 features
+
+`QTimer` - named `QTimer`, not `Timer`: eBasic's own stdlib already
+defines a top-level `Timer()` function (seconds elapsed, see the
+Date/Time Library reference) and identifiers are case-insensitive, so a
+bare `TYPE Timer` collides with it. A plain `QObject` like
+`ButtonGroup`/`SystemTrayIcon` above - needs a real parent widget at
+construction so Qt manages its lifetime:
+
+```basic
+DIM t AS QTimer
+t = NewQTimer(someParentWidget)
+CALL QTimerSetInterval(t, 1000)
+CALL QTimerConnectTimeout(t, @OnTick, 0)
+CALL QTimerStart(t)
+```
+
+`QClipboard` - a process-wide singleton, accessed via the running
+`Application`, matching `MainWindowMenuBar`/`MainWindowStatusBar`'s own
+"always managed for you" convention (no separate `New*` function):
+
+```basic
+DIM clip AS Clipboard
+clip = ApplicationClipboard(app)
+CALL ClipboardSetText(clip, "hello")
+DIM raw AS ANY PTR
+raw = ClipboardGetText(clip)
+' ... bridge through ZSTRING/STRING, then CALL FreeQtString(raw)
+```
+
+`QInputDialog` - static convenience dialogs, same shape as
+`QMessageBox`/`QColorDialog`/`QFontDialog`. `InputDialogGetItem` needs
+a list of choices - built via `StringList`/`StringListAdd` (mirroring
+`QComboBox`'s own create-then-add-item convention); the dialog call
+**consumes and destroys** the list it's given, unlike this package's
+usual "container now owns it forever" convention:
+
+```basic
+DIM noParent AS QtWidget
+DIM valid AS INTEGER
+DIM raw AS ANY PTR
+raw = InputDialogGetText(noParent, "Rename", "New label:", "Count", valid)
+
+DIM value AS INTEGER
+CALL InputDialogGetInt(noParent, "Interval", "Milliseconds:", 1000, 100, 5000, value, valid)
+
+DIM items AS StringList
+items = NewStringList()
+CALL StringListAdd(items, "Red")
+CALL StringListAdd(items, "Green")
+raw = InputDialogGetItem(noParent, "Theme", "Pick a color:", items, 0, 0, valid)
+```
+
+`WidgetSetStyleSheet` - CSS-like Qt style sheet syntax, applicable to
+any `QtWidget` (not a new widget type - just one more function on the
+existing base):
+
+```basic
+CALL WidgetSetStyleSheet(myLabel, "background-color: #dfd; font-size: 18px; padding: 8px;")
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -729,3 +799,22 @@ screenshot-verified live on this host:
   panel couldn't be screenshot-confirmed - capturing a specific
   application window worked fine in the same session, but a full-screen
   capture (needed to see the desktop panel) failed for tooling reasons.
+- `phase7_demo.bas` - a `QTimer`-driven counter label (styled via
+  `WidgetSetStyleSheet`), clipboard copy/paste, and all three
+  `QInputDialog` variants. **No new honest exceptions** - every signal
+  and dialog round trip was confirmed live, though this example needed
+  noticeably more careful, step-by-step keyboard navigation (screenshot
+  the focus ring after every single `Tab`, only then press `Space`)
+  than earlier phases - blind `Tab`-count-then-`Space`/`Return`
+  sequences landed on the wrong control more than once (once
+  accidentally opening a modal dialog several steps early, once
+  triggering a dialog's Cancel instead of OK via `Return`). Confirmed:
+  `QTimer::timeout` firing repeatedly and updating the counter,
+  `WidgetSetStyleSheet` applying real visual styling (background color
+  changes, confirmed both at startup and again after
+  `InputDialogGetItem`'s own result was applied), `ClipboardSetText`/
+  `GetText` round-tripping the exact copied text, and all three
+  `QInputDialog` variants (`getText`'s pre-filled default accepted,
+  `getInt`'s default value accepted and correctly read back via its
+  `BYREF` out-parameters, `getItem`'s combo-box selection navigated with
+  `Down` and accepted).

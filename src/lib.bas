@@ -41,6 +41,9 @@
 #include once "raw/qt6_systemtrayicon.bas"
 #include once "raw/qt6_dateedit.bas"
 #include once "raw/qt6_calendarwidget.bas"
+#include once "raw/qt6_timer.bas"
+#include once "raw/qt6_clipboard.bas"
+#include once "raw/qt6_inputdialog.bas"
 
 #include once "common.bas"
 #include once "application.bas"
@@ -79,3 +82,6 @@
 #include once "systemtrayicon.bas"
 #include once "dateedit.bas"
 #include once "calendarwidget.bas"
+#include once "timer.bas"
+#include once "clipboard.bas"
+#include once "inputdialog.bas"

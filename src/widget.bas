@@ -46,6 +46,14 @@ SUB WidgetSetWindowTitle(BYVAL w AS QtWidget, title AS ZSTRING)
     CALL eb_qt6_widget_set_window_title(w.handle, title)
 END SUB
 
+''' CSS-like Qt style sheet syntax (see Qt's own "Qt Style Sheets"
+''' docs, e.g. "background-color: red; font-weight: bold;") - applies
+''' to this widget and, unless overridden, its children. Works on any
+''' QtWidget (a plain QWidget), not just top-level windows.
+SUB WidgetSetStyleSheet(BYVAL w AS QtWidget, styleSheet AS ZSTRING)
+    CALL eb_qt6_widget_set_style_sheet(w.handle, styleSheet)
+END SUB
+
 ''' Only meaningful for a widget that hasn't been parented into a
 ''' layout/central-widget slot yet - see this file's own top comment.
 SUB WidgetDestroy(BYVAL w AS QtWidget)

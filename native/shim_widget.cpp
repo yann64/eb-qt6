@@ -19,6 +19,10 @@ void eb_qt6_widget_set_window_title(void* widget, const char* title) {
     static_cast<QWidget*>(widget)->setWindowTitle(QString::fromUtf8(title));
 }
 
+void eb_qt6_widget_set_style_sheet(void* widget, const char* styleSheet) {
+    static_cast<QWidget*>(widget)->setStyleSheet(QString::fromUtf8(styleSheet));
+}
+
 void eb_qt6_widget_destroy(void* widget) {
     // deleteLater(), never a raw `delete` - see this file's own header
     // comment on why (a common real pattern - "close this window when
