@@ -130,6 +130,21 @@ evidence of a binding defect:
   `QToolBar`/`QActionGroup`: calling `QScrollBar::setValue()` directly
   fired the connected `valueChanged` callback and updated the read-back
   value exactly as expected.
+- **v0.12.0** - `BoxLayout` spacing/margins (`SetSpacing`/
+  `SetContentsMargins`), `Label` alignment/word-wrap
+  (`SetAlignment`/`SetWordWrap`), widget cursor control
+  (`WidgetSetCursor`), and themed icons on `ComboBox`/`ListWidget`
+  items (another real gap found by surveying the existing surface -
+  icons had reached buttons/actions/windows/tray in v0.9.0 but not
+  item-based widgets). **One honest exception**: a custom
+  `WidgetSetCursor` shape couldn't be visually confirmed in this
+  sandbox - not an input-delivery limitation this time, but a
+  screenshot-tooling one: `import` doesn't capture the X11 mouse
+  cursor overlay at all (it's composited by the X server, not part of
+  a window's own pixel buffer) - proven correct anyway via the
+  now-standard standalone-C++-spike technique: calling
+  `QWidget::setCursor()` directly and reading `cursor().shape()`
+  afterward showed the shape change take effect exactly as requested.
 
 ## Why a hand-written native shim, unlike `eb-gtk4`
 
@@ -958,6 +973,41 @@ CALL ScrollBarSetRange(bar, 0, 100)
 CALL ScrollBarConnectValueChanged(bar, @OnChanged, 0)
 ```
 
+## Phase 12 features
+
+`BoxLayout` spacing/margins - real defaults are much tighter than a
+custom value would typically be, so these are usually only needed when
+the default look isn't dense/spread out enough:
+
+```basic
+CALL BoxLayoutSetSpacing(myLayout, 16)
+CALL BoxLayoutSetContentsMargins(myLayout, 24, 24, 24, 24)
+```
+
+`Label` alignment/word-wrap - combine a horizontal and vertical
+alignment flag via eBasic's own bitwise `OR` operator:
+
+```basic
+CALL LabelSetWordWrap(myLabel, 1)
+CALL LabelSetAlignment(myLabel, QtAlignHCenter OR QtAlignVCenter)
+```
+
+`WidgetSetCursor` - overrides the mouse cursor shown while hovering a
+widget:
+
+```basic
+CALL WidgetSetCursor(myButton, QtPointingHandCursor)
+```
+
+Themed icons on `ComboBox`/`ListWidget` items - extends the
+theme-icon convention from `QSystemTrayIcon`/buttons/actions/windows
+(see "Phase 9 features" above) to item-based widgets:
+
+```basic
+CALL ComboBoxAddItemWithIconFromTheme(myCombo, "Documents", "folder")
+CALL ListWidgetAddItemWithIconFromTheme(myList, "Save", "document-save")
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -1155,3 +1205,21 @@ screenshot-verified live on this host:
   C++ spike: calling `QScrollBar::setValue()` directly fired the
   connected `valueChanged` callback and updated the read-back value
   exactly as expected.
+- `phase12_demo.bas` - a `ComboBox` and `ListWidget` with themed icon
+  items, a centered word-wrapped `Label`, a layout with generously
+  custom spacing/margins, and a button with a pointing-hand cursor.
+  Confirmed live: real folder/save icons rendering next to both the
+  combo box's current item and the list's items, a long sentence
+  visibly wrapping across three centered lines, and the layout's extra
+  spacing/margins clearly visible around and between widgets. Keyboard
+  navigation changed both the combo box's selection and the list's
+  current row, each correctly updating the shared status label with
+  the new index/row. **One honest exception, a new *kind* of gap**:
+  the button's custom pointing-hand cursor couldn't be visually
+  confirmed - not an input-delivery limitation this time, but a
+  screenshot-tooling one: `import` doesn't capture the X11 mouse
+  cursor overlay at all (composited by the X server, not part of a
+  window's own pixel buffer, confirmed by checking `import -help` for
+  a cursor-capture flag and finding none) - proven correct anyway via
+  a standalone C++ spike reading `QWidget::cursor().shape()` before and
+  after the call.

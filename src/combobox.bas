@@ -17,6 +17,12 @@ SUB ComboBoxAddItem(BYVAL c AS ComboBox, text AS ZSTRING)
     CALL eb_qt6_combobox_add_item(c.handle, text)
 END SUB
 
+''' Loads a named icon from the current desktop icon theme (e.g.
+''' "folder") and shows it alongside `text`.
+SUB ComboBoxAddItemWithIconFromTheme(BYVAL c AS ComboBox, text AS ZSTRING, themeIconName AS ZSTRING)
+    CALL eb_qt6_combobox_add_item_with_icon_from_theme(c.handle, text, themeIconName)
+END SUB
+
 ''' See ButtonGetText's own doc comment on the owned-allocation/
 ''' FreeQtString convention.
 FUNCTION ComboBoxCurrentText(BYVAL c AS ComboBox) AS ANY PTR

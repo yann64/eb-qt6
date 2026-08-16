@@ -13,5 +13,14 @@ char* eb_qt6_label_get_text(void* label);
 // missing/unsupported format) - the label is left unchanged on
 // failure.
 int eb_qt6_label_set_pixmap_from_file(void* label, const char* path);
+// `alignment` matches real Qt::Alignment flag combinations - the
+// common ones: 1=Left, 2=Right, 4=HCenter, 0x20=Top, 0x40=Bottom,
+// 0x80=VCenter (OR horizontal and vertical together, e.g. 4|0x80 for
+// centered both ways - see Qt's own Qt::AlignmentFlag docs for the
+// full set).
+void eb_qt6_label_set_alignment(void* label, int alignment);
+// When on, long text wraps across multiple lines instead of being
+// clipped/overflowing - off by default, matching real QLabel.
+void eb_qt6_label_set_word_wrap(void* label, int wordWrap);
 
 }

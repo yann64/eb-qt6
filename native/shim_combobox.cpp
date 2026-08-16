@@ -1,6 +1,7 @@
 #include "shim_combobox.h"
 
 #include <QComboBox>
+#include <QIcon>
 #include <QObject>
 #include <QString>
 
@@ -10,6 +11,10 @@ void* eb_qt6_combobox_create() { return new QComboBox(); }
 
 void eb_qt6_combobox_add_item(void* combo, const char* text) {
     static_cast<QComboBox*>(combo)->addItem(QString::fromUtf8(text));
+}
+
+void eb_qt6_combobox_add_item_with_icon_from_theme(void* combo, const char* text, const char* themeIconName) {
+    static_cast<QComboBox*>(combo)->addItem(QIcon::fromTheme(QString::fromUtf8(themeIconName)), QString::fromUtf8(text));
 }
 
 char* eb_qt6_combobox_current_text(void* combo) {

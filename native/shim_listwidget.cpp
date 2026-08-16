@@ -1,5 +1,6 @@
 #include "shim_listwidget.h"
 
+#include <QIcon>
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QObject>
@@ -11,6 +12,11 @@ void* eb_qt6_listwidget_create() { return new QListWidget(); }
 
 void eb_qt6_listwidget_add_item(void* list, const char* text) {
     static_cast<QListWidget*>(list)->addItem(QString::fromUtf8(text));
+}
+
+void eb_qt6_listwidget_add_item_with_icon_from_theme(void* list, const char* text, const char* themeIconName) {
+    QListWidgetItem* item = new QListWidgetItem(QIcon::fromTheme(QString::fromUtf8(themeIconName)), QString::fromUtf8(text));
+    static_cast<QListWidget*>(list)->addItem(item);
 }
 
 int eb_qt6_listwidget_current_row(void* list) {

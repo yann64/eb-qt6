@@ -1,6 +1,7 @@
 #include "shim_widget.h"
 
 #include <QBoxLayout>
+#include <QCursor>
 #include <QFont>
 #include <QMainWindow>
 #include <QString>
@@ -59,6 +60,10 @@ void eb_qt6_widget_set_font(void* widget, const char* family, int pointSize, int
     static_cast<QWidget*>(widget)->setFont(font);
 }
 
+void eb_qt6_widget_set_cursor(void* widget, int shape) {
+    static_cast<QWidget*>(widget)->setCursor(QCursor(static_cast<Qt::CursorShape>(shape)));
+}
+
 void eb_qt6_widget_destroy(void* widget) {
     // deleteLater(), never a raw `delete` - see this file's own header
     // comment on why (a common real pattern - "close this window when
@@ -84,6 +89,14 @@ void* eb_qt6_hboxlayout_create() { return new QHBoxLayout(); }
 
 void eb_qt6_boxlayout_add_widget(void* layout, void* widget) {
     static_cast<QBoxLayout*>(layout)->addWidget(static_cast<QWidget*>(widget));
+}
+
+void eb_qt6_boxlayout_set_spacing(void* layout, int spacing) {
+    static_cast<QBoxLayout*>(layout)->setSpacing(spacing);
+}
+
+void eb_qt6_boxlayout_set_contents_margins(void* layout, int left, int top, int right, int bottom) {
+    static_cast<QBoxLayout*>(layout)->setContentsMargins(left, top, right, bottom);
 }
 
 void eb_qt6_widget_set_layout(void* widget, void* layout) {

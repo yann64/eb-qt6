@@ -69,6 +69,12 @@ int eb_qt6_widget_is_visible(void* widget);
 // one call, matching QFont's own most-common constructor shape) -
 // affects this widget and, unless overridden, its children.
 void eb_qt6_widget_set_font(void* widget, const char* family, int pointSize, int bold, int italic);
+// `shape` matches real Qt::CursorShape values (0=Arrow, 1=UpArrow,
+// 2=Cross, 3=Wait, 4=IBeam, 6=SizeVer, 7=SizeHor, 9=SizeAll,
+// 13=PointingHand, 14=Forbidden, ... - the full enum has ~25 values,
+// see Qt's own docs; these are the commonly-used ones). Overrides the
+// mouse cursor shown while hovering this widget.
+void eb_qt6_widget_set_cursor(void* widget, int shape);
 // Only meaningful for a widget that hasn't been parented into a layout/
 // central-widget slot yet - see this file's own top comment.
 void eb_qt6_widget_destroy(void* widget);
@@ -82,6 +88,11 @@ void* eb_qt6_hboxlayout_create();
 // generic across the two, matching HControlSetEnabled's own "one
 // function, several real subclasses" convention in eb-haiku.
 void eb_qt6_boxlayout_add_widget(void* layout, void* widget);
+// Pixel gap between consecutive widgets in the layout.
+void eb_qt6_boxlayout_set_spacing(void* layout, int spacing);
+// Pixel padding between the layout's own edge and its container
+// widget's edge, one value per side.
+void eb_qt6_boxlayout_set_contents_margins(void* layout, int left, int top, int right, int bottom);
 // Applies a constructed layout to a widget - the widget now owns the
 // layout (and, transitively, everything ever added to it).
 void eb_qt6_widget_set_layout(void* widget, void* layout);

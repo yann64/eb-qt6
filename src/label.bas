@@ -31,3 +31,23 @@ END FUNCTION
 FUNCTION LabelSetPixmapFromFile(BYVAL l AS Label, path AS ZSTRING) AS INTEGER
     LabelSetPixmapFromFile = eb_qt6_label_set_pixmap_from_file(l.handle, path)
 END FUNCTION
+
+''' Matches real Qt::AlignmentFlag values - combine a horizontal and a
+''' vertical one via eBasic's own bitwise `OR` operator (e.g.
+''' `QtAlignHCenter OR QtAlignVCenter`) and pass to LabelSetAlignment.
+CONST QtAlignLeft = 1
+CONST QtAlignRight = 2
+CONST QtAlignHCenter = 4
+CONST QtAlignTop = 32
+CONST QtAlignBottom = 64
+CONST QtAlignVCenter = 128
+
+SUB LabelSetAlignment(BYVAL l AS Label, alignment AS INTEGER)
+    CALL eb_qt6_label_set_alignment(l.handle, alignment)
+END SUB
+
+''' When on, long text wraps across multiple lines instead of being
+''' clipped/overflowing - off by default, matching real QLabel.
+SUB LabelSetWordWrap(BYVAL l AS Label, wordWrap AS INTEGER)
+    CALL eb_qt6_label_set_word_wrap(l.handle, wordWrap)
+END SUB

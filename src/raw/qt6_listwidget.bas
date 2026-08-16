@@ -5,6 +5,7 @@
 Extern "C" Lib "ebqt6shim"
     Declare Function eb_qt6_listwidget_create() AS ANY PTR
     Declare Sub eb_qt6_listwidget_add_item(ByVal list AS ANY PTR, ByVal text AS ZSTRING)
+    Declare Sub eb_qt6_listwidget_add_item_with_icon_from_theme(ByVal list AS ANY PTR, ByVal text AS ZSTRING, ByVal themeIconName AS ZSTRING)
     Declare Function eb_qt6_listwidget_current_row(ByVal list AS ANY PTR) AS INTEGER
     Declare Sub eb_qt6_listwidget_set_current_row(ByVal list AS ANY PTR, ByVal row AS INTEGER)
     Declare Function eb_qt6_listwidget_current_text(ByVal list AS ANY PTR) AS ANY PTR

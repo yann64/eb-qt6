@@ -18,6 +18,12 @@ SUB ListWidgetAddItem(BYVAL l AS ListWidget, text AS ZSTRING)
     CALL eb_qt6_listwidget_add_item(l.handle, text)
 END SUB
 
+''' Loads a named icon from the current desktop icon theme (e.g.
+''' "folder") and shows it alongside `text`.
+SUB ListWidgetAddItemWithIconFromTheme(BYVAL l AS ListWidget, text AS ZSTRING, themeIconName AS ZSTRING)
+    CALL eb_qt6_listwidget_add_item_with_icon_from_theme(l.handle, text, themeIconName)
+END SUB
+
 FUNCTION ListWidgetCurrentRow(BYVAL l AS ListWidget) AS INTEGER
     ListWidgetCurrentRow = eb_qt6_listwidget_current_row(l.handle)
 END FUNCTION

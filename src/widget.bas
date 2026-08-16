@@ -117,6 +117,20 @@ SUB WidgetSetFont(BYVAL w AS QtWidget, family AS ZSTRING, pointSize AS INTEGER, 
     CALL eb_qt6_widget_set_font(w.handle, family, pointSize, bold, italic)
 END SUB
 
+''' Matches real Qt::CursorShape values - pass to WidgetSetCursor.
+CONST QtArrowCursor = 0
+CONST QtCrossCursor = 2
+CONST QtWaitCursor = 3
+CONST QtIBeamCursor = 4
+CONST QtPointingHandCursor = 13
+CONST QtForbiddenCursor = 14
+
+''' Overrides the mouse cursor shown while hovering this widget - pass
+''' one of the QtXxxCursor constants above.
+SUB WidgetSetCursor(BYVAL w AS QtWidget, shape AS INTEGER)
+    CALL eb_qt6_widget_set_cursor(w.handle, shape)
+END SUB
+
 ''' Loads a named icon from the current desktop icon theme (e.g.
 ''' "accessories-text-editor") as this window's title-bar/taskbar icon.
 SUB WidgetSetWindowIconFromTheme(BYVAL w AS QtWidget, themeIconName AS ZSTRING)
@@ -177,6 +191,17 @@ END FUNCTION
 ''' NewVBoxLayout/NewHBoxLayout (both real QBoxLayout subclasses).
 SUB BoxLayoutAddWidget(BYVAL layout AS BoxLayout, BYVAL widget AS QtWidget)
     CALL eb_qt6_boxlayout_add_widget(layout.handle, widget.handle)
+END SUB
+
+''' Pixel gap between consecutive widgets in the layout.
+SUB BoxLayoutSetSpacing(BYVAL layout AS BoxLayout, spacing AS INTEGER)
+    CALL eb_qt6_boxlayout_set_spacing(layout.handle, spacing)
+END SUB
+
+''' Pixel padding between the layout's own edge and its container
+''' widget's edge, one value per side.
+SUB BoxLayoutSetContentsMargins(BYVAL layout AS BoxLayout, left AS INTEGER, top AS INTEGER, right AS INTEGER, bottom AS INTEGER)
+    CALL eb_qt6_boxlayout_set_contents_margins(layout.handle, left, top, right, bottom)
 END SUB
 
 ''' Applies a constructed layout to a widget - the widget now owns the
