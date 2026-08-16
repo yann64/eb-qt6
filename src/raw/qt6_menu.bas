@@ -1,6 +1,7 @@
 ' Raw FFI layer: QMenuBar/QMenu/QAction (`ebqt6shim`).
 
 Extern "C" Lib "ebqt6shim"
+    Declare Function eb_qt6_menu_create() AS ANY PTR
     Declare Function eb_qt6_mainwindow_menu_bar(ByVal window AS ANY PTR) AS ANY PTR
     Declare Function eb_qt6_menubar_add_menu(ByVal menuBar AS ANY PTR, ByVal title AS ZSTRING) AS ANY PTR
     Declare Function eb_qt6_menu_add_action(ByVal menu AS ANY PTR, ByVal text AS ZSTRING) AS ANY PTR

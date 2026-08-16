@@ -99,7 +99,10 @@ SUB BoxLayoutAddWidget(BYVAL layout AS BoxLayout, BYVAL widget AS QtWidget)
 END SUB
 
 ''' Applies a constructed layout to a widget - the widget now owns the
-''' layout (and, transitively, everything ever added to it).
-SUB WidgetSetLayout(BYVAL w AS QtWidget, BYVAL layout AS BoxLayout)
+''' layout (and, transitively, everything ever added to it). Accepts
+''' any real QLayout-backed TYPE (BoxLayout, GridLayout, FormLayout) via
+''' the shared QtObject base - the shim function itself already casts
+''' to a generic QLayout* underneath.
+SUB WidgetSetLayout(BYVAL w AS QtWidget, BYVAL layout AS QtObject)
     CALL eb_qt6_widget_set_layout(w.handle, layout.handle)
 END SUB

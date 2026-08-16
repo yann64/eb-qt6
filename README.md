@@ -24,14 +24,20 @@ the development host this was built/verified against.
   static convenience dialogs, alongside `QMessageBox`/`QFileDialog`),
   `QDial`/`QLCDNumber`, and `QDockWidget`. No new honest exceptions this
   round - every signal and dialog round trip was confirmed live.
+- **v0.6.0** - `QGridLayout`/`QFormLayout`, `QButtonGroup`
+  (cross-container radio exclusivity, unbound since v0.2.0),
+  `QSystemTrayIcon` (reuses the existing `Menu`/`Action` types for its
+  context menu), and `QDateEdit`/`QTimeEdit`/`QCalendarWidget` (dates/
+  times marshaled as separate int components, no `QDate`/`QTime`
+  wrapper `TYPE`).
 
 Every widget's real signal-forwarding has been screenshot-verified live
 via keyboard interaction (`Tab`/`Space`/typing - see "Verifying" below
-for why, not mouse clicks), not just compile-checked - **with three
+for why, not mouse clicks), not just compile-checked - **with four
 honest exceptions**, all the same broad class of environment-specific
-synthetic-input-delivery limitation already found repeatedly elsewhere
-in this ecosystem (see `ebasic-editor`'s own README), not evidence of a
-binding defect:
+synthetic-input-delivery/tooling limitation already found repeatedly
+elsewhere in this ecosystem (see `ebasic-editor`'s own README), not
+evidence of a binding defect:
 
 - `QAction`/`QMenu` construct and render correctly (the menu bar shows
   real text), but interactive keyboard-driven menu *opening*
@@ -53,6 +59,16 @@ binding defect:
   `QAction::trigger()` programmatically (bypassing all synthetic input):
   the connected callback fired exactly as expected. Not evidence of a
   binding defect, purely an input-delivery gap in this sandbox.
+- `QSystemTrayIcon` construction/`show()`/context-menu wiring don't
+  crash, `QSystemTrayIcon::isSystemTrayAvailable()` returns true, and
+  the desktop's tray-icon extension is confirmed active - but visually
+  confirming the icon actually rendered in the desktop's panel couldn't
+  be done in this sandbox: screenshotting a specific application window
+  works fine, but capturing the *whole screen* (needed to see the
+  desktop panel, which isn't a window `QSystemTrayIcon` itself owns)
+  failed for tooling reasons in this session, a narrower variant of the
+  general screenshot-tool flake noted below. Not evidence of a binding
+  defect - every API call involved completed without error.
 
 ## Why a hand-written native shim, unlike `eb-gtk4`
 
@@ -542,6 +558,83 @@ CALL DockWidgetSetWidget(dock, toolsWidget)
 CALL MainWindowAddDockWidget(win, QtLeftDockWidgetArea, dock)
 ```
 
+## Phase 6 widgets
+
+`QGridLayout`/`QFormLayout` - both real `QLayout` subclasses, applied
+via the same `WidgetSetLayout` (widget.bas) as `QVBoxLayout`/
+`QHBoxLayout` already use (it takes any `QtObject`-based layout handle,
+not just `BoxLayout`):
+
+```basic
+DIM grid AS GridLayout
+grid = NewGridLayout()
+CALL GridLayoutAddWidget(grid, someWidget, 0, 0, 1, 2)  ' row, col, rowSpan, colSpan
+
+DIM form AS FormLayout
+form = NewFormLayout()
+CALL FormLayoutAddRow(form, "Name:", nameLineEdit)
+```
+
+`QButtonGroup` - enables cross-container radio button exclusivity (real
+Qt's own default only groups by immediate parent widget, see "Phase 2
+widgets" above) - a real, named follow-on noted as unbound since
+v0.2.0. The group does **not** take ownership of its buttons (matching
+real Qt - a button's actual parent widget/layout still owns it), but
+does need its own real parent widget so Qt can manage *its* lifetime
+(it's a plain `QObject` organizer with no natural widget-tree owner
+otherwise):
+
+```basic
+DIM group AS ButtonGroup
+group = NewButtonGroup(containerWidget)
+CALL ButtonGroupAddButton(group, radio1)
+CALL ButtonGroupAddButton(group, radio2)
+CALL ButtonGroupConnectButtonClicked(group, @OnChanged, 0)
+```
+
+`QSystemTrayIcon` reuses the existing `Menu`/`Action` types (menu.bas)
+for its context menu - construct a standalone one via the newly-added
+`NewMenu()` (previously menus could only be created through a menu
+bar). Unlike most "container now owns it" cases elsewhere in this
+package, the tray icon does **not** take ownership of its context menu:
+
+```basic
+DIM tray AS SystemTrayIcon
+tray = NewSystemTrayIcon()
+CALL SystemTrayIconSetIconFromTheme(tray, "dialog-information")
+DIM trayMenu AS Menu
+trayMenu = NewMenu()
+DIM quitAction AS Action
+quitAction = MenuAddAction(trayMenu, "Quit")
+CALL ActionConnectTriggered(quitAction, @OnQuit, 0)
+CALL SystemTrayIconSetContextMenu(tray, trayMenu)
+CALL SystemTrayIconShow(tray)
+```
+
+`QDateEdit`/`QTimeEdit`/`QCalendarWidget` - dates/times are marshaled
+as separate int components (year/month/day, hour/minute/second) rather
+than introducing a `QDate`/`QTime` wrapper `TYPE`:
+
+```basic
+DIM d AS DateEdit
+d = NewDateEdit()
+CALL DateEditSetDate(d, 2026, 8, 6)
+DIM y AS INTEGER, m AS INTEGER, day AS INTEGER
+CALL DateEditGetDate(d, y, m, day)
+
+DIM cal AS CalendarWidget
+cal = NewCalendarWidget()
+CALL CalendarWidgetConnectSelectionChanged(cal, @OnDateChanged, 0)
+```
+
+**Note on `QCheckBox`/`QRadioButton` text**: use the new
+`AbstractButtonGetText`, not `ButtonGetText`, on a `CheckBox`/
+`RadioButton` handle - `ButtonGetText` casts to `QPushButton*`
+internally, which is an invalid cast for these sibling
+`QAbstractButton` subclasses (caught while building `phase6_demo.bas`'s
+own `QButtonGroup` handler, which needed to read a clicked radio
+button's label).
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -620,3 +713,19 @@ screenshot-verified live on this host:
   again constructed before the stack's first page was added, applying
   the same lesson `phase3_demo.bas`/`phase4_demo.bas` already
   established.)
+- `phase6_demo.bas` - a form layout (date edit + time edit + a save
+  button), a grid layout (a calendar widget spanning two columns above
+  two `QButtonGroup`-linked radio buttons), and a system tray icon with
+  a `Quit` context-menu action. Confirmed live via keyboard: the radio
+  group's shared `buttonClicked` handler (status bar showing "radio:
+  Weekly"/"radio: Monthly" as focus/arrow-key navigation moved between
+  them - `QButtonGroup` also enables cross-cell arrow-key navigation
+  between the two, a nice side effect of grouping), reading back the
+  saved date/time components (`DateEditGetDate`/`TimeEditGetTime`), and
+  the calendar's `selectionChanged` firing with the correct new
+  year/month/day. **One honest exception** (see "Status" above):
+  `QSystemTrayIcon` construction and API calls all succeeded without
+  error, but the icon's actual on-screen appearance in the desktop
+  panel couldn't be screenshot-confirmed - capturing a specific
+  application window worked fine in the same session, but a full-screen
+  capture (needed to see the desktop panel) failed for tooling reasons.

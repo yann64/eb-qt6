@@ -20,5 +20,12 @@ void* eb_qt6_radiobutton_create(const char* text);
 void eb_qt6_abstractbutton_set_checked(void* button, int checked);
 int eb_qt6_abstractbutton_is_checked(void* button);
 void eb_qt6_abstractbutton_connect_toggled(void* button, EbQt6BoolCallback cb, void* userData);
+// Caller frees the result via eb_qt6_free_string - see
+// ButtonGetText's own doc comment. NOT eb_qt6_button_get_text: that one
+// casts to QPushButton*, which is invalid for a QCheckBox/QRadioButton
+// handle (sibling QAbstractButton subclasses, not related to
+// QPushButton by inheritance) - this function casts to the shared
+// QAbstractButton* base instead, which has text() too.
+char* eb_qt6_abstractbutton_get_text(void* button);
 
 }

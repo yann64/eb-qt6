@@ -12,6 +12,12 @@
 
 extern "C" {
 
+// A standalone, unparented top-level QMenu - needed for contexts with
+// no menu bar to hang it off of (e.g. QSystemTrayIcon::setContextMenu).
+// The caller is responsible for its lifetime unless something else
+// (like setContextMenu) takes it over - see that function's own
+// ownership note.
+void* eb_qt6_menu_create();
 void* eb_qt6_mainwindow_menu_bar(void* window);
 void* eb_qt6_menubar_add_menu(void* menuBar, const char* title);
 void* eb_qt6_menu_add_action(void* menu, const char* text);

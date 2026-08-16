@@ -21,6 +21,15 @@ END TYPE
 TYPE RadioButton EXTENDS AbstractButton
 END TYPE
 
+''' See WidgetShow's own doc comment on ownership - a raw button handle
+''' returned by a callback (e.g. ButtonGroupConnectButtonClicked) should
+''' be wrapped via this, not re-constructed.
+FUNCTION WrapAbstractButton(h AS ANY PTR) AS AbstractButton
+    DIM b AS AbstractButton
+    b.handle = h
+    WrapAbstractButton = b
+END FUNCTION
+
 FUNCTION NewCheckBox(text AS ZSTRING) AS CheckBox
     DIM c AS CheckBox
     c.handle = eb_qt6_checkbox_create(text)
@@ -49,3 +58,12 @@ END FUNCTION
 SUB AbstractButtonConnectToggled(BYVAL b AS AbstractButton, handler AS ANY PTR, userData AS ANY PTR)
     CALL eb_qt6_abstractbutton_connect_toggled(b.handle, handler, userData)
 END SUB
+
+''' See ButtonGetText's own doc comment on the owned-allocation/
+''' FreeQtString convention. Use this, not ButtonGetText, for a
+''' CheckBox/RadioButton handle - ButtonGetText casts to QPushButton*
+''' internally, which is invalid for these sibling QAbstractButton
+''' subclasses.
+FUNCTION AbstractButtonGetText(BYVAL b AS AbstractButton) AS ANY PTR
+    AbstractButtonGetText = eb_qt6_abstractbutton_get_text(b.handle)
+END FUNCTION

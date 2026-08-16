@@ -21,6 +21,14 @@ END TYPE
 TYPE Action EXTENDS QtObject
 END TYPE
 
+''' A standalone, unparented top-level menu - needed for contexts with
+''' no menu bar to hang it off of (e.g. SystemTrayIconSetContextMenu).
+FUNCTION NewMenu() AS Menu
+    DIM m AS Menu
+    m.handle = eb_qt6_menu_create()
+    NewMenu = m
+END FUNCTION
+
 ''' Returns the window's own menu bar (auto-created by Qt the first time
 ''' this is called, matching real QMainWindow::menuBar() semantics).
 FUNCTION MainWindowMenuBar(BYVAL win AS MainWindow) AS MenuBar

@@ -31,4 +31,8 @@ void eb_qt6_abstractbutton_connect_toggled(void* button, EbQt6BoolCallback cb, v
                       });
 }
 
+char* eb_qt6_abstractbutton_get_text(void* button) {
+    return eb_qt6_dup_qstring(static_cast<QAbstractButton*>(button)->text());
+}
+
 }

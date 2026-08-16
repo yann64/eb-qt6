@@ -9,6 +9,8 @@
 
 extern "C" {
 
+void* eb_qt6_menu_create() { return new QMenu(); }
+
 void* eb_qt6_mainwindow_menu_bar(void* window) {
     return static_cast<QMainWindow*>(window)->menuBar();
 }

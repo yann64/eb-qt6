@@ -66,6 +66,12 @@ add_library(ebqt6shim STATIC
     shim_dial.cpp
     shim_lcdnumber.cpp
     shim_dockwidget.cpp
+    shim_gridlayout.cpp
+    shim_formlayout.cpp
+    shim_buttongroup.cpp
+    shim_systemtrayicon.cpp
+    shim_dateedit.cpp
+    shim_calendarwidget.cpp
 )
 target_include_directories(ebqt6shim PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(ebqt6shim PUBLIC Qt6::Widgets)
