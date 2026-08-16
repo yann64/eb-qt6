@@ -22,6 +22,7 @@
 
 #include once "application.bas"
 #include once "raw/qt6_widget.bas"
+#include once "raw/qt6_icon.bas"
 
 TYPE QtWidget EXTENDS QtObject
 END TYPE
@@ -52,6 +53,22 @@ END SUB
 ''' QtWidget (a plain QWidget), not just top-level windows.
 SUB WidgetSetStyleSheet(BYVAL w AS QtWidget, styleSheet AS ZSTRING)
     CALL eb_qt6_widget_set_style_sheet(w.handle, styleSheet)
+END SUB
+
+''' Shown after the mouse hovers over the widget for a moment - real Qt
+''' handles the popup/timing itself.
+SUB WidgetSetToolTip(BYVAL w AS QtWidget, toolTip AS ZSTRING)
+    CALL eb_qt6_widget_set_tool_tip(w.handle, toolTip)
+END SUB
+
+''' Loads a named icon from the current desktop icon theme (e.g.
+''' "accessories-text-editor") as this window's title-bar/taskbar icon.
+SUB WidgetSetWindowIconFromTheme(BYVAL w AS QtWidget, themeIconName AS ZSTRING)
+    CALL eb_qt6_widget_set_window_icon_from_theme(w.handle, themeIconName)
+END SUB
+
+SUB WidgetSetWindowIconFromFile(BYVAL w AS QtWidget, path AS ZSTRING)
+    CALL eb_qt6_widget_set_window_icon_from_file(w.handle, path)
 END SUB
 
 ''' Only meaningful for a widget that hasn't been parented into a

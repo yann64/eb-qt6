@@ -9,6 +9,7 @@
 
 #include once "widget.bas"
 #include once "raw/qt6_menu.bas"
+#include once "raw/qt6_icon.bas"
 
 ''' Real QMenuBar/QMenu are both QWidget subclasses.
 TYPE MenuBar EXTENDS QtWidget
@@ -45,6 +46,15 @@ FUNCTION MenuBarAddMenu(BYVAL menuBar AS MenuBar, title AS ZSTRING) AS Menu
     MenuBarAddMenu = m
 END FUNCTION
 
+''' See WidgetShow's own doc comment on ownership - a raw action handle
+''' returned by a callback (e.g. ActionGroupConnectTriggered) should be
+''' wrapped via this, not re-constructed.
+FUNCTION WrapAction(h AS ANY PTR) AS Action
+    DIM a AS Action
+    a.handle = h
+    WrapAction = a
+END FUNCTION
+
 ''' Creates a new action (e.g. "Open...") on a menu - owned by the menu,
 ''' see this file's own top comment.
 FUNCTION MenuAddAction(BYVAL menu AS Menu, text AS ZSTRING) AS Action
@@ -59,3 +69,28 @@ END FUNCTION
 SUB ActionConnectTriggered(BYVAL a AS Action, handler AS ANY PTR, userData AS ANY PTR)
     CALL eb_qt6_action_connect_triggered(a.handle, handler, userData)
 END SUB
+
+''' Loads a named icon from the current desktop icon theme (e.g.
+''' "application-exit").
+SUB ActionSetIconFromTheme(BYVAL a AS Action, themeIconName AS ZSTRING)
+    CALL eb_qt6_action_set_icon_from_theme(a.handle, themeIconName)
+END SUB
+
+SUB ActionSetIconFromFile(BYVAL a AS Action, path AS ZSTRING)
+    CALL eb_qt6_action_set_icon_from_file(a.handle, path)
+END SUB
+
+''' A checkable action renders with a checkbox/radio-style indicator in
+''' its menu - real Qt requirement for ActionGroup exclusivity
+''' (actiongroup.bas) to be visible/usable.
+SUB ActionSetCheckable(BYVAL a AS Action, checkable AS INTEGER)
+    CALL eb_qt6_action_set_checkable(a.handle, checkable)
+END SUB
+
+SUB ActionSetChecked(BYVAL a AS Action, checked AS INTEGER)
+    CALL eb_qt6_action_set_checked(a.handle, checked)
+END SUB
+
+FUNCTION ActionIsChecked(BYVAL a AS Action) AS INTEGER
+    ActionIsChecked = eb_qt6_action_is_checked(a.handle)
+END FUNCTION

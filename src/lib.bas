@@ -47,6 +47,9 @@
 #include once "raw/qt6_settings.bas"
 #include once "raw/qt6_shortcut.bas"
 #include once "raw/qt6_completer.bas"
+#include once "raw/qt6_icon.bas"
+#include once "raw/qt6_actiongroup.bas"
+#include once "raw/qt6_frame.bas"
 
 #include once "common.bas"
 #include once "application.bas"
@@ -91,3 +94,5 @@
 #include once "settings.bas"
 #include once "shortcut.bas"
 #include once "completer.bas"
+#include once "actiongroup.bas"
+#include once "frame.bas"

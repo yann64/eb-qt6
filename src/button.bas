@@ -5,6 +5,7 @@
 
 #include once "widget.bas"
 #include once "raw/qt6_button.bas"
+#include once "raw/qt6_icon.bas"
 
 TYPE Button EXTENDS QtWidget
 END TYPE
@@ -38,4 +39,14 @@ END FUNCTION
 ''' eb-gtk4/eb-haiku already require for their own callback setters.
 SUB ButtonConnectClicked(BYVAL b AS Button, handler AS ANY PTR, userData AS ANY PTR)
     CALL eb_qt6_button_connect_clicked(b.handle, handler, userData)
+END SUB
+
+''' Loads a named icon from the current desktop icon theme (e.g.
+''' "document-save").
+SUB ButtonSetIconFromTheme(BYVAL b AS Button, themeIconName AS ZSTRING)
+    CALL eb_qt6_button_set_icon_from_theme(b.handle, themeIconName)
+END SUB
+
+SUB ButtonSetIconFromFile(BYVAL b AS Button, path AS ZSTRING)
+    CALL eb_qt6_button_set_icon_from_file(b.handle, path)
 END SUB

@@ -25,5 +25,11 @@ void* eb_qt6_menu_add_action(void* menu, const char* text);
 // QPushButton::clicked, reuses EbQt6VoidCallback (the bool is ignored,
 // same as clicked's own forwarding lambda already does).
 void eb_qt6_action_connect_triggered(void* action, EbQt6VoidCallback cb, void* userData);
+// A checkable action renders with a checkbox/radio-style indicator in
+// its menu - real Qt requirement for QActionGroup exclusivity to be
+// visible/usable (shim_actiongroup.h).
+void eb_qt6_action_set_checkable(void* action, int checkable);
+void eb_qt6_action_set_checked(void* action, int checked);
+int eb_qt6_action_is_checked(void* action);
 
 }

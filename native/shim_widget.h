@@ -35,6 +35,9 @@ void eb_qt6_widget_set_window_title(void* widget, const char* title);
 // CSS-like Qt style sheet syntax (see Qt's own "Qt Style Sheets"
 // docs) - applies to this widget and, unless overridden, its children.
 void eb_qt6_widget_set_style_sheet(void* widget, const char* styleSheet);
+// Shown after the mouse hovers over the widget for a moment - real Qt
+// handles the popup/timing itself, nothing for this shim to manage.
+void eb_qt6_widget_set_tool_tip(void* widget, const char* toolTip);
 // Only meaningful for a widget that hasn't been parented into a layout/
 // central-widget slot yet - see this file's own top comment.
 void eb_qt6_widget_destroy(void* widget);

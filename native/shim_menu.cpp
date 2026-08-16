@@ -30,4 +30,16 @@ void eb_qt6_action_connect_triggered(void* action, EbQt6VoidCallback cb, void* u
                       });
 }
 
+void eb_qt6_action_set_checkable(void* action, int checkable) {
+    static_cast<QAction*>(action)->setCheckable(checkable != 0);
+}
+
+void eb_qt6_action_set_checked(void* action, int checked) {
+    static_cast<QAction*>(action)->setChecked(checked != 0);
+}
+
+int eb_qt6_action_is_checked(void* action) {
+    return static_cast<QAction*>(action)->isChecked() ? 1 : 0;
+}
+
 }

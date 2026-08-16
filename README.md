@@ -86,6 +86,16 @@ evidence of a binding defect:
   feature was confirmed live, including catching (and fixing) a real
   crash in the example itself before publishing (see "Verifying"
   below).
+- **v0.9.0** - icons on buttons/actions/window titles (theme or file,
+  no separate `QIcon` handle), `QActionGroup` (the `QAction` equivalent
+  of `QButtonGroup`), `WidgetSetToolTip`, and `QFrame`. **One honest
+  exception**: tooltips didn't visibly appear under synthetic mouse
+  hover in this sandbox (a new variant of the already-documented
+  mouse-interaction limitation - tooltip display depends on genuine
+  hover *dwell* time, which synthetic `xdotool mousemove` doesn't
+  reliably produce here); `QActionGroup`'s mutual-exclusivity behavior
+  was instead proven correct via the same standalone-C++-spike
+  technique used for `QToolBar` in v0.4.0.
 
 ## Why a hand-written native shim, unlike `eb-gtk4`
 
@@ -772,6 +782,59 @@ completer = NewCompleter(items)
 CALL LineEditSetCompleter(cityEdit, completer)
 ```
 
+## Phase 9 features
+
+Icons - no separate `QIcon` handle/`TYPE`; each function takes a theme
+name (`QIcon::fromTheme`) or file path directly, matching
+`QSystemTrayIcon`'s own `SystemTrayIconSetIconFromTheme` convention
+from v0.6.0, extended here to buttons, actions, and window title bars:
+
+```basic
+CALL ButtonSetIconFromTheme(saveButton, "document-save")
+CALL ActionSetIconFromTheme(quitAction, "application-exit")
+CALL WidgetSetWindowIconFromTheme(win, "accessories-text-editor")
+' Or from a file: ButtonSetIconFromFile/ActionSetIconFromFile/WidgetSetWindowIconFromFile
+```
+
+`QActionGroup` - the `QAction` equivalent of `ButtonGroup` (see "Phase
+6 widgets" above): mutually exclusive actions, e.g. a set of menu items
+where only one can be checked at a time. Actions added to a group must
+be checkable (`ActionSetCheckable`) for exclusivity to be visible:
+
+```basic
+CALL ActionSetCheckable(leftAction, 1)
+CALL ActionSetChecked(leftAction, 1)
+CALL ActionSetCheckable(rightAction, 1)
+
+DIM group AS ActionGroup
+group = NewActionGroup(win)
+CALL ActionGroupAddAction(group, leftAction)
+CALL ActionGroupAddAction(group, rightAction)
+CALL ActionGroupConnectTriggered(group, @OnAlignmentChanged, 0)
+```
+
+`WidgetSetToolTip` - shown after the mouse hovers over any widget for a
+moment; real Qt handles the popup/timing itself:
+
+```basic
+CALL WidgetSetToolTip(saveButton, "Save the current document")
+```
+
+`QFrame` - a simple bordered/shadowed container for visual grouping,
+distinct from `GroupBox` in having no title. A real `QWidget` subclass,
+so `WidgetSetLayout` composes its contents like any other container;
+`FrameSetFrameStyle` combines a shape (`QtFrameBox`/`QtFramePanel`/
+`QtFrameStyledPanel`/`QtFrameHLine`/`QtFrameVLine`/`QtFrameNoFrame`)
+with a shadow (`QtFramePlain`/`QtFrameRaised`/`QtFrameSunken`),
+matching real Qt's own `setFrameStyle(shape | shadow)` idiom:
+
+```basic
+DIM box AS Frame
+box = NewFrame()
+CALL FrameSetFrameStyle(box, QtFrameStyledPanel, QtFrameSunken)
+CALL WidgetSetLayout(box, someLayout)
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -909,3 +972,26 @@ screenshot-verified live on this host:
   rather than an `addTab`/`addWidget`-style call this time), and the
   connected handler touched the not-yet-constructed label. Fixed by
   constructing the status label first, same lesson, new trigger.
+- `phase9_demo.bas` - a themed icon on a button/window title, a `View`
+  menu with three checkable actions grouped by `ActionGroup`, a
+  `QFrame`-bordered panel, and a tooltip. Confirmed live: the button's
+  real icon rendering (a visible save glyph next to its text), the
+  window's real `_NET_WM_ICON` X11 property (inspected directly via
+  `xprop`, not just inferred), and the button's `clicked` signal via
+  keyboard activation. **One honest exception**: hovering the mouse
+  over the button never produced a visible tooltip popup in this
+  sandbox, even with a deliberate enter-then-settle mouse sequence - a
+  new variant of the already-documented synthetic-mouse-input
+  limitation (tooltip display depends on genuine hover dwell time,
+  which `xdotool mousemove` doesn't reliably produce here).
+  `ActionGroup`'s own exclusivity logic was **not** confirmed live
+  either - a small popup window did briefly appear once after an
+  `Alt+V` mnemonic attempt, but it was too fast to capture and
+  ambiguous (possibly a delayed tooltip rather than the menu itself),
+  and repeated attempts afterward produced no popup at all - so rather
+  than overclaim, the binding was instead proven correct independently
+  via a standalone C++ spike (same technique as `QToolBar` in v0.4.0):
+  calling `QAction::trigger()` directly on one of the group's actions
+  fired the connected callback and correctly flipped the checked state
+  of the other action to false, confirming the exclusivity logic itself
+  works, with the gap isolated to input delivery in this sandbox.
