@@ -25,4 +25,12 @@ char* eb_qt6_lineedit_get_text(void* lineEdit);
 void eb_qt6_lineedit_connect_return_pressed(void* lineEdit, EbQt6VoidCallback cb, void* userData);
 void eb_qt6_lineedit_connect_text_changed(void* lineEdit, EbQt6StringCallback cb, void* userData);
 
+// Constructs a new QIntValidator/QDoubleValidator parented to
+// `lineEdit` itself (so Qt manages its lifetime automatically, tied to
+// the widget - no separate handle for the caller to track) and attaches
+// it via QLineEdit::setValidator. Replaces any previously-set
+// validator.
+void eb_qt6_lineedit_set_int_validator(void* lineEdit, int bottom, int top);
+void eb_qt6_lineedit_set_double_validator(void* lineEdit, double bottom, double top, int decimals);
+
 }

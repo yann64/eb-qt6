@@ -44,6 +44,9 @@
 #include once "raw/qt6_timer.bas"
 #include once "raw/qt6_clipboard.bas"
 #include once "raw/qt6_inputdialog.bas"
+#include once "raw/qt6_settings.bas"
+#include once "raw/qt6_shortcut.bas"
+#include once "raw/qt6_completer.bas"
 
 #include once "common.bas"
 #include once "application.bas"
@@ -85,3 +88,6 @@
 #include once "timer.bas"
 #include once "clipboard.bas"
 #include once "inputdialog.bas"
+#include once "settings.bas"
+#include once "shortcut.bas"
+#include once "completer.bas"

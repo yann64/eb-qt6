@@ -39,3 +39,18 @@ END SUB
 SUB LineEditConnectTextChanged(BYVAL e AS LineEdit, handler AS ANY PTR, userData AS ANY PTR)
     CALL eb_qt6_lineedit_connect_text_changed(e.handle, handler, userData)
 END SUB
+
+''' Restricts typed text to integers in [bottom, top] - constructs a
+''' new validator parented to `e` itself (Qt manages its lifetime
+''' automatically, tied to the widget - no separate handle to track).
+''' Replaces any previously-set validator.
+SUB LineEditSetIntValidator(BYVAL e AS LineEdit, bottom AS INTEGER, top AS INTEGER)
+    CALL eb_qt6_lineedit_set_int_validator(e.handle, bottom, top)
+END SUB
+
+''' Restricts typed text to a decimal number in [bottom, top] with at
+''' most `decimals` digits after the point - same parented-to-`e`
+''' lifetime as LineEditSetIntValidator.
+SUB LineEditSetDoubleValidator(BYVAL e AS LineEdit, bottom AS DOUBLE, top AS DOUBLE, decimals AS INTEGER)
+    CALL eb_qt6_lineedit_set_double_validator(e.handle, bottom, top, decimals)
+END SUB

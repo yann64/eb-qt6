@@ -78,6 +78,14 @@ evidence of a binding defect:
   confirmed live, though verifying it took noticeably more careful,
   step-by-step keyboard navigation than earlier phases (see "Verifying"
   below).
+- **v0.8.0** - `QSettings` (persistent INI-backed app settings),
+  `QShortcut` (independent of the menu system - useful precisely where
+  menu *opening* couldn't be verified, see above), `QIntValidator`/
+  `QDoubleValidator` (attached directly to an existing `QLineEdit`, no
+  new widget type), and `QCompleter`. No new honest exceptions - every
+  feature was confirmed live, including catching (and fixing) a real
+  crash in the example itself before publishing (see "Verifying"
+  below).
 
 ## Why a hand-written native shim, unlike `eb-gtk4`
 
@@ -705,6 +713,65 @@ existing base):
 CALL WidgetSetStyleSheet(myLabel, "background-color: #dfd; font-size: 18px; padding: 8px;")
 ```
 
+## Phase 8 features
+
+`QSettings` - persistent key/value app settings; on Linux (this host)
+backed by a real INI-format file under
+`~/.config/<organization>/<application>.conf` (confirmed by reading the
+file directly after a save - real Qt's own `NativeFormat` default
+resolves to INI on Unix, unlike Windows' registry). A plain `QObject`
+like `QButtonGroup`/`QTimer` above - pass a real parent widget so Qt
+manages its lifetime:
+
+```basic
+DIM settings AS Settings
+settings = NewSettings("MyCompany", "MyApp", win)
+CALL SettingsSetString(settings, "username", "alice")
+CALL SettingsSync(settings)   ' forces a write now - real Qt already does this periodically and on destruction
+DIM raw AS ANY PTR
+raw = SettingsGetString(settings, "username", "(default)")
+```
+
+`QShortcut` - unlike `QTimer`/`Settings`, `parent` is not optional here:
+real `QShortcut` is scoped to a window via its parent widget
+(`Qt::WindowShortcut` context, the real Qt default) and has no
+meaningful null-parent case. Independent of the menu system entirely -
+useful precisely where interactive menu *opening* couldn't be verified
+in this sandbox (see "Status" above):
+
+```basic
+DIM quitShortcut AS Shortcut
+quitShortcut = NewShortcut("Ctrl+Q", win)
+CALL ShortcutConnectActivated(quitShortcut, @OnQuit, 0)
+```
+
+`QIntValidator`/`QDoubleValidator` attach directly to an existing
+`QLineEdit` - no new widget type or separate handle to track, since the
+shim constructs the validator parented to the line edit itself:
+
+```basic
+CALL LineEditSetIntValidator(ageEdit, 0, 120)
+CALL LineEditSetDoubleValidator(priceEdit, 0.0, 999.99, 2)
+```
+
+`QCompleter` - built from a `StringList` (the same builder
+`InputDialogGetItem` uses, see "Phase 7 features" above), attached to a
+`QLineEdit`. Like `InputDialogGetItem`, the completer **consumes and
+destroys** the list it's given; unlike most types in this package, the
+line edit then takes ownership of the completer itself (matching real
+`QLineEdit::setCompleter` semantics) - no separate destroy function
+needed for either:
+
+```basic
+DIM items AS StringList
+items = NewStringList()
+CALL StringListAdd(items, "Paris")
+CALL StringListAdd(items, "London")
+DIM completer AS Completer
+completer = NewCompleter(items)
+CALL LineEditSetCompleter(cityEdit, completer)
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -818,3 +885,27 @@ screenshot-verified live on this host:
   `getInt`'s default value accepted and correctly read back via its
   `BYREF` out-parameters, `getItem`'s combo-box selection navigated with
   `Down` and accepted).
+- `phase8_demo.bas` - an age field restricted by `QIntValidator`, a city
+  field with `QCompleter` autocomplete, a `Ctrl+Q` `QShortcut` that
+  quits, and `QSettings` persisting the age across real process
+  restarts. **No new honest exceptions** - every feature was confirmed
+  live: typing `"abc42xyz"` into the age field left only `"42"`
+  (`QIntValidator` rejecting the letters, confirmed via the resulting
+  `textChanged` value), typing `"Lon"` into the city field produced a
+  real popup window showing `"London"` (`QCompleter` - the popup closes
+  fast enough that it took a same-shell type-then-screenshot to catch
+  it, rather than separate sequential tool calls), `Ctrl+Q` cleanly
+  exited the running process (`QShortcut`, confirmed via the process's
+  own exit code, not a screenshot), and relaunching the compiled binary
+  fresh showed the previously-saved age pre-loaded, with the real
+  `~/.config/eb-qt6/phase8_demo.conf` INI file inspected directly to
+  confirm `QSettings` actually persisted to disk, not just in-memory.
+  **Caught and fixed a real crash before publishing**: the original
+  draft called `LineEditSetText` to pre-fill the age field from
+  `QSettings` before the shared status label existed - `setText` fires
+  `textChanged` synchronously (confirmed via `gdb`, same class of
+  "signal fires as a side effect of setup" issue as `QTabWidget`/
+  `QTreeWidget`/`QStackedWidget` in earlier phases, just via `setText`
+  rather than an `addTab`/`addWidget`-style call this time), and the
+  connected handler touched the not-yet-constructed label. Fixed by
+  constructing the status label first, same lesson, new trigger.

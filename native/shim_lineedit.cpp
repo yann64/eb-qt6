@@ -1,5 +1,7 @@
 #include "shim_lineedit.h"
 
+#include <QDoubleValidator>
+#include <QIntValidator>
 #include <QLineEdit>
 #include <QObject>
 #include <QString>
@@ -34,6 +36,16 @@ void eb_qt6_lineedit_connect_text_changed(void* lineEdit, EbQt6StringCallback cb
                               eb_qt6_free_string(utf8);
                           }
                       });
+}
+
+void eb_qt6_lineedit_set_int_validator(void* lineEdit, int bottom, int top) {
+    QLineEdit* edit = static_cast<QLineEdit*>(lineEdit);
+    edit->setValidator(new QIntValidator(bottom, top, edit));
+}
+
+void eb_qt6_lineedit_set_double_validator(void* lineEdit, double bottom, double top, int decimals) {
+    QLineEdit* edit = static_cast<QLineEdit*>(lineEdit);
+    edit->setValidator(new QDoubleValidator(bottom, top, decimals, edit));
 }
 
 }
