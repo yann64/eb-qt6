@@ -1,6 +1,7 @@
 #include "shim_widget.h"
 
 #include <QBoxLayout>
+#include <QFont>
 #include <QMainWindow>
 #include <QString>
 #include <QWidget>
@@ -38,6 +39,25 @@ void eb_qt6_widget_set_maximum_size(void* widget, int width, int height) {
 void eb_qt6_widget_set_focus(void* widget) { static_cast<QWidget*>(widget)->setFocus(); }
 
 int eb_qt6_widget_has_focus(void* widget) { return static_cast<QWidget*>(widget)->hasFocus() ? 1 : 0; }
+
+void eb_qt6_widget_set_enabled(void* widget, int enabled) {
+    static_cast<QWidget*>(widget)->setEnabled(enabled != 0);
+}
+
+int eb_qt6_widget_is_enabled(void* widget) { return static_cast<QWidget*>(widget)->isEnabled() ? 1 : 0; }
+
+void eb_qt6_widget_set_visible(void* widget, int visible) {
+    static_cast<QWidget*>(widget)->setVisible(visible != 0);
+}
+
+int eb_qt6_widget_is_visible(void* widget) { return static_cast<QWidget*>(widget)->isVisible() ? 1 : 0; }
+
+void eb_qt6_widget_set_font(void* widget, const char* family, int pointSize, int bold, int italic) {
+    QFont font(QString::fromUtf8(family), pointSize);
+    font.setBold(bold != 0);
+    font.setItalic(italic != 0);
+    static_cast<QWidget*>(widget)->setFont(font);
+}
 
 void eb_qt6_widget_destroy(void* widget) {
     // deleteLater(), never a raw `delete` - see this file's own header

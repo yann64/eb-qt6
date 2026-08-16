@@ -58,6 +58,17 @@ void eb_qt6_widget_set_maximum_size(void* widget, int width, int height);
 // set_focus.
 void eb_qt6_widget_set_focus(void* widget);
 int eb_qt6_widget_has_focus(void* widget);
+void eb_qt6_widget_set_enabled(void* widget, int enabled);
+int eb_qt6_widget_is_enabled(void* widget);
+// Distinct from eb_qt6_widget_show - a widget hidden this way is not
+// merely un-shown, it's actively hidden even if a parent later shows
+// itself again (matches real QWidget::hide()/setVisible(false)).
+void eb_qt6_widget_set_visible(void* widget, int visible);
+int eb_qt6_widget_is_visible(void* widget);
+// Sets the widget's font (family, point size, and bold/italic flags in
+// one call, matching QFont's own most-common constructor shape) -
+// affects this widget and, unless overridden, its children.
+void eb_qt6_widget_set_font(void* widget, const char* family, int pointSize, int bold, int italic);
 // Only meaningful for a widget that hasn't been parented into a layout/
 // central-widget slot yet - see this file's own top comment.
 void eb_qt6_widget_destroy(void* widget);

@@ -50,6 +50,7 @@
 #include once "raw/qt6_icon.bas"
 #include once "raw/qt6_actiongroup.bas"
 #include once "raw/qt6_frame.bas"
+#include once "raw/qt6_scrollbar.bas"
 
 #include once "common.bas"
 #include once "application.bas"
@@ -96,3 +97,4 @@
 #include once "completer.bas"
 #include once "actiongroup.bas"
 #include once "frame.bas"
+#include once "scrollbar.bas"

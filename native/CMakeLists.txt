@@ -81,6 +81,7 @@ add_library(ebqt6shim STATIC
     shim_icon.cpp
     shim_actiongroup.cpp
     shim_frame.cpp
+    shim_scrollbar.cpp
 )
 target_include_directories(ebqt6shim PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(ebqt6shim PUBLIC Qt6::Widgets)

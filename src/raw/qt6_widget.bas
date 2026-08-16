@@ -12,6 +12,11 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_widget_set_maximum_size(ByVal widget AS ANY PTR, ByVal width AS INTEGER, ByVal height AS INTEGER)
     Declare Sub eb_qt6_widget_set_focus(ByVal widget AS ANY PTR)
     Declare Function eb_qt6_widget_has_focus(ByVal widget AS ANY PTR) AS INTEGER
+    Declare Sub eb_qt6_widget_set_enabled(ByVal widget AS ANY PTR, ByVal enabled AS INTEGER)
+    Declare Function eb_qt6_widget_is_enabled(ByVal widget AS ANY PTR) AS INTEGER
+    Declare Sub eb_qt6_widget_set_visible(ByVal widget AS ANY PTR, ByVal visible AS INTEGER)
+    Declare Function eb_qt6_widget_is_visible(ByVal widget AS ANY PTR) AS INTEGER
+    Declare Sub eb_qt6_widget_set_font(ByVal widget AS ANY PTR, ByVal family AS ZSTRING, ByVal pointSize AS INTEGER, ByVal bold AS INTEGER, ByVal italic AS INTEGER)
     Declare Sub eb_qt6_widget_destroy(ByVal widget AS ANY PTR)
 
     Declare Function eb_qt6_mainwindow_create() AS ANY PTR

@@ -118,6 +118,18 @@ evidence of a binding defect:
   doesn't work" - it's specifically that this sandbox's window manager
   never completes the activation handshake Qt's focus-tracking depends
   on.
+- **v0.11.0** - `WidgetSetEnabled`/`IsEnabled`, `WidgetSetVisible`/
+  `IsVisible`, `WidgetSetFont`, and a standalone `QScrollBar` (a real
+  gap found while surveying the existing surface - enable/disable and
+  font control hadn't been bound at all through ten prior phases).
+  **One honest exception**: `QScrollBar`'s value couldn't be changed
+  via keyboard in this sandbox (real Qt gives `QScrollBar` a different
+  default focus policy than `QSlider` - it's often not a `Tab` stop at
+  all in the native style) - the binding itself was instead proven
+  correct via the same standalone-C++-spike technique used for
+  `QToolBar`/`QActionGroup`: calling `QScrollBar::setValue()` directly
+  fired the connected `valueChanged` callback and updated the read-back
+  value exactly as expected.
 
 ## Why a hand-written native shim, unlike `eb-gtk4`
 
@@ -909,6 +921,43 @@ CALL WidgetSetFocus(nameEdit)
 CALL QTimerStart(focusCheckTimer)
 ```
 
+## Phase 11 features
+
+`WidgetSetEnabled`/`IsEnabled` - a disabled widget is grayed out and
+stops accepting input; real Qt also disables (transitively) any child
+widgets, unless one of them was explicitly re-enabled itself:
+
+```basic
+CALL WidgetSetEnabled(myLineEdit, 0)
+```
+
+`WidgetSetVisible`/`IsVisible` - distinct from `WidgetShow`: a widget
+hidden this way is actively hidden even if a parent later shows itself
+again (matches real `QWidget::hide()`/`setVisible(false)`):
+
+```basic
+CALL WidgetSetVisible(myLabel, 0)
+```
+
+`WidgetSetFont` - family, point size, and bold/italic flags in one
+call, matching `QFont`'s own most-common constructor shape - affects
+this widget and, unless overridden, its children:
+
+```basic
+CALL WidgetSetFont(myLabel, "Serif", 18, 1, 1)   ' bold italic
+```
+
+`QScrollBar`, used standalone - mirrors `QSlider`'s own function shape
+exactly (both are real `QAbstractSlider` subclasses); `QtHorizontal`/
+`QtVertical` (common.bas) apply here too:
+
+```basic
+DIM bar AS ScrollBar
+bar = NewScrollBar(QtHorizontal)
+CALL ScrollBarSetRange(bar, 0, 100)
+CALL ScrollBarConnectValueChanged(bar, @OnChanged, 0)
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -1091,3 +1140,18 @@ screenshot-verified live on this host:
   this sandbox's WM never completes, distinct from (and narrower than)
   the general "clicks/keys don't reach the target" limitations
   documented elsewhere - individual keystrokes still work fine here.
+- `phase11_demo.bas` - enable/disable and show/hide toggles on a target
+  `LineEdit`/`Label`, a custom font applied to another `Label`, and a
+  standalone `QScrollBar` driving an `LCDNumber`. Confirmed live via
+  keyboard: `WidgetSetEnabled` visibly graying out the line edit and
+  `WidgetIsEnabled` reading back correctly, `WidgetSetVisible` actually
+  removing the label from layout (not just repositioning it) and
+  `WidgetIsVisible` reading back correctly, and `WidgetSetFont`
+  rendering real serif/bold/italic text. **One honest exception**: the
+  `QScrollBar` never received keyboard focus via `Tab` in this sandbox
+  (plausible real Qt behavior - `QScrollBar`'s default focus policy
+  often excludes it from the native style's tab order, unlike
+  `QSlider`) - the binding was instead proven correct via a standalone
+  C++ spike: calling `QScrollBar::setValue()` directly fired the
+  connected `valueChanged` callback and updated the read-back value
+  exactly as expected.

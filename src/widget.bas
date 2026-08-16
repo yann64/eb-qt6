@@ -88,6 +88,35 @@ FUNCTION WidgetHasFocus(BYVAL w AS QtWidget) AS INTEGER
     WidgetHasFocus = eb_qt6_widget_has_focus(w.handle)
 END FUNCTION
 
+''' A disabled widget is grayed out and stops accepting input - real Qt
+''' also disables (transitively) any child widgets, unless one of them
+''' was explicitly re-enabled itself.
+SUB WidgetSetEnabled(BYVAL w AS QtWidget, enabled AS INTEGER)
+    CALL eb_qt6_widget_set_enabled(w.handle, enabled)
+END SUB
+
+FUNCTION WidgetIsEnabled(BYVAL w AS QtWidget) AS INTEGER
+    WidgetIsEnabled = eb_qt6_widget_is_enabled(w.handle)
+END FUNCTION
+
+''' Distinct from WidgetShow - a widget hidden this way is actively
+''' hidden even if a parent later shows itself again (matches real
+''' QWidget::hide()/setVisible(false)).
+SUB WidgetSetVisible(BYVAL w AS QtWidget, visible AS INTEGER)
+    CALL eb_qt6_widget_set_visible(w.handle, visible)
+END SUB
+
+FUNCTION WidgetIsVisible(BYVAL w AS QtWidget) AS INTEGER
+    WidgetIsVisible = eb_qt6_widget_is_visible(w.handle)
+END FUNCTION
+
+''' Sets the widget's font (family, point size, and bold/italic flags
+''' in one call) - affects this widget and, unless overridden, its
+''' children.
+SUB WidgetSetFont(BYVAL w AS QtWidget, family AS ZSTRING, pointSize AS INTEGER, bold AS INTEGER, italic AS INTEGER)
+    CALL eb_qt6_widget_set_font(w.handle, family, pointSize, bold, italic)
+END SUB
+
 ''' Loads a named icon from the current desktop icon theme (e.g.
 ''' "accessories-text-editor") as this window's title-bar/taskbar icon.
 SUB WidgetSetWindowIconFromTheme(BYVAL w AS QtWidget, themeIconName AS ZSTRING)
