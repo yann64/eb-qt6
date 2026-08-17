@@ -110,6 +110,18 @@ void eb_qt6_widget_show_full_screen(void* widget);
 void eb_qt6_widget_show_normal(void* widget);
 int eb_qt6_widget_is_maximized(void* widget);
 int eb_qt6_widget_is_full_screen(void* widget);
+// `policy` matches real Qt::FocusPolicy values - NOT small sequential
+// integers, a real Qt::FocusPolicy is a bitmask (confirmed by direct
+// reproduction, not assumed - the naive 0/1/2/3/4 guess is wrong):
+// 0=NoFocus (the default for a plain QWidget from eb_qt6_widget_create
+// - see this file's own eb_qt6_widget_set_focus comment on why that
+// matters), 1=TabFocus (Tab key only), 2=ClickFocus (mouse click
+// only), 11=StrongFocus (Tab and click - most interactive widgets
+// already default to this on their own), 15=WheelFocus (StrongFocus
+// plus mouse wheel). Callers should use this package's own
+// QtNoFocus/QtTabFocus/QtClickFocus/QtStrongFocus/QtWheelFocus
+// constants (widget.bas) rather than hand-rolling these values.
+void eb_qt6_widget_set_focus_policy(void* widget, int policy);
 
 void* eb_qt6_mainwindow_create();
 void eb_qt6_mainwindow_set_central_widget(void* window, void* widget);

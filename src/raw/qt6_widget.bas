@@ -33,6 +33,7 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_widget_show_normal(ByVal widget AS ANY PTR)
     Declare Function eb_qt6_widget_is_maximized(ByVal widget AS ANY PTR) AS INTEGER
     Declare Function eb_qt6_widget_is_full_screen(ByVal widget AS ANY PTR) AS INTEGER
+    Declare Sub eb_qt6_widget_set_focus_policy(ByVal widget AS ANY PTR, ByVal policy AS INTEGER)
 
     Declare Function eb_qt6_mainwindow_create() AS ANY PTR
     Declare Sub eb_qt6_mainwindow_set_central_widget(ByVal window AS ANY PTR, ByVal widget AS ANY PTR)

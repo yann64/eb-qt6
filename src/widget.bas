@@ -242,6 +242,25 @@ FUNCTION WidgetIsFullScreen(BYVAL w AS QtWidget) AS INTEGER
     WidgetIsFullScreen = eb_qt6_widget_is_full_screen(w.handle)
 END FUNCTION
 
+''' Matches real Qt::FocusPolicy values - pass to WidgetSetFocusPolicy.
+''' CONFIRMED (via a minimal standalone spike, not assumed): a real
+''' Qt::FocusPolicy is a bitmask, not small sequential integers - the
+''' naive 0/1/2/3/4 guess is wrong; StrongFocus/WheelFocus in
+''' particular are 11/15, not 3/4.
+CONST QtNoFocus = 0
+CONST QtTabFocus = 1
+CONST QtClickFocus = 2
+CONST QtStrongFocus = 11
+CONST QtWheelFocus = 15
+
+''' A plain QWidget from NewWidget() defaults to QtNoFocus (never
+''' focusable at all, by Tab or click) - most interactive widgets
+''' (Button, LineEdit, ...) already default to QtStrongFocus on their
+''' own and don't need this called.
+SUB WidgetSetFocusPolicy(BYVAL w AS QtWidget, policy AS INTEGER)
+    CALL eb_qt6_widget_set_focus_policy(w.handle, policy)
+END SUB
+
 ''' See WidgetShow's own doc comment on ownership - a widget already
 ''' parented elsewhere should be wrapped via this, not re-constructed.
 FUNCTION WrapWidget(h AS ANY PTR) AS QtWidget

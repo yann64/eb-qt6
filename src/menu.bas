@@ -94,3 +94,13 @@ END SUB
 FUNCTION ActionIsChecked(BYVAL a AS Action) AS INTEGER
     ActionIsChecked = eb_qt6_action_is_checked(a.handle)
 END FUNCTION
+
+''' `keySequence` is a real QKeySequence string (e.g. "Ctrl+S",
+''' "Ctrl+Shift+N") - shows in the menu alongside the action's text and
+''' activates it from anywhere in the window. Unlike QShortcut
+''' (shortcut.bas), this one is visible to the user (rendered in the
+''' menu itself), so prefer it for anything that already has a menu
+''' entry.
+SUB ActionSetShortcut(BYVAL a AS Action, keySequence AS ZSTRING)
+    CALL eb_qt6_action_set_shortcut(a.handle, keySequence)
+END SUB

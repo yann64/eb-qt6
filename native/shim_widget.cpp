@@ -102,6 +102,10 @@ int eb_qt6_widget_is_maximized(void* widget) { return static_cast<QWidget*>(widg
 
 int eb_qt6_widget_is_full_screen(void* widget) { return static_cast<QWidget*>(widget)->isFullScreen() ? 1 : 0; }
 
+void eb_qt6_widget_set_focus_policy(void* widget, int policy) {
+    static_cast<QWidget*>(widget)->setFocusPolicy(static_cast<Qt::FocusPolicy>(policy));
+}
+
 void* eb_qt6_mainwindow_create() {
     // Qt::WA_DeleteOnClose deliberately left unset - closing hides, does
     // not delete, matching eb-gtk4's own explicit-lifetime philosophy

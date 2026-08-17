@@ -8,4 +8,7 @@ Extern "C" Lib "ebqt6shim"
     Declare Function eb_qt6_abstractbutton_is_checked(ByVal button AS ANY PTR) AS INTEGER
     Declare Sub eb_qt6_abstractbutton_connect_toggled(ByVal button AS ANY PTR, ByVal cb AS ANY PTR, ByVal userData AS ANY PTR)
     Declare Function eb_qt6_abstractbutton_get_text(ByVal button AS ANY PTR) AS ANY PTR
+    Declare Sub eb_qt6_checkbox_set_tristate(ByVal checkbox AS ANY PTR, ByVal tristate AS INTEGER)
+    Declare Sub eb_qt6_checkbox_set_check_state(ByVal checkbox AS ANY PTR, ByVal state AS INTEGER)
+    Declare Function eb_qt6_checkbox_check_state(ByVal checkbox AS ANY PTR) AS INTEGER
 End Extern

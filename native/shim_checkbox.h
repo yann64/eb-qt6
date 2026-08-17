@@ -28,4 +28,16 @@ void eb_qt6_abstractbutton_connect_toggled(void* button, EbQt6BoolCallback cb, v
 // QAbstractButton* base instead, which has text() too.
 char* eb_qt6_abstractbutton_get_text(void* button);
 
+// Tristate is a QCheckBox-only concept (real QRadioButton has no
+// partially-checked state) - these three take a checkbox handle
+// specifically, not the shared AbstractButton base above.
+void eb_qt6_checkbox_set_tristate(void* checkbox, int tristate);
+// `state` and the return value match real Qt::CheckState: 0=Unchecked,
+// 1=PartiallyChecked (only reachable via eb_qt6_checkbox_set_check_state
+// itself when tristate is on - real Qt doesn't let a user click their
+// way into it directly, only through this or a parent/child checkbox
+// relationship this shim doesn't implement), 2=Checked.
+void eb_qt6_checkbox_set_check_state(void* checkbox, int state);
+int eb_qt6_checkbox_check_state(void* checkbox);
+
 }

@@ -31,5 +31,12 @@ void eb_qt6_action_connect_triggered(void* action, EbQt6VoidCallback cb, void* u
 void eb_qt6_action_set_checkable(void* action, int checkable);
 void eb_qt6_action_set_checked(void* action, int checked);
 int eb_qt6_action_is_checked(void* action);
+// `keySequence` is a real QKeySequence string (e.g. "Ctrl+S",
+// "Ctrl+Shift+N") - shows in the menu alongside the action's text and
+// activates it from anywhere in the window, the same real Qt mechanism
+// QShortcut (shim_shortcut.h) provides standalone. Unlike QShortcut,
+// this one is visible to the user (rendered in the menu itself), so
+// prefer it for anything that already has a menu entry.
+void eb_qt6_action_set_shortcut(void* action, const char* keySequence);
 
 }

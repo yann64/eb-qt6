@@ -9,4 +9,5 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_action_set_checkable(ByVal action AS ANY PTR, ByVal checkable AS INTEGER)
     Declare Sub eb_qt6_action_set_checked(ByVal action AS ANY PTR, ByVal checked AS INTEGER)
     Declare Function eb_qt6_action_is_checked(ByVal action AS ANY PTR) AS INTEGER
+    Declare Sub eb_qt6_action_set_shortcut(ByVal action AS ANY PTR, ByVal keySequence AS ZSTRING)
 End Extern

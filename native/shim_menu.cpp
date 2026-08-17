@@ -1,6 +1,7 @@
 #include "shim_menu.h"
 
 #include <QAction>
+#include <QKeySequence>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
@@ -40,6 +41,10 @@ void eb_qt6_action_set_checked(void* action, int checked) {
 
 int eb_qt6_action_is_checked(void* action) {
     return static_cast<QAction*>(action)->isChecked() ? 1 : 0;
+}
+
+void eb_qt6_action_set_shortcut(void* action, const char* keySequence) {
+    static_cast<QAction*>(action)->setShortcut(QKeySequence(QString::fromUtf8(keySequence)));
 }
 
 }

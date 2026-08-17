@@ -388,6 +388,34 @@ evidence of a binding defect:
   (`isDefault()`/`autoDefault()` reflected the set values; `isExpanded()`
   flipped true then false; `QToolTip::isVisible()`/`text()` reflected
   the shown text).
+- **v0.23.0** - widget focus policy (`WidgetSetFocusPolicy` - a plain
+  container `QWidget` from `NewWidget()` defaults to never focusable at
+  all, referenced as a known gap since v0.10.0's own `WidgetSetFocus`
+  discussion), `QAction` keyboard shortcuts (`ActionSetShortcut` -
+  visible in the menu itself, unlike the existing standalone
+  `QShortcut`), tristate `QCheckBox` (`SetTristate`/`SetCheckState`/
+  `CheckState`), and `QPixmap` file saving (`PixmapSave`). **A real bug
+  caught by this phase's own spike, not shipped**: `Qt::FocusPolicy` is
+  a bitmask, not small sequential integers - the naive
+  `0=NoFocus,1=TabFocus,2=ClickFocus,3=StrongFocus,4=WheelFocus`
+  guess is wrong (confirmed via a tiny standalone check against the
+  real enum); `StrongFocus`/`WheelFocus` are actually `11`/`15`. Caught
+  during this phase's own verification, before publishing, by directly
+  reading back `QWidget::focusPolicy()` after calling the new setter
+  and finding it didn't match `Qt::StrongFocus` - fixed in this
+  package's own `QtStrongFocus`/`QtWheelFocus` constants (`widget.bas`)
+  before shipping. **One honest exception, the tenth phase in a row
+  (14-23) hitting the same `xdotool windowactivate` flakiness**: `Ctrl+S`
+  and `Tab`/`Space` didn't register live. What confirmed fully live in
+  one screenshot, no interaction needed: a real `Pixmap` saved to a
+  scratch file and reloaded from disk, both reporting matching `64x64`
+  dimensions - the third feature in this package (after
+  `QSyntaxHighlighter` and the clipboard round trip) needing zero
+  interaction to verify convincingly. `ActionSetShortcut`'s wiring,
+  `WidgetSetFocusPolicy` (with the corrected values), and `CheckBox`
+  tristate were instead confirmed via a standalone C++ spike - all
+  matched real Qt behavior exactly once the focus-policy bug above was
+  fixed.
 
 ## Why event filters, not a widget subclass
 
@@ -1653,6 +1681,39 @@ CALL ToolTipShowText(400, 300, "Validation failed")
 CALL ToolTipHide()
 ```
 
+## Phase 23 features
+
+Widget focus policy - a plain container `QWidget` from `NewWidget()`
+defaults to `QtNoFocus` (never focusable at all); most interactive
+widgets (`Button`, `LineEdit`, ...) already default to `QtStrongFocus`
+on their own and don't need this called:
+
+```basic
+CALL WidgetSetFocusPolicy(myContainer, QtStrongFocus)
+```
+
+`QAction` keyboard shortcuts - visible in the menu itself, unlike the
+existing standalone `QShortcut`:
+
+```basic
+CALL ActionSetShortcut(saveAction, "Ctrl+S")
+```
+
+Tristate `QCheckBox`:
+
+```basic
+CALL CheckBoxSetTristate(myCheckBox, 1)
+CALL CheckBoxSetCheckState(myCheckBox, QtPartiallyChecked)
+PRINT CheckBoxCheckState(myCheckBox)
+```
+
+`QPixmap` file saving:
+
+```basic
+DIM ok AS INTEGER
+ok = PixmapSave(myPixmap, "output.png")
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -2057,3 +2118,25 @@ screenshot-verified live on this host:
   `isExpanded()` flipped true then false across `ExpandAll`/
   `CollapseAll`; `QToolTip::isVisible()`/`text()` reflected the shown
   text after `showText()`).
+- `phase23_demo.bas` - saves a real `Pixmap` to a scratch file and
+  reloads it at startup, a `File` menu with a `Ctrl+S`-shortcut `Save`
+  action, a focus-enabled plain container widget, and a tristate
+  `CheckBox`. Confirmed live in a single screenshot, no interaction
+  needed: the save-then-reload round trip reporting matching `64x64`
+  dimensions both ways. **A real bug caught by this phase's own spike,
+  not shipped** - see "Status" above: the naive
+  `Qt::FocusPolicy` value guess (`0`/`1`/`2`/`3`/`4`) was wrong,
+  `StrongFocus`/`WheelFocus` are actually `11`/`15` (a real bitmask,
+  not sequential integers) - caught and fixed in this package's own
+  constants before publishing, confirmed by reading back
+  `QWidget::focusPolicy()` and finding a mismatch. **One honest
+  exception, the tenth phase in a row (14-23) hitting the same
+  `xdotool windowactivate` flakiness**: `Ctrl+S` and `Tab`/`Space`
+  didn't register live. `ActionSetShortcut`'s wiring,
+  `WidgetSetFocusPolicy` (with the corrected values), and `CheckBox`
+  tristate were instead confirmed via a standalone C++ spike - all
+  matched real Qt behavior exactly once the focus-policy fix was
+  applied (`QAction::shortcut()` matched `"Ctrl+S"` and
+  `QAction::trigger()` reached the connected callback;
+  `focusPolicy() == Qt::StrongFocus`; `checkState() == 1`, i.e.
+  `PartiallyChecked`).

@@ -17,4 +17,8 @@ int eb_qt6_pixmap_height(void* pixmap) { return static_cast<QPixmap*>(pixmap)->h
 
 void eb_qt6_pixmap_destroy(void* pixmap) { delete static_cast<QPixmap*>(pixmap); }
 
+int eb_qt6_pixmap_save(void* pixmap, const char* path) {
+    return static_cast<QPixmap*>(pixmap)->save(QString::fromUtf8(path)) ? 1 : 0;
+}
+
 }

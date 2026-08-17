@@ -6,4 +6,5 @@ Extern "C" Lib "ebqt6shim"
     Declare Function eb_qt6_pixmap_width(ByVal pixmap AS ANY PTR) AS INTEGER
     Declare Function eb_qt6_pixmap_height(ByVal pixmap AS ANY PTR) AS INTEGER
     Declare Sub eb_qt6_pixmap_destroy(ByVal pixmap AS ANY PTR)
+    Declare Function eb_qt6_pixmap_save(ByVal pixmap AS ANY PTR, ByVal path AS ZSTRING) AS INTEGER
 End Extern

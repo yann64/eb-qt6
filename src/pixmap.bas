@@ -47,3 +47,10 @@ END FUNCTION
 SUB PixmapDestroy(BYVAL p AS Pixmap)
     CALL eb_qt6_pixmap_destroy(p.handle)
 END SUB
+
+''' Writes the pixmap to `path` in the format implied by its extension
+''' (.png, .jpg, ...). Returns non-zero on success, zero on failure
+''' (e.g. an unwritable path or unrecognized extension).
+FUNCTION PixmapSave(BYVAL p AS Pixmap, path AS ZSTRING) AS INTEGER
+    PixmapSave = eb_qt6_pixmap_save(p.handle, path)
+END FUNCTION

@@ -35,4 +35,16 @@ char* eb_qt6_abstractbutton_get_text(void* button) {
     return eb_qt6_dup_qstring(static_cast<QAbstractButton*>(button)->text());
 }
 
+void eb_qt6_checkbox_set_tristate(void* checkbox, int tristate) {
+    static_cast<QCheckBox*>(checkbox)->setTristate(tristate != 0);
+}
+
+void eb_qt6_checkbox_set_check_state(void* checkbox, int state) {
+    static_cast<QCheckBox*>(checkbox)->setCheckState(static_cast<Qt::CheckState>(state));
+}
+
+int eb_qt6_checkbox_check_state(void* checkbox) {
+    return static_cast<int>(static_cast<QCheckBox*>(checkbox)->checkState());
+}
+
 }

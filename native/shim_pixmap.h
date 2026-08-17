@@ -30,5 +30,9 @@ int eb_qt6_pixmap_height(void* pixmap);
 // had SetPixmap called on it keeps its own internal copy, unaffected
 // by destroying the original handle.
 void eb_qt6_pixmap_destroy(void* pixmap);
+// Writes the pixmap to `path` in the format implied by its extension
+// (.png, .jpg, ...) - real QPixmap::save. Returns 1 on success, 0 on
+// failure (e.g. an unwritable path or unrecognized extension).
+int eb_qt6_pixmap_save(void* pixmap, const char* path);
 
 }

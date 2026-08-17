@@ -67,3 +67,26 @@ END SUB
 FUNCTION AbstractButtonGetText(BYVAL b AS AbstractButton) AS ANY PTR
     AbstractButtonGetText = eb_qt6_abstractbutton_get_text(b.handle)
 END FUNCTION
+
+''' Matches real Qt::CheckState values - pass to/returned by
+''' CheckBoxSetCheckState/CheckBoxCheckState. Tristate is a QCheckBox-
+''' only concept (real QRadioButton has no partially-checked state).
+CONST QtUnchecked = 0
+CONST QtPartiallyChecked = 1
+CONST QtChecked = 2
+
+SUB CheckBoxSetTristate(BYVAL c AS CheckBox, tristate AS INTEGER)
+    CALL eb_qt6_checkbox_set_tristate(c.handle, tristate)
+END SUB
+
+''' QtPartiallyChecked is only reachable by calling this directly (with
+''' CheckBoxSetTristate already on) - real Qt doesn't let a user click
+''' their way into it on a standalone checkbox, only through a parent/
+''' child checkbox relationship this package doesn't implement.
+SUB CheckBoxSetCheckState(BYVAL c AS CheckBox, state AS INTEGER)
+    CALL eb_qt6_checkbox_set_check_state(c.handle, state)
+END SUB
+
+FUNCTION CheckBoxCheckState(BYVAL c AS CheckBox) AS INTEGER
+    CheckBoxCheckState = eb_qt6_checkbox_check_state(c.handle)
+END FUNCTION
