@@ -23,5 +23,7 @@ int eb_qt6_settings_get_int(void* settings, const char* key, int defaultValue);
 // automatically (periodically, and always on destruction), so this is
 // rarely needed, but useful right before an app might crash/be killed.
 void eb_qt6_settings_sync(void* settings);
+int eb_qt6_settings_contains(void* settings, const char* key);
+void eb_qt6_settings_remove(void* settings, const char* key);
 
 }

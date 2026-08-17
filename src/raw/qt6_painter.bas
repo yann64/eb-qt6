@@ -10,4 +10,5 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_painter_draw_line(ByVal painter AS ANY PTR, ByVal x1 AS INTEGER, ByVal y1 AS INTEGER, ByVal x2 AS INTEGER, ByVal y2 AS INTEGER)
     Declare Sub eb_qt6_painter_draw_text(ByVal painter AS ANY PTR, ByVal x AS INTEGER, ByVal y AS INTEGER, ByVal text AS ZSTRING)
     Declare Function eb_qt6_painter_draw_pixmap(ByVal painter AS ANY PTR, ByVal x AS INTEGER, ByVal y AS INTEGER, ByVal path AS ZSTRING) AS INTEGER
+    Declare Sub eb_qt6_painter_draw_pixmap_handle(ByVal painter AS ANY PTR, ByVal x AS INTEGER, ByVal y AS INTEGER, ByVal pixmap AS ANY PTR)
 End Extern

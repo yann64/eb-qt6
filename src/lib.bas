@@ -57,6 +57,7 @@
 #include once "raw/qt6_printer.bas"
 #include once "raw/qt6_process.bas"
 #include once "raw/qt6_network.bas"
+#include once "raw/qt6_pixmap.bas"
 
 #include once "common.bas"
 #include once "application.bas"
@@ -109,3 +110,4 @@
 #include once "printer.bas"
 #include once "process.bas"
 #include once "network.bas"
+#include once "pixmap.bas"

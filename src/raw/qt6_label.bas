@@ -7,6 +7,9 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_label_set_text(ByVal label AS ANY PTR, ByVal text AS ZSTRING)
     Declare Function eb_qt6_label_get_text(ByVal label AS ANY PTR) AS ANY PTR
     Declare Function eb_qt6_label_set_pixmap_from_file(ByVal label AS ANY PTR, ByVal path AS ZSTRING) AS INTEGER
+    Declare Sub eb_qt6_label_set_pixmap(ByVal label AS ANY PTR, ByVal pixmap AS ANY PTR)
     Declare Sub eb_qt6_label_set_alignment(ByVal label AS ANY PTR, ByVal alignment AS INTEGER)
     Declare Sub eb_qt6_label_set_word_wrap(ByVal label AS ANY PTR, ByVal wordWrap AS INTEGER)
+    Declare Sub eb_qt6_label_set_open_external_links(ByVal label AS ANY PTR, ByVal open AS INTEGER)
+    Declare Sub eb_qt6_label_connect_link_activated(ByVal label AS ANY PTR, ByVal cb AS ANY PTR, ByVal userData AS ANY PTR)
 End Extern

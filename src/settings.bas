@@ -44,3 +44,11 @@ END FUNCTION
 SUB SettingsSync(BYVAL s AS Settings)
     CALL eb_qt6_settings_sync(s.handle)
 END SUB
+
+FUNCTION SettingsContains(BYVAL s AS Settings, key AS ZSTRING) AS INTEGER
+    SettingsContains = eb_qt6_settings_contains(s.handle, key)
+END FUNCTION
+
+SUB SettingsRemove(BYVAL s AS Settings, key AS ZSTRING)
+    CALL eb_qt6_settings_remove(s.handle, key)
+END SUB

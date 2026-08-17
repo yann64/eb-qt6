@@ -45,4 +45,8 @@ int eb_qt6_listwidget_count(void* list) { return static_cast<QListWidget*>(list)
 
 void eb_qt6_listwidget_clear(void* list) { static_cast<QListWidget*>(list)->clear(); }
 
+void eb_qt6_listwidget_remove_row(void* list, int row) {
+    delete static_cast<QListWidget*>(list)->takeItem(row);
+}
+
 }

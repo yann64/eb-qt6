@@ -19,5 +19,11 @@ char* eb_qt6_listwidget_current_text(void* list);
 void eb_qt6_listwidget_connect_current_row_changed(void* list, EbQt6IntCallback cb, void* userData);
 int eb_qt6_listwidget_count(void* list);
 void eb_qt6_listwidget_clear(void* list);
+// Removes just the one item at `row`, unlike eb_qt6_listwidget_clear's
+// remove-everything - real QListWidget::takeItem returns ownership of
+// the removed QListWidgetItem* to the caller, so this deletes it
+// immediately rather than leaking it (no eBasic-visible handle for a
+// removed item exists to hand back anyway).
+void eb_qt6_listwidget_remove_row(void* list, int row);
 
 }

@@ -52,3 +52,9 @@ END FUNCTION
 SUB ListWidgetClear(BYVAL l AS ListWidget)
     CALL eb_qt6_listwidget_clear(l.handle)
 END SUB
+
+''' Removes just the one item at `row`, unlike ListWidgetClear's
+''' remove-everything.
+SUB ListWidgetRemoveRow(BYVAL l AS ListWidget, row AS INTEGER)
+    CALL eb_qt6_listwidget_remove_row(l.handle, row)
+END SUB

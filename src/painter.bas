@@ -8,6 +8,7 @@
 ' nothing and prints a Qt warning to stderr - confirmed by direct
 ' reproduction, not assumed).
 
+#include once "pixmap.bas"
 #include once "raw/qt6_painter.bas"
 
 SUB PainterSetPenColor(BYVAL painter AS ANY PTR, r AS UBYTE, g AS UBYTE, b AS UBYTE)
@@ -46,3 +47,11 @@ END SUB
 FUNCTION PainterDrawPixmap(BYVAL painter AS ANY PTR, x AS INTEGER, y AS INTEGER, path AS ZSTRING) AS INTEGER
     PainterDrawPixmap = eb_qt6_painter_draw_pixmap(painter, x, y, path)
 END FUNCTION
+
+''' Draws an already-loaded Pixmap (pixmap.bas) at (x, y) at its
+''' natural size - no file I/O on this call at all, the preferred
+''' choice over PainterDrawPixmap for anything repainting often
+''' (animation, resize).
+SUB PainterDrawPixmapHandle(BYVAL painter AS ANY PTR, x AS INTEGER, y AS INTEGER, BYVAL p AS Pixmap)
+    CALL eb_qt6_painter_draw_pixmap_handle(painter, x, y, p.handle)
+END SUB

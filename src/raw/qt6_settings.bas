@@ -7,4 +7,6 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_settings_set_int(ByVal settings AS ANY PTR, ByVal key AS ZSTRING, ByVal value AS INTEGER)
     Declare Function eb_qt6_settings_get_int(ByVal settings AS ANY PTR, ByVal key AS ZSTRING, ByVal defaultValue AS INTEGER) AS INTEGER
     Declare Sub eb_qt6_settings_sync(ByVal settings AS ANY PTR)
+    Declare Function eb_qt6_settings_contains(ByVal settings AS ANY PTR, ByVal key AS ZSTRING) AS INTEGER
+    Declare Sub eb_qt6_settings_remove(ByVal settings AS ANY PTR, ByVal key AS ZSTRING)
 End Extern

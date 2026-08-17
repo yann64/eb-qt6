@@ -245,6 +245,32 @@ evidence of a binding defect:
   the standard standalone-C++-spike technique - both matched real Qt
   behavior exactly (`QValidator::Acceptable`/`Invalid` on good/bad
   input, count 3→0 after clearing).
+- **v0.17.0** - `QPixmap` (a standalone, loaded-once image handle -
+  `NewPixmapFromFile`/`IsNull`/`Width`/`Height`/`Destroy`, addressing a
+  wart named plainly since v0.10.0's own `PainterDrawPixmap` doc
+  comment: "loads a fresh copy from disk every single call"),
+  `QLabel` hyperlinks (`LabelSetOpenExternalLinks`/
+  `ConnectLinkActivated` - real Qt auto-detects `<a href>` HTML in any
+  label's text), `QListWidget` single-row removal
+  (`ListWidgetRemoveRow`, alongside the existing remove-everything
+  `Clear`), and `QSettings` `Contains`/`Remove`. The same `Pixmap`
+  handle now works both as `PainterDrawPixmapHandle`'s argument (custom
+  drawing) and `LabelSetPixmap`'s argument (a label) - confirmed live
+  side by side in the same window, not just independently. **One
+  honest exception, the fourth phase in a row (14-17) hitting the same
+  `xdotool windowactivate` flakiness** against this phase's own plain
+  `QMainWindow`: subsequent `Tab`/`Space` keystrokes after the initial
+  screenshot didn't register. What confirmed fully live in one
+  screenshot: the shared pixmap rendering identically via both
+  consumers, the hyperlink's correct blue/underlined rendering, the
+  full 3-item list, and the real `QSettings::contains`/`remove` round
+  trip (`contains-before=1 contains-after=0`) in the status label -
+  all rendering/state confirmations needing no further interaction.
+  `LabelConnectLinkActivated` and `ListWidgetRemoveRow` were instead
+  confirmed via the standard standalone-C++-spike technique - both
+  fired/behaved exactly as expected (`emit`ting `linkActivated`
+  directly reached the connected callback; removing row 1 from a
+  3-item list left count 2).
 
 ## Why event filters, not a widget subclass
 
@@ -1296,6 +1322,46 @@ CALL MessageBoxCritical(win, "Error", "Something went wrong.")
 CALL LineEditSetRegexValidator(emailEdit, "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+$")
 ```
 
+## Phase 17 features
+
+`QPixmap` - a standalone, loaded-once image handle, reusable across
+both custom drawing and labels with no repeated file I/O:
+
+```basic
+DIM pic AS Pixmap
+pic = NewPixmapFromFile("photo.png")
+IF NOT PixmapIsNull(pic) THEN
+    CALL LabelSetPixmap(myLabel, pic)          ' a label...
+    CALL PainterDrawPixmapHandle(painter, 10, 10, pic)   ' ...and custom drawing, same handle
+END IF
+CALL PixmapDestroy(pic)   ' once nothing needs it anymore - see its own doc comment
+```
+
+`QLabel` hyperlinks - real Qt auto-detects `<a href>` HTML in any
+label's text:
+
+```basic
+DIM link AS Label
+link = NewLabel("<a href=""https://example.com"">Click here</a>")
+CALL LabelSetOpenExternalLinks(link, 0)   ' handle the click yourself instead of opening a browser
+CALL LabelConnectLinkActivated(link, @OnLinkActivated, 0)
+```
+
+`QListWidget` single-row removal, alongside the existing
+remove-everything `ListWidgetClear`:
+
+```basic
+CALL ListWidgetRemoveRow(myList, 1)   ' removes just that one row
+```
+
+`QSettings` `Contains`/`Remove`:
+
+```basic
+IF SettingsContains(mySettings, "theme") THEN
+    CALL SettingsRemove(mySettings, "theme")
+END IF
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -1585,3 +1651,29 @@ screenshot-verified live on this host:
   already-live-confirmed `MessageBoxInformation`/`Warning`/`Question`
   calls (Phase 1-3), just a different `QMessageBox::critical` call
   underneath the same pattern.
+- `phase17_demo.bas` - loads one `Pixmap` and draws it both on a custom
+  `PainterWidget` (`PainterDrawPixmapHandle`) and a `Label`
+  (`LabelSetPixmap`), a hyperlink `Label`, a 3-item `ListWidget` with a
+  "Remove row 1" button, and a `QSettings` `Contains`/`Remove` round
+  trip run at startup. **A real bug caught before this could even be
+  screenshotted**: the first run showed a blank pixmap in both
+  consumers - not a binding defect, a plain relative-path mistake in
+  the example itself (`"assets/sample.png"` resolves relative to the
+  process's current working directory, not the source file's location;
+  running the compiled binary from the repo root instead of `examples/`
+  left the path unresolved, and `QPixmap` fails silently rather than
+  erroring - matching its own documented silent-failure behavior).
+  Fixed by relaunching with `examples/` as the working directory, the
+  same requirement every other example in this package already has.
+  Confirmed live in a single screenshot once fixed: the identical image
+  rendering correctly via both the painter and the label side by side,
+  the hyperlink's correct rendering, the full 3-item list, and
+  `contains-before=1 contains-after=0` in the status label - all
+  needing no interaction. **One honest exception, the fourth phase in a
+  row (14-17) hitting the same `xdotool windowactivate` flakiness**:
+  subsequent `Tab`/`Space` keystrokes didn't register, so clicking the
+  hyperlink and the "Remove row 1" button live weren't confirmed this
+  way. Both were instead confirmed via a standalone C++ spike:
+  `emit`ting `QLabel::linkActivated` directly reached the connected
+  callback with the correct link text, and removing row 1 from a
+  3-item list correctly left count 2.

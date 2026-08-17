@@ -3,6 +3,7 @@
 
 #include once "widget.bas"
 #include once "common.bas"
+#include once "pixmap.bas"
 #include once "raw/qt6_label.bas"
 
 TYPE Label EXTENDS QtWidget
@@ -32,6 +33,15 @@ FUNCTION LabelSetPixmapFromFile(BYVAL l AS Label, path AS ZSTRING) AS INTEGER
     LabelSetPixmapFromFile = eb_qt6_label_set_pixmap_from_file(l.handle, path)
 END FUNCTION
 
+''' Sets the label's pixmap from an already-loaded Pixmap (pixmap.bas)
+''' - the label makes its own internal copy, so `p` may be destroyed or
+''' reused for other widgets/draws right after this call returns.
+''' Preferred over LabelSetPixmapFromFile for anything setting the same
+''' image on many labels, or repeatedly (no repeated file I/O).
+SUB LabelSetPixmap(BYVAL l AS Label, BYVAL p AS Pixmap)
+    CALL eb_qt6_label_set_pixmap(l.handle, p.handle)
+END SUB
+
 ''' Matches real Qt::AlignmentFlag values - combine a horizontal and a
 ''' vertical one via eBasic's own bitwise `OR` operator (e.g.
 ''' `QtAlignHCenter OR QtAlignVCenter`) and pass to LabelSetAlignment.
@@ -50,4 +60,23 @@ END SUB
 ''' clipped/overflowing - off by default, matching real QLabel.
 SUB LabelSetWordWrap(BYVAL l AS Label, wordWrap AS INTEGER)
     CALL eb_qt6_label_set_word_wrap(l.handle, wordWrap)
+END SUB
+
+''' Real Qt auto-detects HTML in LabelSetText and renders
+''' <a href="..."> links automatically - openExternal on (non-zero)
+''' makes clicking such a link open it in the OS's default handler (a
+''' real browser, etc). Off by default; combine with
+''' LabelConnectLinkActivated to instead handle the click yourself
+''' (e.g. in-app navigation) without opening anything externally.
+SUB LabelSetOpenExternalLinks(BYVAL l AS Label, openExternal AS INTEGER)
+    CALL eb_qt6_label_set_open_external_links(l.handle, openExternal)
+END SUB
+
+''' Connects `handler` (a top-level `SUB YourName(userData AS ANY PTR,
+''' link AS ZSTRING)`) to fire when the user clicks a link inside the
+''' label's rich text - `link` (the href) is borrowed, same convention
+''' as LineEditConnectTextChanged's own text parameter. Fires
+''' regardless of LabelSetOpenExternalLinks's own setting.
+SUB LabelConnectLinkActivated(BYVAL l AS Label, handler AS ANY PTR, userData AS ANY PTR)
+    CALL eb_qt6_label_connect_link_activated(l.handle, handler, userData)
 END SUB

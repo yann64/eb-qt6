@@ -18,5 +18,10 @@ void eb_qt6_painter_draw_text(void* painter, int x, int y, const char* text);
 // success, 0 if the file couldn't be loaded as an image - nothing is
 // drawn on failure.
 int eb_qt6_painter_draw_pixmap(void* painter, int x, int y, const char* path);
+// Draws an already-loaded QPixmap handle (see shim_pixmap.h) at (x, y)
+// at its natural size - no file I/O on this call at all, the preferred
+// choice over eb_qt6_painter_draw_pixmap for anything repainting often
+// (animation, resize).
+void eb_qt6_painter_draw_pixmap_handle(void* painter, int x, int y, void* pixmap);
 
 }

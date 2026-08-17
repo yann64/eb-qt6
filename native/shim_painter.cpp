@@ -35,12 +35,16 @@ void eb_qt6_painter_draw_text(void* painter, int x, int y, const char* text) {
 int eb_qt6_painter_draw_pixmap(void* painter, int x, int y, const char* path) {
     // No caching - loads from disk fresh every call. Fine for one-off
     // custom-drawing demos; a real app repainting often (animation,
-    // resize) should load once and reuse a Label's own SetPixmapFromFile
-    // instead, or this file's own future caching layer if one is added.
+    // resize) should use eb_qt6_painter_draw_pixmap_handle below
+    // instead (shim_pixmap.h, Phase 17).
     QPixmap pixmap(QString::fromUtf8(path));
     if (pixmap.isNull()) return 0;
     static_cast<QPainter*>(painter)->drawPixmap(x, y, pixmap);
     return 1;
+}
+
+void eb_qt6_painter_draw_pixmap_handle(void* painter, int x, int y, void* pixmap) {
+    static_cast<QPainter*>(painter)->drawPixmap(x, y, *static_cast<QPixmap*>(pixmap));
 }
 
 }

@@ -33,4 +33,12 @@ int eb_qt6_settings_get_int(void* settings, const char* key, int defaultValue) {
 
 void eb_qt6_settings_sync(void* settings) { static_cast<QSettings*>(settings)->sync(); }
 
+int eb_qt6_settings_contains(void* settings, const char* key) {
+    return static_cast<QSettings*>(settings)->contains(QString::fromUtf8(key)) ? 1 : 0;
+}
+
+void eb_qt6_settings_remove(void* settings, const char* key) {
+    static_cast<QSettings*>(settings)->remove(QString::fromUtf8(key));
+}
+
 }
