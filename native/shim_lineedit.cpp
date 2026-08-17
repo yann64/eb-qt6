@@ -59,4 +59,12 @@ void eb_qt6_lineedit_set_regex_validator(void* lineEdit, const char* pattern) {
     edit->setValidator(new QRegularExpressionValidator(QRegularExpression(QString::fromUtf8(pattern)), edit));
 }
 
+void eb_qt6_lineedit_set_placeholder_text(void* lineEdit, const char* text) {
+    static_cast<QLineEdit*>(lineEdit)->setPlaceholderText(QString::fromUtf8(text));
+}
+
+void eb_qt6_lineedit_set_max_length(void* lineEdit, int maxLength) {
+    static_cast<QLineEdit*>(lineEdit)->setMaxLength(maxLength);
+}
+
 }

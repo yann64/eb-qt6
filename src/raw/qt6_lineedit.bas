@@ -12,4 +12,6 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_lineedit_set_double_validator(ByVal lineEdit AS ANY PTR, ByVal bottom AS DOUBLE, ByVal top AS DOUBLE, ByVal decimals AS INTEGER)
     Declare Sub eb_qt6_lineedit_set_echo_mode(ByVal lineEdit AS ANY PTR, ByVal mode AS INTEGER)
     Declare Sub eb_qt6_lineedit_set_regex_validator(ByVal lineEdit AS ANY PTR, ByVal pattern AS ZSTRING)
+    Declare Sub eb_qt6_lineedit_set_placeholder_text(ByVal lineEdit AS ANY PTR, ByVal text AS ZSTRING)
+    Declare Sub eb_qt6_lineedit_set_max_length(ByVal lineEdit AS ANY PTR, ByVal maxLength AS INTEGER)
 End Extern

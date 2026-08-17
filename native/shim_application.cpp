@@ -1,6 +1,8 @@
 #include "shim_application.h"
 
 #include <QApplication>
+#include <QRect>
+#include <QScreen>
 
 namespace {
 
@@ -34,6 +36,16 @@ int eb_qt6_application_exec(void* app) {
 
 void eb_qt6_application_quit(void* app) {
     static_cast<QApplication*>(app)->quit();
+}
+
+int eb_qt6_primary_screen_width() {
+    QScreen* screen = QApplication::primaryScreen();
+    return screen ? screen->availableGeometry().width() : 0;
+}
+
+int eb_qt6_primary_screen_height() {
+    QScreen* screen = QApplication::primaryScreen();
+    return screen ? screen->availableGeometry().height() : 0;
 }
 
 }

@@ -36,4 +36,11 @@ int eb_qt6_application_exec(void* app);
 
 void eb_qt6_application_quit(void* app);
 
+// The primary screen's available geometry (excludes taskbars/docks,
+// real QScreen::availableGeometry) in pixels - useful for centering a
+// window. Requires a QApplication to already exist (same requirement
+// every other Qt6 GUI query in this package has).
+int eb_qt6_primary_screen_width();
+int eb_qt6_primary_screen_height();
+
 }

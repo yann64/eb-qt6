@@ -48,4 +48,13 @@ void eb_qt6_lineedit_set_echo_mode(void* lineEdit, int mode);
 // QRegularExpression never matches), not a crash or silent no-op.
 void eb_qt6_lineedit_set_regex_validator(void* lineEdit, const char* pattern);
 
+// Grayed-out hint text shown only while the field is empty - real
+// QLineEdit::setPlaceholderText, never part of the field's own real
+// value (eb_qt6_lineedit_get_text never returns it).
+void eb_qt6_lineedit_set_placeholder_text(void* lineEdit, const char* text);
+// Caps how many characters can be typed/pasted in - real
+// QLineEdit::setMaxLength (Qt's own default is a very large number,
+// effectively unlimited, until this is called).
+void eb_qt6_lineedit_set_max_length(void* lineEdit, int maxLength);
+
 }

@@ -15,4 +15,6 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_combobox_connect_edit_text_changed(ByVal combo AS ANY PTR, ByVal cb AS ANY PTR, ByVal userData AS ANY PTR)
     Declare Function eb_qt6_combobox_count(ByVal combo AS ANY PTR) AS INTEGER
     Declare Sub eb_qt6_combobox_clear(ByVal combo AS ANY PTR)
+    Declare Sub eb_qt6_combobox_insert_item(ByVal combo AS ANY PTR, ByVal index AS INTEGER, ByVal text AS ZSTRING)
+    Declare Function eb_qt6_combobox_item_text(ByVal combo AS ANY PTR, ByVal index AS INTEGER) AS ANY PTR
 End Extern

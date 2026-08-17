@@ -64,4 +64,12 @@ int eb_qt6_combobox_count(void* combo) { return static_cast<QComboBox*>(combo)->
 
 void eb_qt6_combobox_clear(void* combo) { static_cast<QComboBox*>(combo)->clear(); }
 
+void eb_qt6_combobox_insert_item(void* combo, int index, const char* text) {
+    static_cast<QComboBox*>(combo)->insertItem(index, QString::fromUtf8(text));
+}
+
+char* eb_qt6_combobox_item_text(void* combo, int index) {
+    return eb_qt6_dup_qstring(static_cast<QComboBox*>(combo)->itemText(index));
+}
+
 }

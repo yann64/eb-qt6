@@ -15,5 +15,12 @@ void eb_qt6_tablewidget_set_item_text(void* table, int row, int col, const char*
 // cell has no item yet.
 char* eb_qt6_tablewidget_item_text(void* table, int row, int col);
 void eb_qt6_tablewidget_connect_cell_clicked(void* table, EbQt6TwoIntCallback cb, void* userData);
+int eb_qt6_tablewidget_row_count(void* table);
+int eb_qt6_tablewidget_column_count(void* table);
+// Consumes and destroys `labels` (a StringList handle, see
+// shim_inputdialog.h's own eb_qt6_stringlist_create) - matches
+// eb_qt6_treewidget_set_header_labels's own consume-and-destroy
+// convention for the same StringList type.
+void eb_qt6_tablewidget_set_horizontal_header_labels(void* table, void* labels);
 
 }

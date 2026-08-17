@@ -9,4 +9,7 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_tablewidget_set_item_text(ByVal table AS ANY PTR, ByVal row AS INTEGER, ByVal col AS INTEGER, ByVal text AS ZSTRING)
     Declare Function eb_qt6_tablewidget_item_text(ByVal table AS ANY PTR, ByVal row AS INTEGER, ByVal col AS INTEGER) AS ANY PTR
     Declare Sub eb_qt6_tablewidget_connect_cell_clicked(ByVal table AS ANY PTR, ByVal cb AS ANY PTR, ByVal userData AS ANY PTR)
+    Declare Function eb_qt6_tablewidget_row_count(ByVal table AS ANY PTR) AS INTEGER
+    Declare Function eb_qt6_tablewidget_column_count(ByVal table AS ANY PTR) AS INTEGER
+    Declare Sub eb_qt6_tablewidget_set_horizontal_header_labels(ByVal table AS ANY PTR, ByVal labels AS ANY PTR)
 End Extern

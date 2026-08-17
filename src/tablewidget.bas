@@ -3,6 +3,7 @@
 
 #include once "widget.bas"
 #include once "common.bas"
+#include once "inputdialog.bas"
 #include once "raw/qt6_tablewidget.bas"
 
 TYPE TableWidget EXTENDS QtWidget
@@ -39,4 +40,18 @@ END FUNCTION
 ''' signal.
 SUB TableWidgetConnectCellClicked(BYVAL t AS TableWidget, handler AS ANY PTR, userData AS ANY PTR)
     CALL eb_qt6_tablewidget_connect_cell_clicked(t.handle, handler, userData)
+END SUB
+
+FUNCTION TableWidgetRowCount(BYVAL t AS TableWidget) AS INTEGER
+    TableWidgetRowCount = eb_qt6_tablewidget_row_count(t.handle)
+END FUNCTION
+
+FUNCTION TableWidgetColumnCount(BYVAL t AS TableWidget) AS INTEGER
+    TableWidgetColumnCount = eb_qt6_tablewidget_column_count(t.handle)
+END FUNCTION
+
+''' `labels` is consumed and destroyed by this call - see StringList's
+''' own doc comment (inputdialog.bas).
+SUB TableWidgetSetHorizontalHeaderLabels(BYVAL t AS TableWidget, BYVAL labels AS StringList)
+    CALL eb_qt6_tablewidget_set_horizontal_header_labels(t.handle, labels.handle)
 END SUB

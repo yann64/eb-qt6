@@ -271,6 +271,32 @@ evidence of a binding defect:
   fired/behaved exactly as expected (`emit`ting `linkActivated`
   directly reached the connected callback; removing row 1 from a
   3-item list left count 2).
+- **v0.18.0** - `QLineEdit` placeholder text/max length
+  (`SetPlaceholderText`/`SetMaxLength`), `QTableWidget` column headers
+  and row/column count getters (`SetHorizontalHeaderLabels`/
+  `RowCount`/`ColumnCount` - reuses the same `StringList` builder as
+  `QTreeWidget`'s own header labels), `QComboBox` random-access item
+  insertion/reading (`InsertItem`/`ItemText`, alongside the
+  current-selection-only `CurrentText`), and primary-screen geometry
+  (`PrimaryScreenWidth`/`Height`, for window centering). Four more real
+  gaps found by the same proactive-survey discipline as Phases 11/12/
+  15-17 - `QLineEdit` had never gained placeholder/length support
+  despite being one of the most-used widgets in the whole package, and
+  `QTableWidget` had no column headers at all since its own Phase 3
+  introduction, a real usability gap for anything but a bare grid.
+  **One honest exception, the fifth phase in a row (14-18) hitting the
+  same `xdotool windowactivate` flakiness**: subsequent `Tab`/`Space`
+  keystrokes didn't register live. What confirmed fully live in one
+  screenshot: the real primary-screen resolution, the placeholder
+  text's grayed-out rendering, the table's actual `Name`/`Score`
+  headers with populated rows, and the combo box's correctly-ordered
+  items after an out-of-order `InsertItem` call - plus the window's
+  moved position matching the expected centered math exactly (screen
+  size minus window size, halved) once the WM's own decoration offset
+  was accounted for. `ComboBoxItemText`, `LineEditSetMaxLength`'s real
+  truncation behavior, and `TableWidgetRowCount`/`ColumnCount` were
+  instead confirmed via the standard standalone-C++-spike technique -
+  all matched real Qt behavior exactly.
 
 ## Why event filters, not a widget subclass
 
@@ -1362,6 +1388,41 @@ IF SettingsContains(mySettings, "theme") THEN
 END IF
 ```
 
+## Phase 18 features
+
+`QLineEdit` placeholder text and max length:
+
+```basic
+CALL LineEditSetPlaceholderText(nameEdit, "Enter your name")
+CALL LineEditSetMaxLength(nameEdit, 10)
+```
+
+`QTableWidget` column headers and row/column count getters:
+
+```basic
+CALL TableWidgetSetColumnCount(table, 2)
+DIM headers AS StringList
+headers = NewStringList()
+CALL StringListAdd(headers, "Name")
+CALL StringListAdd(headers, "Score")
+CALL TableWidgetSetHorizontalHeaderLabels(table, headers)   ' consumed/destroyed here
+PRINT TableWidgetRowCount(table); TableWidgetColumnCount(table)
+```
+
+`QComboBox` random-access item insertion/reading, alongside the
+current-selection-only `ComboBoxCurrentText`:
+
+```basic
+CALL ComboBoxInsertItem(combo, 1, "Beta")   ' shifts later items down
+PRINT ComboBoxItemText(combo, 1)
+```
+
+Primary-screen geometry, e.g. for centering a window:
+
+```basic
+CALL WidgetMove(win, (PrimaryScreenWidth() - 640) \ 2, (PrimaryScreenHeight() - 480) \ 2)
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -1677,3 +1738,24 @@ screenshot-verified live on this host:
   `emit`ting `QLabel::linkActivated` directly reached the connected
   callback with the correct link text, and removing row 1 from a
   3-item list correctly left count 2.
+- `phase18_demo.bas` - centers itself on the real primary screen at
+  startup, a placeholder-text/max-length `LineEdit`, a `TableWidget`
+  with real column headers and populated rows, and a `ComboBox` built
+  via an out-of-order `InsertItem` call. Confirmed live in a single
+  screenshot: the real screen resolution rendered in the status label,
+  the placeholder's grayed-out styling, the table's `Name`/`Score`
+  headers with both rows visible, the combo box's correctly-ordered
+  items (`Alpha`, `Beta`, `Gamma`), and the window's actual on-screen
+  position matching the expected centered-position math exactly once
+  the WM's own title-bar/border decoration offset was accounted for
+  (confirmed by direct arithmetic against `xdotool getwindowgeometry`'s
+  own reported position, not just eyeballed). **One honest exception,
+  the fifth phase in a row (14-18) hitting the same `xdotool
+  windowactivate` flakiness**: subsequent `Tab`/`Space` on the "Check
+  item at index 1" button didn't register live. `ComboBoxItemText`,
+  `LineEditSetMaxLength`'s real truncation behavior, and
+  `TableWidgetRowCount`/`ColumnCount` were instead confirmed via a
+  standalone C++ spike - all matched real Qt behavior exactly
+  (inserted/read-back combo items in the right order; an overlong
+  `setText` call truncated to the configured max length; row/column
+  counts read back correctly).

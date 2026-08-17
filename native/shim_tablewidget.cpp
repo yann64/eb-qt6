@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QStringList>
 #include <QTableWidget>
 #include <QTableWidgetItem>
 
@@ -37,6 +38,16 @@ void eb_qt6_tablewidget_connect_cell_clicked(void* table, EbQt6TwoIntCallback cb
                       [cb, userData](int row, int col) {
                           if (cb) cb(userData, row, col);
                       });
+}
+
+int eb_qt6_tablewidget_row_count(void* table) { return static_cast<QTableWidget*>(table)->rowCount(); }
+
+int eb_qt6_tablewidget_column_count(void* table) { return static_cast<QTableWidget*>(table)->columnCount(); }
+
+void eb_qt6_tablewidget_set_horizontal_header_labels(void* table, void* labels) {
+    QStringList* list = static_cast<QStringList*>(labels);
+    static_cast<QTableWidget*>(table)->setHorizontalHeaderLabels(*list);
+    delete list;
 }
 
 }

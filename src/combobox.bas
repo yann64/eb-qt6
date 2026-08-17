@@ -69,3 +69,17 @@ END FUNCTION
 SUB ComboBoxClear(BYVAL c AS ComboBox)
     CALL eb_qt6_combobox_clear(c.handle)
 END SUB
+
+''' Inserts `text` at `index`, shifting later items down - unlike
+''' ComboBoxAddItem, which always appends at the end.
+SUB ComboBoxInsertItem(BYVAL c AS ComboBox, index AS INTEGER, text AS ZSTRING)
+    CALL eb_qt6_combobox_insert_item(c.handle, index, text)
+END SUB
+
+''' Random access to any item's text, not just the current selection
+''' (ComboBoxCurrentText). See ButtonGetText's own doc comment on the
+''' owned-allocation/FreeQtString convention. Empty string if `index`
+''' is out of range.
+FUNCTION ComboBoxItemText(BYVAL c AS ComboBox, index AS INTEGER) AS ANY PTR
+    ComboBoxItemText = eb_qt6_combobox_item_text(c.handle, index)
+END FUNCTION

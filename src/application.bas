@@ -34,3 +34,15 @@ END FUNCTION
 SUB ApplicationQuit(app AS Application)
     CALL eb_qt6_application_quit(app.handle)
 END SUB
+
+''' The primary screen's available geometry (excludes taskbars/docks)
+''' in pixels - useful for centering a window, e.g. `CALL
+''' WidgetMove(win, (PrimaryScreenWidth() - 640) \ 2, (PrimaryScreenHeight()
+''' - 480) \ 2)`.
+FUNCTION PrimaryScreenWidth() AS INTEGER
+    PrimaryScreenWidth = eb_qt6_primary_screen_width()
+END FUNCTION
+
+FUNCTION PrimaryScreenHeight() AS INTEGER
+    PrimaryScreenHeight = eb_qt6_primary_screen_height()
+END FUNCTION

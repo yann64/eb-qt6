@@ -30,5 +30,14 @@ void eb_qt6_combobox_set_edit_text(void* combo, const char* text);
 void eb_qt6_combobox_connect_edit_text_changed(void* combo, EbQt6StringCallback cb, void* userData);
 int eb_qt6_combobox_count(void* combo);
 void eb_qt6_combobox_clear(void* combo);
+// Inserts `text` at `index`, shifting later items down - unlike
+// eb_qt6_combobox_add_item, which always appends at the end. Real
+// QComboBox::insertItem also accepts an out-of-range index by clamping
+// it to the nearest valid position (0 or count()), not an error.
+void eb_qt6_combobox_insert_item(void* combo, int index, const char* text);
+// Random access to any item's text, not just the current selection
+// (eb_qt6_combobox_current_text). Caller frees the result via
+// eb_qt6_free_string. Empty string if `index` is out of range.
+char* eb_qt6_combobox_item_text(void* combo, int index);
 
 }

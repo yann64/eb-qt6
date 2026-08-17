@@ -77,3 +77,17 @@ END SUB
 SUB LineEditSetRegexValidator(BYVAL e AS LineEdit, pattern AS ZSTRING)
     CALL eb_qt6_lineedit_set_regex_validator(e.handle, pattern)
 END SUB
+
+''' Grayed-out hint text shown only while the field is empty - never
+''' part of the field's own real value (LineEditGetText never returns
+''' it).
+SUB LineEditSetPlaceholderText(BYVAL e AS LineEdit, text AS ZSTRING)
+    CALL eb_qt6_lineedit_set_placeholder_text(e.handle, text)
+END SUB
+
+''' Caps how many characters can be typed/pasted in - Qt's own default
+''' is a very large number, effectively unlimited, until this is
+''' called.
+SUB LineEditSetMaxLength(BYVAL e AS LineEdit, maxLength AS INTEGER)
+    CALL eb_qt6_lineedit_set_max_length(e.handle, maxLength)
+END SUB
