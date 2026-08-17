@@ -46,3 +46,19 @@ END FUNCTION
 FUNCTION PrimaryScreenHeight() AS INTEGER
     PrimaryScreenHeight = eb_qt6_primary_screen_height()
 END FUNCTION
+
+''' Real Qt default is on (the app quits automatically once its last
+''' top-level window closes) - turn off for apps that should keep
+''' running with no visible window (e.g. a system-tray-only app).
+SUB ApplicationSetQuitOnLastWindowClosed(app AS Application, quit AS INTEGER)
+    CALL eb_qt6_application_set_quit_on_last_window_closed(app.handle, quit)
+END SUB
+
+''' Connects `handler` (a top-level `SUB YourName(userData AS ANY
+''' PTR)`) to fire once, right before the event loop actually stops
+''' (whether via ApplicationQuit, the last-window-closed default above,
+''' or the OS terminating the process normally) - the last reliable
+''' place to run cleanup logic (e.g. SettingsSync).
+SUB ApplicationConnectAboutToQuit(app AS Application, handler AS ANY PTR, userData AS ANY PTR)
+    CALL eb_qt6_application_connect_about_to_quit(app.handle, handler, userData)
+END SUB

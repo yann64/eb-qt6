@@ -1,5 +1,6 @@
 #include "shim_listwidget.h"
 
+#include <QAbstractItemView>
 #include <QIcon>
 #include <QListWidget>
 #include <QListWidgetItem>
@@ -47,6 +48,21 @@ void eb_qt6_listwidget_clear(void* list) { static_cast<QListWidget*>(list)->clea
 
 void eb_qt6_listwidget_remove_row(void* list, int row) {
     delete static_cast<QListWidget*>(list)->takeItem(row);
+}
+
+void eb_qt6_listwidget_set_selection_mode(void* list, int mode) {
+    static_cast<QListWidget*>(list)->setSelectionMode(static_cast<QAbstractItemView::SelectionMode>(mode));
+}
+
+int eb_qt6_listwidget_selected_count(void* list) {
+    return static_cast<QListWidget*>(list)->selectedItems().count();
+}
+
+int eb_qt6_listwidget_selected_row_at(void* list, int index) {
+    QListWidget* l = static_cast<QListWidget*>(list);
+    QList<QListWidgetItem*> selected = l->selectedItems();
+    if (index < 0 || index >= selected.count()) return -1;
+    return l->row(selected.at(index));
 }
 
 }

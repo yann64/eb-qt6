@@ -4,6 +4,7 @@
 
 #include <QClipboard>
 #include <QGuiApplication>
+#include <QPixmap>
 #include <QString>
 
 extern "C" {
@@ -19,6 +20,14 @@ void eb_qt6_clipboard_set_text(void* clipboard, const char* text) {
 
 char* eb_qt6_clipboard_get_text(void* clipboard) {
     return eb_qt6_dup_qstring(static_cast<QClipboard*>(clipboard)->text());
+}
+
+void eb_qt6_clipboard_set_pixmap(void* clipboard, void* pixmap) {
+    static_cast<QClipboard*>(clipboard)->setPixmap(*static_cast<QPixmap*>(pixmap));
+}
+
+void* eb_qt6_clipboard_get_pixmap(void* clipboard) {
+    return new QPixmap(static_cast<QClipboard*>(clipboard)->pixmap());
 }
 
 }

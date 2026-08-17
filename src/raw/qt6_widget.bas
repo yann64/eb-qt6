@@ -27,6 +27,12 @@ Extern "C" Lib "ebqt6shim"
     Declare Function eb_qt6_widget_height(ByVal widget AS ANY PTR) AS INTEGER
     Declare Sub eb_qt6_widget_raise(ByVal widget AS ANY PTR)
     Declare Sub eb_qt6_widget_update(ByVal widget AS ANY PTR)
+    Declare Sub eb_qt6_widget_show_maximized(ByVal widget AS ANY PTR)
+    Declare Sub eb_qt6_widget_show_minimized(ByVal widget AS ANY PTR)
+    Declare Sub eb_qt6_widget_show_full_screen(ByVal widget AS ANY PTR)
+    Declare Sub eb_qt6_widget_show_normal(ByVal widget AS ANY PTR)
+    Declare Function eb_qt6_widget_is_maximized(ByVal widget AS ANY PTR) AS INTEGER
+    Declare Function eb_qt6_widget_is_full_screen(ByVal widget AS ANY PTR) AS INTEGER
 
     Declare Function eb_qt6_mainwindow_create() AS ANY PTR
     Declare Sub eb_qt6_mainwindow_set_central_widget(ByVal window AS ANY PTR, ByVal widget AS ANY PTR)

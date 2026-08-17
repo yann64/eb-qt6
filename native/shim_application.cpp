@@ -1,6 +1,7 @@
 #include "shim_application.h"
 
 #include <QApplication>
+#include <QObject>
 #include <QRect>
 #include <QScreen>
 
@@ -36,6 +37,16 @@ int eb_qt6_application_exec(void* app) {
 
 void eb_qt6_application_quit(void* app) {
     static_cast<QApplication*>(app)->quit();
+}
+
+void eb_qt6_application_set_quit_on_last_window_closed(void* app, int quit) {
+    static_cast<QApplication*>(app)->setQuitOnLastWindowClosed(quit != 0);
+}
+
+void eb_qt6_application_connect_about_to_quit(void* app, EbQt6VoidCallback cb, void* userData) {
+    QObject::connect(static_cast<QApplication*>(app), &QApplication::aboutToQuit, [cb, userData]() {
+        if (cb) cb(userData);
+    });
 }
 
 int eb_qt6_primary_screen_width() {

@@ -214,6 +214,34 @@ SUB WidgetUpdate(BYVAL w AS QtWidget)
     CALL eb_qt6_widget_update(w.handle)
 END SUB
 
+''' Window state - meaningful for a top-level window. Each implies
+''' showing the widget too, no separate WidgetShow call needed.
+SUB WidgetShowMaximized(BYVAL w AS QtWidget)
+    CALL eb_qt6_widget_show_maximized(w.handle)
+END SUB
+
+SUB WidgetShowMinimized(BYVAL w AS QtWidget)
+    CALL eb_qt6_widget_show_minimized(w.handle)
+END SUB
+
+SUB WidgetShowFullScreen(BYVAL w AS QtWidget)
+    CALL eb_qt6_widget_show_full_screen(w.handle)
+END SUB
+
+''' Restores a maximized/minimized/full-screen window back to its
+''' normal windowed state.
+SUB WidgetShowNormal(BYVAL w AS QtWidget)
+    CALL eb_qt6_widget_show_normal(w.handle)
+END SUB
+
+FUNCTION WidgetIsMaximized(BYVAL w AS QtWidget) AS INTEGER
+    WidgetIsMaximized = eb_qt6_widget_is_maximized(w.handle)
+END FUNCTION
+
+FUNCTION WidgetIsFullScreen(BYVAL w AS QtWidget) AS INTEGER
+    WidgetIsFullScreen = eb_qt6_widget_is_full_screen(w.handle)
+END FUNCTION
+
 ''' See WidgetShow's own doc comment on ownership - a widget already
 ''' parented elsewhere should be wrapped via this, not re-constructed.
 FUNCTION WrapWidget(h AS ANY PTR) AS QtWidget

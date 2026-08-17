@@ -58,3 +58,29 @@ END SUB
 SUB ListWidgetRemoveRow(BYVAL l AS ListWidget, row AS INTEGER)
     CALL eb_qt6_listwidget_remove_row(l.handle, row)
 END SUB
+
+''' Matches real Qt::QAbstractItemView::SelectionMode values - pass to
+''' ListWidgetSetSelectionMode.
+CONST QtNoSelection = 0
+CONST QtSingleSelection = 1
+CONST QtMultiSelection = 2
+CONST QtExtendedSelection = 3
+CONST QtContiguousSelection = 4
+
+''' QtSingleSelection is the real Qt default. QtExtendedSelection
+''' (Ctrl/Shift-click) is the usual desktop-app feel for picking
+''' several items.
+SUB ListWidgetSetSelectionMode(BYVAL l AS ListWidget, mode AS INTEGER)
+    CALL eb_qt6_listwidget_set_selection_mode(l.handle, mode)
+END SUB
+
+FUNCTION ListWidgetSelectedCount(BYVAL l AS ListWidget) AS INTEGER
+    ListWidgetSelectedCount = eb_qt6_listwidget_selected_count(l.handle)
+END FUNCTION
+
+''' Row number of the `index`-th selected item (0-based, in whatever
+''' order Qt itself returns selected items - not necessarily visual/
+''' ascending order). Returns -1 if `index` is out of range.
+FUNCTION ListWidgetSelectedRowAt(BYVAL l AS ListWidget, index AS INTEGER) AS INTEGER
+    ListWidgetSelectedRowAt = eb_qt6_listwidget_selected_row_at(l.handle, index)
+END FUNCTION

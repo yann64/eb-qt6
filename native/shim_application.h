@@ -19,6 +19,8 @@
 // the abort the hard way.
 #pragma once
 
+#include "shim_common.h"
+
 extern "C" {
 
 // Returns the existing QApplication if one was already created (Qt
@@ -35,6 +37,15 @@ void* eb_qt6_application_create(const char* appName);
 int eb_qt6_application_exec(void* app);
 
 void eb_qt6_application_quit(void* app);
+// Real Qt default is on (the app quits automatically once its last
+// top-level window closes) - turn off for apps that should keep
+// running with no visible window (e.g. a system-tray-only app).
+void eb_qt6_application_set_quit_on_last_window_closed(void* app, int quit);
+// Fires once, right before the event loop actually stops (whether via
+// eb_qt6_application_quit, the last-window-closed default above, or
+// the OS terminating the process normally) - the last reliable place
+// to run cleanup logic (e.g. eb_qt6_settings_sync).
+void eb_qt6_application_connect_about_to_quit(void* app, EbQt6VoidCallback cb, void* userData);
 
 // The primary screen's available geometry (excludes taskbars/docks,
 // real QScreen::availableGeometry) in pixels - useful for centering a

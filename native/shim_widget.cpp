@@ -90,6 +90,18 @@ void eb_qt6_widget_raise(void* widget) { static_cast<QWidget*>(widget)->raise();
 
 void eb_qt6_widget_update(void* widget) { static_cast<QWidget*>(widget)->update(); }
 
+void eb_qt6_widget_show_maximized(void* widget) { static_cast<QWidget*>(widget)->showMaximized(); }
+
+void eb_qt6_widget_show_minimized(void* widget) { static_cast<QWidget*>(widget)->showMinimized(); }
+
+void eb_qt6_widget_show_full_screen(void* widget) { static_cast<QWidget*>(widget)->showFullScreen(); }
+
+void eb_qt6_widget_show_normal(void* widget) { static_cast<QWidget*>(widget)->showNormal(); }
+
+int eb_qt6_widget_is_maximized(void* widget) { return static_cast<QWidget*>(widget)->isMaximized() ? 1 : 0; }
+
+int eb_qt6_widget_is_full_screen(void* widget) { return static_cast<QWidget*>(widget)->isFullScreen() ? 1 : 0; }
+
 void* eb_qt6_mainwindow_create() {
     // Qt::WA_DeleteOnClose deliberately left unset - closing hides, does
     // not delete, matching eb-gtk4's own explicit-lifetime philosophy

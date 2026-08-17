@@ -98,6 +98,18 @@ void eb_qt6_widget_raise(void* widget);
 // flow (e.g. a QTimer tick, or data computed elsewhere) and needs a
 // fresh paintEvent call.
 void eb_qt6_widget_update(void* widget);
+// Window state - meaningful for a top-level window; matches real
+// QWidget::showMaximized/showMinimized/showFullScreen/showNormal (each
+// implies showing the widget too, no separate eb_qt6_widget_show call
+// needed).
+void eb_qt6_widget_show_maximized(void* widget);
+void eb_qt6_widget_show_minimized(void* widget);
+void eb_qt6_widget_show_full_screen(void* widget);
+// Restores a maximized/minimized/full-screen window back to its normal
+// windowed state.
+void eb_qt6_widget_show_normal(void* widget);
+int eb_qt6_widget_is_maximized(void* widget);
+int eb_qt6_widget_is_full_screen(void* widget);
 
 void* eb_qt6_mainwindow_create();
 void eb_qt6_mainwindow_set_central_widget(void* window, void* widget);

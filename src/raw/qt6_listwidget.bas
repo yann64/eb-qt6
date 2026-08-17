@@ -13,4 +13,7 @@ Extern "C" Lib "ebqt6shim"
     Declare Function eb_qt6_listwidget_count(ByVal list AS ANY PTR) AS INTEGER
     Declare Sub eb_qt6_listwidget_clear(ByVal list AS ANY PTR)
     Declare Sub eb_qt6_listwidget_remove_row(ByVal list AS ANY PTR, ByVal row AS INTEGER)
+    Declare Sub eb_qt6_listwidget_set_selection_mode(ByVal list AS ANY PTR, ByVal mode AS INTEGER)
+    Declare Function eb_qt6_listwidget_selected_count(ByVal list AS ANY PTR) AS INTEGER
+    Declare Function eb_qt6_listwidget_selected_row_at(ByVal list AS ANY PTR, ByVal index AS INTEGER) AS INTEGER
 End Extern

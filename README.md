@@ -346,6 +346,25 @@ evidence of a binding defect:
   repaint asynchronously rather than painting synchronously, unlike
   every prior spike in this package's history which could check state
   immediately after the call.
+- **v0.21.0** - `QClipboard` image support (`ClipboardSetPixmap`/
+  `GetPixmap`, reusing the `Pixmap` handle from v0.17.0 rather than a
+  separate image type), `QListWidget` multi-selection mode
+  (`SetSelectionMode`/`SelectedCount`/`SelectedRowAt`), window state
+  (`WidgetShowMaximized`/`Minimized`/`FullScreen`/`Normal`,
+  `IsMaximized`/`IsFullScreen`), and `Application`
+  `SetQuitOnLastWindowClosed`/`ConnectAboutToQuit`. **One honest
+  exception, the eighth phase in a row (14-21) hitting the same
+  `xdotool windowactivate` flakiness**: subsequent `Tab`/`Space`
+  keystrokes didn't register live. What confirmed fully live in one
+  screenshot, no interaction needed: a real image round-tripped through
+  the system clipboard (`ClipboardSetPixmap` then `GetPixmap`, both
+  dimensions matching exactly - `64x64`) - the second feature in this
+  package (after `QSyntaxHighlighter`) needing zero interaction to
+  verify convincingly. `ListWidget` multi-selection, window maximize/
+  restore, and `ApplicationConnectAboutToQuit` were instead confirmed
+  via a standalone C++ spike - the window-state check needed the same
+  real timed event-loop spin technique introduced in v0.20.0 (`WidgetShowMaximized`
+  is asynchronous by real Qt/WM design, same as `WidgetUpdate`).
 
 ## Why event filters, not a widget subclass
 
@@ -1546,6 +1565,40 @@ w = FontMetricsTextWidth("Sans", 12, 0, 0, "Hello")
 CALL PainterDrawRect(painter, 10, 10, w + 20, FontMetricsHeight("Sans", 12, 0, 0) + 10)
 ```
 
+## Phase 21 features
+
+`QClipboard` image support, reusing the `Pixmap` handle rather than a
+separate image type:
+
+```basic
+CALL ClipboardSetPixmap(clip, myPixmap)
+DIM fromClipboard AS Pixmap
+fromClipboard = ClipboardGetPixmap(clip)   ' always a real handle - check PixmapIsNull
+```
+
+`QListWidget` multi-selection mode:
+
+```basic
+CALL ListWidgetSetSelectionMode(myList, QtExtendedSelection)   ' Ctrl/Shift-click
+PRINT ListWidgetSelectedCount(myList)
+PRINT ListWidgetSelectedRowAt(myList, 0)   ' 0-based index into the selection, not a row number
+```
+
+Window state:
+
+```basic
+CALL WidgetShowMaximized(win)
+CALL WidgetShowNormal(win)   ' restores
+PRINT WidgetIsMaximized(win)
+```
+
+`Application` quit behavior and cleanup hook:
+
+```basic
+CALL ApplicationSetQuitOnLastWindowClosed(app, 0)   ' keep running with no window, e.g. tray-only
+CALL ApplicationConnectAboutToQuit(app, @OnAboutToQuit, 0)   ' last chance to run cleanup
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -1916,3 +1969,20 @@ screenshot-verified live on this host:
   check, since `update()` only schedules a repaint asynchronously
   (unlike every prior spike in this package's history, which could
   check state synchronously right after the call).
+- `phase21_demo.bas` - copies a real `Pixmap` to the system clipboard
+  and reads it back at startup, a multi-selectable `ListWidget` with a
+  "Check selection count" button, and "Maximize"/"Restore" buttons.
+  Confirmed live in a single screenshot, no interaction needed: the
+  clipboard round trip showing matching `64x64` dimensions both ways.
+  **One honest exception, the eighth phase in a row (14-21) hitting the
+  same `xdotool windowactivate` flakiness**: `Tab`/`Space` on any
+  button didn't register live. `ListWidgetSetSelectionMode`/
+  `SelectedCount`/`SelectedRowAt`, `WidgetShowMaximized`/`IsMaximized`/
+  `ShowNormal`, and `ApplicationConnectAboutToQuit` were instead
+  confirmed via a standalone C++ spike - selecting rows 0 and 2 in a
+  3-item list read back both correctly; maximizing then restoring a
+  window correctly flipped `isMaximized()` true then false (using the
+  same real timed event-loop spin technique `WidgetUpdate` needed in
+  v0.20.0, since window-state changes round-trip through the WM
+  asynchronously); and `aboutToQuit` fired exactly once, right before
+  the spike's own event loop actually stopped.

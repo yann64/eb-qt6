@@ -25,5 +25,15 @@ void eb_qt6_listwidget_clear(void* list);
 // immediately rather than leaking it (no eBasic-visible handle for a
 // removed item exists to hand back anyway).
 void eb_qt6_listwidget_remove_row(void* list, int row);
+// `mode` matches real QAbstractItemView::SelectionMode values:
+// 0=NoSelection, 1=SingleSelection (the default), 2=MultiSelection
+// (click toggles each row independently), 3=ExtendedSelection
+// (Ctrl/Shift-click, the usual desktop-app feel), 4=ContiguousSelection.
+void eb_qt6_listwidget_set_selection_mode(void* list, int mode);
+int eb_qt6_listwidget_selected_count(void* list);
+// Row number of the `index`-th selected item (0-based, in whatever
+// order Qt's own selectedItems() returns them - not necessarily
+// visual/ascending order). Returns -1 if `index` is out of range.
+int eb_qt6_listwidget_selected_row_at(void* list, int index);
 
 }
