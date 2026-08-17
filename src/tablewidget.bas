@@ -55,3 +55,16 @@ END FUNCTION
 SUB TableWidgetSetHorizontalHeaderLabels(BYVAL t AS TableWidget, BYVAL labels AS StringList)
     CALL eb_qt6_tablewidget_set_horizontal_header_labels(t.handle, labels.handle)
 END SUB
+
+''' Removes row `row` entirely, shifting later rows up.
+SUB TableWidgetRemoveRow(BYVAL t AS TableWidget, row AS INTEGER)
+    CALL eb_qt6_tablewidget_remove_row(t.handle, row)
+END SUB
+
+FUNCTION TableWidgetCurrentRow(BYVAL t AS TableWidget) AS INTEGER
+    TableWidgetCurrentRow = eb_qt6_tablewidget_current_row(t.handle)
+END FUNCTION
+
+FUNCTION TableWidgetCurrentColumn(BYVAL t AS TableWidget) AS INTEGER
+    TableWidgetCurrentColumn = eb_qt6_tablewidget_current_column(t.handle)
+END FUNCTION

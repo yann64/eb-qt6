@@ -9,4 +9,8 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_textedit_set_html(ByVal textEdit AS ANY PTR, ByVal html AS ZSTRING)
     Declare Function eb_qt6_textedit_get_html(ByVal textEdit AS ANY PTR) AS ANY PTR
     Declare Sub eb_qt6_textedit_connect_text_changed(ByVal textEdit AS ANY PTR, ByVal cb AS ANY PTR, ByVal userData AS ANY PTR)
+    Declare Function eb_qt6_textedit_document(ByVal textEdit AS ANY PTR) AS ANY PTR
+    Declare Sub eb_qt6_textedit_clear(ByVal textEdit AS ANY PTR)
+    Declare Sub eb_qt6_textedit_undo(ByVal textEdit AS ANY PTR)
+    Declare Sub eb_qt6_textedit_redo(ByVal textEdit AS ANY PTR)
 End Extern

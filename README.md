@@ -297,6 +297,27 @@ evidence of a binding defect:
   truncation behavior, and `TableWidgetRowCount`/`ColumnCount` were
   instead confirmed via the standard standalone-C++-spike technique -
   all matched real Qt behavior exactly.
+- **v0.19.0** - `QSyntaxHighlighter` (rule-based: a list of regex
+  pattern -> color/bold rules applied to every line, not a full
+  per-character callback into eBasic - matches how most real syntax
+  highlighters, including Qt's own official examples, are actually
+  built, and avoids a per-keystroke FFI round trip), `QTextEdit`
+  `Clear`/`Undo`/`Redo`, `QTableWidget` row removal (`RemoveRow`) plus
+  `CurrentRow`/`CurrentColumn`, and `QLineEdit` `SelectAll`/`Clear`.
+  `ShimSyntaxHighlighter` is this package's 4th `Q_OBJECT` subclass
+  (after `ShimWidget`, `ShimDragSourceFilter`, `ShimDropTargetFilter`)
+  - needed because `highlightBlock()` can only be overridden by
+  subclassing, the same reason `PainterWidget` needed one back in
+  v0.1.0. **One honest exception, the sixth phase in a row (14-19)
+  hitting the same `xdotool windowactivate` flakiness**: subsequent
+  `Tab`/`Space` keystrokes didn't register live. What confirmed fully
+  live in one screenshot, no interaction needed: the syntax
+  highlighter correctly rendering three simultaneous rules on real
+  eBasic-flavored sample code (bold blue keywords, a green comment, a
+  red number) and the table's headers/rows. `TableWidgetRemoveRow`,
+  `LineEditSelectAll`, and `TextEditUndo`/`Redo`/`Clear` were instead
+  confirmed via the standard standalone-C++-spike technique - all
+  matched real Qt behavior exactly.
 
 ## Why event filters, not a widget subclass
 
@@ -1423,6 +1444,42 @@ Primary-screen geometry, e.g. for centering a window:
 CALL WidgetMove(win, (PrimaryScreenWidth() - 640) \ 2, (PrimaryScreenHeight() - 480) \ 2)
 ```
 
+## Phase 19 features
+
+`QSyntaxHighlighter` - a list of regex pattern -> color/bold rules
+applied to every line, attached to a `TextEdit`'s own document:
+
+```basic
+DIM h AS SyntaxHighlighter
+h = NewSyntaxHighlighter(TextEditDocument(myTextEdit))
+CALL HighlighterAddRule(h, "\bDIM\b|\bAS\b|\bPRINT\b", 0, 0, 200, 1)   ' bold blue keywords
+CALL HighlighterAddRule(h, "'.*$", 0, 150, 0, 0)                       ' green comments
+CALL HighlighterRehighlight(h)   ' only needed if the document already has text
+```
+
+`QTextEdit` `Clear`/`Undo`/`Redo`:
+
+```basic
+CALL TextEditUndo(myTextEdit)
+CALL TextEditRedo(myTextEdit)
+CALL TextEditClear(myTextEdit)
+```
+
+`QTableWidget` row removal, alongside the existing `SetRowCount`/
+`SetColumnCount`, plus `CurrentRow`/`CurrentColumn`:
+
+```basic
+CALL TableWidgetRemoveRow(table, 0)
+PRINT TableWidgetCurrentRow(table); TableWidgetCurrentColumn(table)
+```
+
+`QLineEdit` `SelectAll`/`Clear`:
+
+```basic
+CALL LineEditSelectAll(myEdit)
+CALL LineEditClear(myEdit)
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -1759,3 +1816,19 @@ screenshot-verified live on this host:
   (inserted/read-back combo items in the right order; an overlong
   `setText` call truncated to the configured max length; row/column
   counts read back correctly).
+- `phase19_demo.bas` - a `TextEdit` with three simultaneous syntax
+  highlighting rules applied to real eBasic-flavored sample code, a
+  `TableWidget` with a "Remove row 0" button, and a `LineEdit` with a
+  "Select all text" button. Confirmed live in a single screenshot, no
+  interaction needed for the headline feature: the highlighter
+  correctly rendering bold blue keywords (`DIM`/`AS`/`PRINT`), a green
+  comment, and a red number all at once on the same three lines, plus
+  the table's headers/rows. **One honest exception, the sixth phase in
+  a row (14-19) hitting the same `xdotool windowactivate` flakiness**:
+  subsequent `Tab`/`Space` on either button didn't register live.
+  `TableWidgetRemoveRow`, `LineEditSelectAll`, and `TextEditUndo`/
+  `Redo`/`Clear` were instead confirmed via a standalone C++ spike -
+  all matched real Qt behavior exactly (removing row 0 from a 2-row
+  table correctly shifted row 1 up; `selectAll()` selected the field's
+  full text; `undo()`/`redo()`/`clear()` all round-tripped a real
+  document edit correctly).

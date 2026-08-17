@@ -30,4 +30,14 @@ void eb_qt6_textedit_connect_text_changed(void* textEdit, EbQt6VoidCallback cb, 
     });
 }
 
+void* eb_qt6_textedit_document(void* textEdit) {
+    return static_cast<QTextEdit*>(textEdit)->document();
+}
+
+void eb_qt6_textedit_clear(void* textEdit) { static_cast<QTextEdit*>(textEdit)->clear(); }
+
+void eb_qt6_textedit_undo(void* textEdit) { static_cast<QTextEdit*>(textEdit)->undo(); }
+
+void eb_qt6_textedit_redo(void* textEdit) { static_cast<QTextEdit*>(textEdit)->redo(); }
+
 }

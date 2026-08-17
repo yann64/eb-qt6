@@ -24,5 +24,13 @@ void eb_qt6_textedit_set_html(void* textEdit, const char* html);
 // as Qt's own generated HTML, even if it was set as plain text.
 char* eb_qt6_textedit_get_html(void* textEdit);
 void eb_qt6_textedit_connect_text_changed(void* textEdit, EbQt6VoidCallback cb, void* userData);
+// Returns the real QTextDocument* backing this edit - only useful for
+// passing to eb_qt6_highlighter_create (shim_highlighter.h). The
+// document is owned by the QTextEdit itself, not a separate handle to
+// track/destroy.
+void* eb_qt6_textedit_document(void* textEdit);
+void eb_qt6_textedit_clear(void* textEdit);
+void eb_qt6_textedit_undo(void* textEdit);
+void eb_qt6_textedit_redo(void* textEdit);
 
 }

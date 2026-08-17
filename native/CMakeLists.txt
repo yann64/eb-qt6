@@ -26,9 +26,10 @@ project(ebqt6shim CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Q_OBJECT (used by ShimWidget, ShimDragSourceFilter, and
-# ShimDropTargetFilter - see shim_painterwidget.h/shim_dragdrop.h's own
-# top comments) needs moc, which AUTOMOC drives automatically via the
+# Q_OBJECT (used by ShimWidget, ShimDragSourceFilter,
+# ShimDropTargetFilter, and ShimSyntaxHighlighter - see
+# shim_painterwidget.h/shim_dragdrop.h/shim_highlighter.h's own top
+# comments) needs moc, which AUTOMOC drives automatically via the
 # Qt6::Widgets imported target below - no manual moc invocation
 # anywhere in this file.
 set(CMAKE_AUTOMOC ON)
@@ -94,6 +95,7 @@ add_library(ebqt6shim STATIC
     shim_process.cpp
     shim_network.cpp
     shim_pixmap.cpp
+    shim_highlighter.cpp
 )
 target_include_directories(ebqt6shim PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(ebqt6shim PUBLIC Qt6::Widgets Qt6::PrintSupport Qt6::Network)

@@ -22,5 +22,10 @@ int eb_qt6_tablewidget_column_count(void* table);
 // eb_qt6_treewidget_set_header_labels's own consume-and-destroy
 // convention for the same StringList type.
 void eb_qt6_tablewidget_set_horizontal_header_labels(void* table, void* labels);
+// Removes row `row` entirely, shifting later rows up - real
+// QTableWidget::removeRow.
+void eb_qt6_tablewidget_remove_row(void* table, int row);
+int eb_qt6_tablewidget_current_row(void* table);
+int eb_qt6_tablewidget_current_column(void* table);
 
 }

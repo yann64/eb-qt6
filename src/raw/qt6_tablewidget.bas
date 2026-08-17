@@ -12,4 +12,7 @@ Extern "C" Lib "ebqt6shim"
     Declare Function eb_qt6_tablewidget_row_count(ByVal table AS ANY PTR) AS INTEGER
     Declare Function eb_qt6_tablewidget_column_count(ByVal table AS ANY PTR) AS INTEGER
     Declare Sub eb_qt6_tablewidget_set_horizontal_header_labels(ByVal table AS ANY PTR, ByVal labels AS ANY PTR)
+    Declare Sub eb_qt6_tablewidget_remove_row(ByVal table AS ANY PTR, ByVal row AS INTEGER)
+    Declare Function eb_qt6_tablewidget_current_row(ByVal table AS ANY PTR) AS INTEGER
+    Declare Function eb_qt6_tablewidget_current_column(ByVal table AS ANY PTR) AS INTEGER
 End Extern

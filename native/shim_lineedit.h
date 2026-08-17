@@ -56,5 +56,7 @@ void eb_qt6_lineedit_set_placeholder_text(void* lineEdit, const char* text);
 // QLineEdit::setMaxLength (Qt's own default is a very large number,
 // effectively unlimited, until this is called).
 void eb_qt6_lineedit_set_max_length(void* lineEdit, int maxLength);
+void eb_qt6_lineedit_select_all(void* lineEdit);
+void eb_qt6_lineedit_clear(void* lineEdit);
 
 }

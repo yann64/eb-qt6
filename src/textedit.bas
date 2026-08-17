@@ -48,3 +48,22 @@ END FUNCTION
 SUB TextEditConnectTextChanged(BYVAL t AS TextEdit, handler AS ANY PTR, userData AS ANY PTR)
     CALL eb_qt6_textedit_connect_text_changed(t.handle, handler, userData)
 END SUB
+
+''' The real QTextDocument* handle backing this edit - only useful for
+''' passing to NewSyntaxHighlighter (highlighter.bas). Owned by the
+''' TextEdit itself, not a separate handle to track/destroy.
+FUNCTION TextEditDocument(BYVAL t AS TextEdit) AS ANY PTR
+    TextEditDocument = eb_qt6_textedit_document(t.handle)
+END FUNCTION
+
+SUB TextEditClear(BYVAL t AS TextEdit)
+    CALL eb_qt6_textedit_clear(t.handle)
+END SUB
+
+SUB TextEditUndo(BYVAL t AS TextEdit)
+    CALL eb_qt6_textedit_undo(t.handle)
+END SUB
+
+SUB TextEditRedo(BYVAL t AS TextEdit)
+    CALL eb_qt6_textedit_redo(t.handle)
+END SUB

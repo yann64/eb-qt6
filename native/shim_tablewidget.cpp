@@ -50,4 +50,12 @@ void eb_qt6_tablewidget_set_horizontal_header_labels(void* table, void* labels) 
     delete list;
 }
 
+void eb_qt6_tablewidget_remove_row(void* table, int row) {
+    static_cast<QTableWidget*>(table)->removeRow(row);
+}
+
+int eb_qt6_tablewidget_current_row(void* table) { return static_cast<QTableWidget*>(table)->currentRow(); }
+
+int eb_qt6_tablewidget_current_column(void* table) { return static_cast<QTableWidget*>(table)->currentColumn(); }
+
 }

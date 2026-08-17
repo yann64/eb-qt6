@@ -58,6 +58,7 @@
 #include once "raw/qt6_process.bas"
 #include once "raw/qt6_network.bas"
 #include once "raw/qt6_pixmap.bas"
+#include once "raw/qt6_highlighter.bas"
 
 #include once "common.bas"
 #include once "application.bas"
@@ -111,3 +112,4 @@
 #include once "process.bas"
 #include once "network.bas"
 #include once "pixmap.bas"
+#include once "highlighter.bas"

@@ -67,4 +67,8 @@ void eb_qt6_lineedit_set_max_length(void* lineEdit, int maxLength) {
     static_cast<QLineEdit*>(lineEdit)->setMaxLength(maxLength);
 }
 
+void eb_qt6_lineedit_select_all(void* lineEdit) { static_cast<QLineEdit*>(lineEdit)->selectAll(); }
+
+void eb_qt6_lineedit_clear(void* lineEdit) { static_cast<QLineEdit*>(lineEdit)->clear(); }
+
 }

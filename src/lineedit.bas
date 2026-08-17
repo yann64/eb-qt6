@@ -91,3 +91,11 @@ END SUB
 SUB LineEditSetMaxLength(BYVAL e AS LineEdit, maxLength AS INTEGER)
     CALL eb_qt6_lineedit_set_max_length(e.handle, maxLength)
 END SUB
+
+SUB LineEditSelectAll(BYVAL e AS LineEdit)
+    CALL eb_qt6_lineedit_select_all(e.handle)
+END SUB
+
+SUB LineEditClear(BYVAL e AS LineEdit)
+    CALL eb_qt6_lineedit_clear(e.handle)
+END SUB
