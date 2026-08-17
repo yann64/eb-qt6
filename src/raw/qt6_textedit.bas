@@ -13,4 +13,5 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_textedit_clear(ByVal textEdit AS ANY PTR)
     Declare Sub eb_qt6_textedit_undo(ByVal textEdit AS ANY PTR)
     Declare Sub eb_qt6_textedit_redo(ByVal textEdit AS ANY PTR)
+    Declare Sub eb_qt6_textedit_set_read_only(ByVal textEdit AS ANY PTR, ByVal readOnly AS INTEGER)
 End Extern

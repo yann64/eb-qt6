@@ -71,4 +71,8 @@ void eb_qt6_lineedit_select_all(void* lineEdit) { static_cast<QLineEdit*>(lineEd
 
 void eb_qt6_lineedit_clear(void* lineEdit) { static_cast<QLineEdit*>(lineEdit)->clear(); }
 
+void eb_qt6_lineedit_set_read_only(void* lineEdit, int readOnly) {
+    static_cast<QLineEdit*>(lineEdit)->setReadOnly(readOnly != 0);
+}
+
 }

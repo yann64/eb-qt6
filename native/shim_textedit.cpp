@@ -40,4 +40,8 @@ void eb_qt6_textedit_undo(void* textEdit) { static_cast<QTextEdit*>(textEdit)->u
 
 void eb_qt6_textedit_redo(void* textEdit) { static_cast<QTextEdit*>(textEdit)->redo(); }
 
+void eb_qt6_textedit_set_read_only(void* textEdit, int readOnly) {
+    static_cast<QTextEdit*>(textEdit)->setReadOnly(readOnly != 0);
+}
+
 }

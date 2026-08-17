@@ -99,3 +99,9 @@ END SUB
 SUB LineEditClear(BYVAL e AS LineEdit)
     CALL eb_qt6_lineedit_clear(e.handle)
 END SUB
+
+''' A read-only field still shows/selects/copies its text and scrolls,
+''' just rejects typed/pasted edits. Off by default.
+SUB LineEditSetReadOnly(BYVAL e AS LineEdit, readOnly AS INTEGER)
+    CALL eb_qt6_lineedit_set_read_only(e.handle, readOnly)
+END SUB

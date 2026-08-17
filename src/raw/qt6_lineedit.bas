@@ -16,4 +16,5 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_lineedit_set_max_length(ByVal lineEdit AS ANY PTR, ByVal maxLength AS INTEGER)
     Declare Sub eb_qt6_lineedit_select_all(ByVal lineEdit AS ANY PTR)
     Declare Sub eb_qt6_lineedit_clear(ByVal lineEdit AS ANY PTR)
+    Declare Sub eb_qt6_lineedit_set_read_only(ByVal lineEdit AS ANY PTR, ByVal readOnly AS INTEGER)
 End Extern

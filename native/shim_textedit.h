@@ -32,5 +32,9 @@ void* eb_qt6_textedit_document(void* textEdit);
 void eb_qt6_textedit_clear(void* textEdit);
 void eb_qt6_textedit_undo(void* textEdit);
 void eb_qt6_textedit_redo(void* textEdit);
+// A read-only edit still shows/selects/copies its text and scrolls,
+// just rejects typed/pasted edits - real QTextEdit::setReadOnly. Off
+// by default.
+void eb_qt6_textedit_set_read_only(void* textEdit, int readOnly);
 
 }

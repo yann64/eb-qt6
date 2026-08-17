@@ -58,5 +58,9 @@ void eb_qt6_lineedit_set_placeholder_text(void* lineEdit, const char* text);
 void eb_qt6_lineedit_set_max_length(void* lineEdit, int maxLength);
 void eb_qt6_lineedit_select_all(void* lineEdit);
 void eb_qt6_lineedit_clear(void* lineEdit);
+// A read-only field still shows/selects/copies its text and scrolls,
+// just rejects typed/pasted edits - real QLineEdit::setReadOnly. Off
+// by default.
+void eb_qt6_lineedit_set_read_only(void* lineEdit, int readOnly);
 
 }

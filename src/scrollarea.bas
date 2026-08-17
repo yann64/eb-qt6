@@ -24,3 +24,17 @@ END SUB
 SUB ScrollAreaSetWidgetResizable(BYVAL s AS ScrollArea, resizable AS INTEGER)
     CALL eb_qt6_scrollarea_set_widget_resizable(s.handle, resizable)
 END SUB
+
+''' Matches real Qt::ScrollBarPolicy values - pass to
+''' ScrollAreaSetHorizontalScrollBarPolicy/SetVerticalScrollBarPolicy.
+CONST QtScrollBarAsNeeded = 0
+CONST QtScrollBarAlwaysOff = 1
+CONST QtScrollBarAlwaysOn = 2
+
+SUB ScrollAreaSetHorizontalScrollBarPolicy(BYVAL s AS ScrollArea, policy AS INTEGER)
+    CALL eb_qt6_scrollarea_set_horizontal_scrollbar_policy(s.handle, policy)
+END SUB
+
+SUB ScrollAreaSetVerticalScrollBarPolicy(BYVAL s AS ScrollArea, policy AS INTEGER)
+    CALL eb_qt6_scrollarea_set_vertical_scrollbar_policy(s.handle, policy)
+END SUB

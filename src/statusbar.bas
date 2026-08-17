@@ -23,3 +23,13 @@ END FUNCTION
 SUB StatusBarShowMessage(BYVAL s AS StatusBar, text AS ZSTRING, timeout AS INTEGER)
     CALL eb_qt6_statusbar_show_message(s.handle, text, timeout)
 END SUB
+
+''' Adds `widget` to the right-aligned "permanent" area of the status
+''' bar - unlike StatusBarShowMessage's temporary text, this stays
+''' visible regardless of what ShowMessage is doing (e.g. a permanent
+''' "Ready"/battery-icon-style indicator). The status bar now owns
+''' `widget` - see widget.bas's own top comment on the "container now
+''' owns it" convention.
+SUB StatusBarAddPermanentWidget(BYVAL s AS StatusBar, BYVAL widget AS QtWidget)
+    CALL eb_qt6_statusbar_add_permanent_widget(s.handle, widget.handle)
+END SUB

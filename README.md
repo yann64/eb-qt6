@@ -416,6 +416,29 @@ evidence of a binding defect:
   tristate were instead confirmed via a standalone C++ spike - all
   matched real Qt behavior exactly once the focus-policy bug above was
   fixed.
+- **v0.24.0** - `QLineEdit`/`QTextEdit` `SetReadOnly` (a real, genuinely
+  missing gap - both had been bound since Phase 1/2 with no read-only
+  support at all), `QStatusBar` permanent widgets
+  (`StatusBarAddPermanentWidget`, distinct from the existing temporary
+  `ShowMessage`), `QScrollArea` scrollbar policy
+  (`SetHorizontalScrollBarPolicy`/`SetVerticalScrollBarPolicy`), and a
+  standalone `QToolButton` (`NewToolButton`/`SetMenu`/`SetPopupMode` -
+  usable in any layout, not just a `QToolBar`, most commonly for a
+  dropdown-menu-only button like "Options..."). Every enum-shaped value
+  this phase (`Qt::ScrollBarPolicy`, `QToolButton::ToolButtonPopupMode`)
+  was verified against the real Qt header/runtime before shipping, not
+  pattern-matched - both turned out to already be simple sequential
+  integers, but checked anyway per v0.23.0's own hard-won lesson.
+  **One honest exception, the eleventh phase in a row (14-24) hitting
+  the same `xdotool windowactivate` flakiness**: `Tab`/`Space` on the
+  tool button didn't register live. What confirmed fully live in one
+  screenshot: the read-only fields showing their real text, the scroll
+  area's both scrollbars forced always-visible, and the status bar
+  showing a temporary "ready" message alongside a permanent "v1.0"
+  label on the right. `ToolButton`'s menu attachment/`clicked` signal,
+  `LineEdit`/`TextEdit` `SetReadOnly`, and `ScrollArea`'s scrollbar
+  policies were instead confirmed via a standalone C++ spike - all
+  matched real Qt behavior exactly.
 
 ## Why event filters, not a widget subclass
 
@@ -1714,6 +1737,40 @@ DIM ok AS INTEGER
 ok = PixmapSave(myPixmap, "output.png")
 ```
 
+## Phase 24 features
+
+`QLineEdit`/`QTextEdit` `SetReadOnly` - still shows/selects/copies text
+and scrolls, just rejects typed/pasted edits:
+
+```basic
+CALL LineEditSetReadOnly(myEdit, 1)
+CALL TextEditSetReadOnly(myTextEdit, 1)
+```
+
+`QStatusBar` permanent widgets, distinct from the existing temporary
+`StatusBarShowMessage`:
+
+```basic
+CALL StatusBarAddPermanentWidget(sb, versionLabel)
+```
+
+`QScrollArea` scrollbar policy:
+
+```basic
+CALL ScrollAreaSetHorizontalScrollBarPolicy(scroll, QtScrollBarAlwaysOn)
+```
+
+A standalone `QToolButton` - usable in any layout, not just a
+`QToolBar`, most commonly for a dropdown-menu-only button:
+
+```basic
+DIM btn AS ToolButton
+btn = NewToolButton()
+CALL ToolButtonSetText(btn, "Options...")
+CALL ToolButtonSetMenu(btn, optionsMenu)
+CALL ToolButtonSetPopupMode(btn, QtInstantPopup)
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -2140,3 +2197,21 @@ screenshot-verified live on this host:
   `QAction::trigger()` reached the connected callback;
   `focusPolicy() == Qt::StrongFocus`; `checkState() == 1`, i.e.
   `PartiallyChecked`).
+- `phase24_demo.bas` - a read-only `LineEdit`/`TextEdit`, a `ScrollArea`
+  with both scrollbars forced always-visible, a status bar with a
+  temporary message and a permanent `v1.0` label, and a standalone
+  `ToolButton` with a popup menu. Confirmed live in a single
+  screenshot: the read-only fields' real text rendering, both
+  scrollbars visible regardless of whether scrolling was actually
+  needed, and the status bar's temporary/permanent text both showing
+  simultaneously in their correct positions. **One honest exception,
+  the eleventh phase in a row (14-24) hitting the same `xdotool
+  windowactivate` flakiness**: `Tab`/`Space` on the tool button didn't
+  register live. `ToolButton`'s menu attachment and `clicked` signal,
+  `LineEdit`/`TextEdit` `SetReadOnly`, and `ScrollArea`'s scrollbar
+  policies were instead confirmed via a standalone C++ spike - all
+  matched real Qt behavior exactly (`isReadOnly()` reflected both
+  fields; `horizontalScrollBarPolicy()`/`verticalScrollBarPolicy()`
+  reflected the set policies; `QToolButton::menu()` returned the
+  attached menu and a real `click()` call reached the connected
+  callback).

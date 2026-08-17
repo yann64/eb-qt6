@@ -67,3 +67,9 @@ END SUB
 SUB TextEditRedo(BYVAL t AS TextEdit)
     CALL eb_qt6_textedit_redo(t.handle)
 END SUB
+
+''' A read-only edit still shows/selects/copies its text and scrolls,
+''' just rejects typed/pasted edits. Off by default.
+SUB TextEditSetReadOnly(BYVAL t AS TextEdit, readOnly AS INTEGER)
+    CALL eb_qt6_textedit_set_read_only(t.handle, readOnly)
+END SUB

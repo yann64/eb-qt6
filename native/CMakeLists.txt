@@ -98,6 +98,7 @@ add_library(ebqt6shim STATIC
     shim_highlighter.cpp
     shim_fontmetrics.cpp
     shim_tooltip.cpp
+    shim_toolbutton.cpp
 )
 target_include_directories(ebqt6shim PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(ebqt6shim PUBLIC Qt6::Widgets Qt6::PrintSupport Qt6::Network)

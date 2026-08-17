@@ -61,6 +61,7 @@
 #include once "raw/qt6_highlighter.bas"
 #include once "raw/qt6_fontmetrics.bas"
 #include once "raw/qt6_tooltip.bas"
+#include once "raw/qt6_toolbutton.bas"
 
 #include once "common.bas"
 #include once "application.bas"
@@ -117,3 +118,4 @@
 #include once "highlighter.bas"
 #include once "fontmetrics.bas"
 #include once "tooltip.bas"
+#include once "toolbutton.bas"
