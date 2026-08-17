@@ -10,4 +10,5 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_lineedit_connect_text_changed(ByVal lineEdit AS ANY PTR, ByVal cb AS ANY PTR, ByVal userData AS ANY PTR)
     Declare Sub eb_qt6_lineedit_set_int_validator(ByVal lineEdit AS ANY PTR, ByVal bottom AS INTEGER, ByVal top AS INTEGER)
     Declare Sub eb_qt6_lineedit_set_double_validator(ByVal lineEdit AS ANY PTR, ByVal bottom AS DOUBLE, ByVal top AS DOUBLE, ByVal decimals AS INTEGER)
+    Declare Sub eb_qt6_lineedit_set_echo_mode(ByVal lineEdit AS ANY PTR, ByVal mode AS INTEGER)
 End Extern

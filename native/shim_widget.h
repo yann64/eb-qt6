@@ -78,6 +78,19 @@ void eb_qt6_widget_set_cursor(void* widget, int shape);
 // Only meaningful for a widget that hasn't been parented into a layout/
 // central-widget slot yet - see this file's own top comment.
 void eb_qt6_widget_destroy(void* widget);
+// Window position/geometry - meaningful for a top-level window; for a
+// child widget managed by a layout, the layout itself controls
+// position/size and these calls are ignored by Qt (real
+// QWidget::move/setGeometry semantics, not a limitation of this shim).
+void eb_qt6_widget_move(void* widget, int x, int y);
+void eb_qt6_widget_set_geometry(void* widget, int x, int y, int width, int height);
+int eb_qt6_widget_x(void* widget);
+int eb_qt6_widget_y(void* widget);
+int eb_qt6_widget_width(void* widget);
+int eb_qt6_widget_height(void* widget);
+// Raises this widget above its sibling widgets in stacking order (real
+// QWidget::raise()) - for a top-level window, brings it to the front.
+void eb_qt6_widget_raise(void* widget);
 
 void* eb_qt6_mainwindow_create();
 void eb_qt6_mainwindow_set_central_widget(void* window, void* widget);

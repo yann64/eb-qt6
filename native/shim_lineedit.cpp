@@ -48,4 +48,8 @@ void eb_qt6_lineedit_set_double_validator(void* lineEdit, double bottom, double 
     edit->setValidator(new QDoubleValidator(bottom, top, decimals, edit));
 }
 
+void eb_qt6_lineedit_set_echo_mode(void* lineEdit, int mode) {
+    static_cast<QLineEdit*>(lineEdit)->setEchoMode(static_cast<QLineEdit::EchoMode>(mode));
+}
+
 }

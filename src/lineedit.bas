@@ -54,3 +54,16 @@ END SUB
 SUB LineEditSetDoubleValidator(BYVAL e AS LineEdit, bottom AS DOUBLE, top AS DOUBLE, decimals AS INTEGER)
     CALL eb_qt6_lineedit_set_double_validator(e.handle, bottom, top, decimals)
 END SUB
+
+''' Matches real QLineEdit::EchoMode values - pass to LineEditSetEchoMode.
+CONST QtLineEditNormal = 0
+CONST QtLineEditNoEcho = 1
+CONST QtLineEditPassword = 2
+CONST QtLineEditPasswordEchoOnEdit = 3
+
+''' QtLineEditPassword masks typed characters (e.g. with dots) - the
+''' usual way to build a password field. LineEditGetText/SetText still
+''' operate on the real underlying text either way.
+SUB LineEditSetEchoMode(BYVAL e AS LineEdit, mode AS INTEGER)
+    CALL eb_qt6_lineedit_set_echo_mode(e.handle, mode)
+END SUB

@@ -72,6 +72,22 @@ void eb_qt6_widget_destroy(void* widget) {
     static_cast<QWidget*>(widget)->deleteLater();
 }
 
+void eb_qt6_widget_move(void* widget, int x, int y) { static_cast<QWidget*>(widget)->move(x, y); }
+
+void eb_qt6_widget_set_geometry(void* widget, int x, int y, int width, int height) {
+    static_cast<QWidget*>(widget)->setGeometry(x, y, width, height);
+}
+
+int eb_qt6_widget_x(void* widget) { return static_cast<QWidget*>(widget)->x(); }
+
+int eb_qt6_widget_y(void* widget) { return static_cast<QWidget*>(widget)->y(); }
+
+int eb_qt6_widget_width(void* widget) { return static_cast<QWidget*>(widget)->width(); }
+
+int eb_qt6_widget_height(void* widget) { return static_cast<QWidget*>(widget)->height(); }
+
+void eb_qt6_widget_raise(void* widget) { static_cast<QWidget*>(widget)->raise(); }
+
 void* eb_qt6_mainwindow_create() {
     // Qt::WA_DeleteOnClose deliberately left unset - closing hides, does
     // not delete, matching eb-gtk4's own explicit-lifetime philosophy

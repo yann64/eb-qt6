@@ -201,6 +201,28 @@ evidence of a binding defect:
   confirmed fully live (screenshot), and PDF output was confirmed by
   writing a real file and checking it's non-empty - no interaction
   needed for either.
+- **v0.15.0** - `QProcess` (run an external command, wait for it, read
+  its output/exit code - **needs no GUI interaction to verify at all**,
+  the most reliably testable feature in this package's history), window
+  geometry/position (`WidgetMove`/`SetGeometry`/`X`/`Y`/`Width`/`Height`/
+  `Raise`), `QLineEdit` echo mode (`LineEditSetEchoMode`, e.g. password
+  masking), and an editable `QComboBox` (`ComboBoxSetEditable`/
+  `SetEditText`/`ConnectEditTextChanged`) - three real gaps found by
+  surveying the existing surface (widget positioning had never been
+  bound at all through 14 prior phases; `QLineEdit`/`QComboBox` had no
+  password/free-text-entry support). **One honest exception, the same
+  narrower flakiness against `xdotool windowactivate` first seen in
+  v0.14.0's `QWizard` window** - this phase's own combined example
+  window intermittently failed the same `XGetWindowProperty
+  [_NET_WM_DESKTOP]` check, and once it did, subsequent `Tab`-focus
+  keystrokes didn't reliably land where expected. What *did* confirm
+  live in a single screenshot: the process's real stdout/exit code
+  rendered in the status label, the window's moved position, and the
+  password field showing masked dots. The editable combo box's
+  `editTextChanged` wiring and the password field's real (unmasked)
+  underlying text were instead confirmed via the standard
+  standalone-C++-spike technique - both fired/read back exactly as
+  expected.
 
 ## Why event filters, not a widget subclass
 
@@ -1166,6 +1188,48 @@ row = TreeWidgetAddTopLevelItem(tree, "Alpha")
 CALL TreeItemSetText(row, 1, "100")
 ```
 
+## Phase 15 features
+
+`QProcess` - a real `Process` needs no GUI/keyboard/mouse interaction
+to verify: run a command, wait for it, read its output/exit code:
+
+```basic
+DIM proc AS Process
+proc = NewProcess(win)   ' parent widget, same lifetime convention as QTimer
+CALL ProcessStart(proc, "echo hello")
+CALL ProcessWaitForFinished(proc, 5000)   ' ms, or -1 to wait forever
+DIM outRaw AS ANY PTR
+outRaw = ProcessReadAllStandardOutput(proc)   ' owned - free via FreeQtString
+DIM exitCode AS INTEGER
+exitCode = ProcessExitCode(proc)
+```
+
+Window geometry/position - meaningful for a top-level window; ignored
+for a widget managed by a layout (real Qt semantics):
+
+```basic
+CALL WidgetMove(win, 200, 150)
+CALL WidgetSetGeometry(win, 200, 150, 640, 480)
+CALL WidgetRaise(win)
+PRINT WidgetX(win); WidgetY(win); WidgetWidth(win); WidgetHeight(win)
+```
+
+`QLineEdit` echo mode - password masking, alongside the existing
+plain-text `LineEditSetText`/`GetText` (which still operate on the real
+underlying text either way):
+
+```basic
+CALL LineEditSetEchoMode(passwordEdit, QtLineEditPassword)
+```
+
+Editable `QComboBox` - lets the user type free-form text, not just pick
+from the item list:
+
+```basic
+CALL ComboBoxSetEditable(combo, 1)
+CALL ComboBoxConnectEditTextChanged(combo, @OnEditTextChanged, 0)   ' fires per keystroke
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -1417,3 +1481,21 @@ screenshot-verified live on this host:
   signal firing on Finish were instead confirmed via a standalone C++
   spike calling `QWizard::next()`/`accept()` directly on the real
   object - the connected callback fired exactly as expected.
+- `phase15_demo.bas` - runs `echo hello` via `QProcess` at startup and
+  shows its real stdout/exit code in a status label, moves the main
+  window via `WidgetMove`/`WidgetRaise`, shows a password field
+  (`LineEditSetEchoMode`) pre-filled with a real value, and an editable
+  `ComboBox`. Confirmed live in a single screenshot: the process's real
+  output ("Hello from QProcess") and exit code (0) rendered correctly,
+  the window appeared at its moved position, and the password field
+  showed masked dots instead of the real text. **One honest exception,
+  the same `xdotool windowactivate` flakiness first seen against
+  v0.14.0's `QWizard` window, this time against this phase's own plain
+  `QMainWindow`**: subsequent `Tab`-focus keystrokes after the initial
+  screenshot didn't reliably land on the expected widget, so clicking
+  the "Reveal" button and typing into the editable combo box live
+  couldn't be confirmed this way. Both were instead confirmed via a
+  standalone C++ spike: `ComboBoxConnectEditTextChanged` fired with the
+  exact text set via `eb_qt6_combobox_set_edit_text`, and the password
+  `QLineEdit`'s real underlying `text()` read back correctly
+  (`"secret42"`) despite its masked on-screen display.

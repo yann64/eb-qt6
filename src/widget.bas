@@ -170,6 +170,41 @@ SUB WidgetDestroy(BYVAL w AS QtWidget)
     CALL eb_qt6_widget_destroy(w.handle)
 END SUB
 
+''' Window position - meaningful for a top-level window; ignored for a
+''' child widget managed by a layout (the layout itself controls
+''' position there, real Qt semantics, not a limitation of this shim).
+SUB WidgetMove(BYVAL w AS QtWidget, x AS INTEGER, y AS INTEGER)
+    CALL eb_qt6_widget_move(w.handle, x, y)
+END SUB
+
+''' Position and size in one call - same layout-widget caveat as
+''' WidgetMove.
+SUB WidgetSetGeometry(BYVAL w AS QtWidget, x AS INTEGER, y AS INTEGER, width AS INTEGER, height AS INTEGER)
+    CALL eb_qt6_widget_set_geometry(w.handle, x, y, width, height)
+END SUB
+
+FUNCTION WidgetX(BYVAL w AS QtWidget) AS INTEGER
+    WidgetX = eb_qt6_widget_x(w.handle)
+END FUNCTION
+
+FUNCTION WidgetY(BYVAL w AS QtWidget) AS INTEGER
+    WidgetY = eb_qt6_widget_y(w.handle)
+END FUNCTION
+
+FUNCTION WidgetWidth(BYVAL w AS QtWidget) AS INTEGER
+    WidgetWidth = eb_qt6_widget_width(w.handle)
+END FUNCTION
+
+FUNCTION WidgetHeight(BYVAL w AS QtWidget) AS INTEGER
+    WidgetHeight = eb_qt6_widget_height(w.handle)
+END FUNCTION
+
+''' Raises this widget above its sibling widgets in stacking order -
+''' for a top-level window, brings it to the front.
+SUB WidgetRaise(BYVAL w AS QtWidget)
+    CALL eb_qt6_widget_raise(w.handle)
+END SUB
+
 ''' See WidgetShow's own doc comment on ownership - a widget already
 ''' parented elsewhere should be wrapped via this, not re-constructed.
 FUNCTION WrapWidget(h AS ANY PTR) AS QtWidget

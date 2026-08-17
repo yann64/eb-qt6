@@ -33,4 +33,10 @@ void eb_qt6_lineedit_connect_text_changed(void* lineEdit, EbQt6StringCallback cb
 void eb_qt6_lineedit_set_int_validator(void* lineEdit, int bottom, int top);
 void eb_qt6_lineedit_set_double_validator(void* lineEdit, double bottom, double top, int decimals);
 
+// `mode` matches real QLineEdit::EchoMode values: 0=Normal (plain
+// text, the default), 1=NoEcho (nothing shown at all, not even dots),
+// 2=Password (masking characters, e.g. dots), 3=PasswordEchoOnEdit
+// (shows characters while typing, masks once focus leaves).
+void eb_qt6_lineedit_set_echo_mode(void* lineEdit, int mode);
+
 }

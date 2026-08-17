@@ -41,4 +41,23 @@ void eb_qt6_combobox_connect_current_index_changed(void* combo, EbQt6IntCallback
                       });
 }
 
+void eb_qt6_combobox_set_editable(void* combo, int editable) {
+    static_cast<QComboBox*>(combo)->setEditable(editable != 0);
+}
+
+void eb_qt6_combobox_set_edit_text(void* combo, const char* text) {
+    static_cast<QComboBox*>(combo)->setEditText(QString::fromUtf8(text));
+}
+
+void eb_qt6_combobox_connect_edit_text_changed(void* combo, EbQt6StringCallback cb, void* userData) {
+    QObject::connect(static_cast<QComboBox*>(combo), &QComboBox::editTextChanged,
+                      [cb, userData](const QString& text) {
+                          if (cb) {
+                              char* utf8 = eb_qt6_dup_qstring(text);
+                              cb(userData, utf8);
+                              eb_qt6_free_string(utf8);
+                          }
+                      });
+}
+
 }

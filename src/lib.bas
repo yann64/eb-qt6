@@ -55,6 +55,7 @@
 #include once "raw/qt6_splashscreen.bas"
 #include once "raw/qt6_wizard.bas"
 #include once "raw/qt6_printer.bas"
+#include once "raw/qt6_process.bas"
 
 #include once "common.bas"
 #include once "application.bas"
@@ -105,3 +106,4 @@
 #include once "splashscreen.bas"
 #include once "wizard.bas"
 #include once "printer.bas"
+#include once "process.bas"

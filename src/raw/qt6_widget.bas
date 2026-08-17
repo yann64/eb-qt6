@@ -19,6 +19,13 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_widget_set_font(ByVal widget AS ANY PTR, ByVal family AS ZSTRING, ByVal pointSize AS INTEGER, ByVal bold AS INTEGER, ByVal italic AS INTEGER)
     Declare Sub eb_qt6_widget_set_cursor(ByVal widget AS ANY PTR, ByVal shape AS INTEGER)
     Declare Sub eb_qt6_widget_destroy(ByVal widget AS ANY PTR)
+    Declare Sub eb_qt6_widget_move(ByVal widget AS ANY PTR, ByVal x AS INTEGER, ByVal y AS INTEGER)
+    Declare Sub eb_qt6_widget_set_geometry(ByVal widget AS ANY PTR, ByVal x AS INTEGER, ByVal y AS INTEGER, ByVal width AS INTEGER, ByVal height AS INTEGER)
+    Declare Function eb_qt6_widget_x(ByVal widget AS ANY PTR) AS INTEGER
+    Declare Function eb_qt6_widget_y(ByVal widget AS ANY PTR) AS INTEGER
+    Declare Function eb_qt6_widget_width(ByVal widget AS ANY PTR) AS INTEGER
+    Declare Function eb_qt6_widget_height(ByVal widget AS ANY PTR) AS INTEGER
+    Declare Sub eb_qt6_widget_raise(ByVal widget AS ANY PTR)
 
     Declare Function eb_qt6_mainwindow_create() AS ANY PTR
     Declare Sub eb_qt6_mainwindow_set_central_widget(ByVal window AS ANY PTR, ByVal widget AS ANY PTR)
