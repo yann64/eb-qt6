@@ -39,4 +39,13 @@ void eb_qt6_lineedit_set_double_validator(void* lineEdit, double bottom, double 
 // (shows characters while typing, masks once focus leaves).
 void eb_qt6_lineedit_set_echo_mode(void* lineEdit, int mode);
 
+// Constructs a new QRegularExpressionValidator parented to `lineEdit`
+// itself (same lifetime convention as eb_qt6_lineedit_set_int_validator
+// above) and attaches it via QLineEdit::setValidator. Replaces any
+// previously-set validator. `pattern` is a real PCRE-like regular
+// expression (QRegularExpression syntax) - an invalid pattern makes the
+// validator accept nothing at all (real Qt behavior: an invalid
+// QRegularExpression never matches), not a crash or silent no-op.
+void eb_qt6_lineedit_set_regex_validator(void* lineEdit, const char* pattern);
+
 }

@@ -79,3 +79,13 @@ END SUB
 FUNCTION TreeItemTextAt(BYVAL item AS TreeItem, column AS INTEGER) AS ANY PTR
     TreeItemTextAt = eb_qt6_treeitem_text_at(item.handle, column)
 END FUNCTION
+
+''' Top-level item count only - not a recursive count of every
+''' descendant item.
+FUNCTION TreeWidgetTopLevelItemCount(BYVAL t AS TreeWidget) AS INTEGER
+    TreeWidgetTopLevelItemCount = eb_qt6_treewidget_top_level_item_count(t.handle)
+END FUNCTION
+
+SUB TreeWidgetClear(BYVAL t AS TreeWidget)
+    CALL eb_qt6_treewidget_clear(t.handle)
+END SUB

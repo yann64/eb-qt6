@@ -44,3 +44,11 @@ END FUNCTION
 SUB ListWidgetConnectCurrentRowChanged(BYVAL l AS ListWidget, handler AS ANY PTR, userData AS ANY PTR)
     CALL eb_qt6_listwidget_connect_current_row_changed(l.handle, handler, userData)
 END SUB
+
+FUNCTION ListWidgetCount(BYVAL l AS ListWidget) AS INTEGER
+    ListWidgetCount = eb_qt6_listwidget_count(l.handle)
+END FUNCTION
+
+SUB ListWidgetClear(BYVAL l AS ListWidget)
+    CALL eb_qt6_listwidget_clear(l.handle)
+END SUB

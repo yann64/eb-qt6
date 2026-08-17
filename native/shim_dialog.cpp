@@ -34,6 +34,10 @@ void eb_qt6_messagebox_warning(void* parent, const char* title, const char* text
     QMessageBox::warning(static_cast<QWidget*>(parent), QString::fromUtf8(title), QString::fromUtf8(text));
 }
 
+void eb_qt6_messagebox_critical(void* parent, const char* title, const char* text) {
+    QMessageBox::critical(static_cast<QWidget*>(parent), QString::fromUtf8(title), QString::fromUtf8(text));
+}
+
 int eb_qt6_messagebox_question(void* parent, const char* title, const char* text) {
     QMessageBox::StandardButton result = QMessageBox::question(
         static_cast<QWidget*>(parent), QString::fromUtf8(title), QString::fromUtf8(text));

@@ -11,6 +11,7 @@ Extern "C" Lib "ebqt6shim"
 
     Declare Sub eb_qt6_messagebox_information(ByVal parent AS ANY PTR, ByVal title AS ZSTRING, ByVal text AS ZSTRING)
     Declare Sub eb_qt6_messagebox_warning(ByVal parent AS ANY PTR, ByVal title AS ZSTRING, ByVal text AS ZSTRING)
+    Declare Sub eb_qt6_messagebox_critical(ByVal parent AS ANY PTR, ByVal title AS ZSTRING, ByVal text AS ZSTRING)
     Declare Function eb_qt6_messagebox_question(ByVal parent AS ANY PTR, ByVal title AS ZSTRING, ByVal text AS ZSTRING) AS INTEGER
 
     Declare Function eb_qt6_filedialog_get_open_file_name(ByVal parent AS ANY PTR, ByVal caption AS ZSTRING, ByVal dir AS ZSTRING, ByVal filter AS ZSTRING) AS ANY PTR

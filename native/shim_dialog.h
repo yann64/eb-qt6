@@ -23,6 +23,7 @@ void eb_qt6_dialog_connect_finished(void* dialog, EbQt6IntCallback cb, void* use
 // `parent` may be a null ANY PTR for no parent window.
 void eb_qt6_messagebox_information(void* parent, const char* title, const char* text);
 void eb_qt6_messagebox_warning(void* parent, const char* title, const char* text);
+void eb_qt6_messagebox_critical(void* parent, const char* title, const char* text);
 // Returns 1 if the user clicked Yes, 0 for No.
 int eb_qt6_messagebox_question(void* parent, const char* title, const char* text);
 

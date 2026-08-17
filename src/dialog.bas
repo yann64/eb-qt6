@@ -52,6 +52,10 @@ SUB MessageBoxWarning(BYVAL parent AS QtWidget, title AS ZSTRING, text AS ZSTRIN
     CALL eb_qt6_messagebox_warning(parent.handle, title, text)
 END SUB
 
+SUB MessageBoxCritical(BYVAL parent AS QtWidget, title AS ZSTRING, text AS ZSTRING)
+    CALL eb_qt6_messagebox_critical(parent.handle, title, text)
+END SUB
+
 ''' Returns non-zero if the user clicked Yes, zero for No.
 FUNCTION MessageBoxQuestion(BYVAL parent AS QtWidget, title AS ZSTRING, text AS ZSTRING) AS INTEGER
     MessageBoxQuestion = eb_qt6_messagebox_question(parent.handle, title, text)

@@ -13,4 +13,6 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_treewidget_set_header_labels(ByVal tree AS ANY PTR, ByVal labels AS ANY PTR)
     Declare Sub eb_qt6_treeitem_set_text(ByVal item AS ANY PTR, ByVal column AS INTEGER, ByVal text AS ZSTRING)
     Declare Function eb_qt6_treeitem_text_at(ByVal item AS ANY PTR, ByVal column AS INTEGER) AS ANY PTR
+    Declare Function eb_qt6_treewidget_top_level_item_count(ByVal tree AS ANY PTR) AS INTEGER
+    Declare Sub eb_qt6_treewidget_clear(ByVal tree AS ANY PTR)
 End Extern

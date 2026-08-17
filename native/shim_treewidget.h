@@ -30,5 +30,9 @@ void eb_qt6_treewidget_set_header_labels(void* tree, void* labels);
 void eb_qt6_treeitem_set_text(void* item, int column, const char* text);
 // Caller frees the result via eb_qt6_free_string.
 char* eb_qt6_treeitem_text_at(void* item, int column);
+// Top-level item count only (matches QTreeWidget::topLevelItemCount) -
+// not a recursive count of every descendant item.
+int eb_qt6_treewidget_top_level_item_count(void* tree);
+void eb_qt6_treewidget_clear(void* tree);
 
 }

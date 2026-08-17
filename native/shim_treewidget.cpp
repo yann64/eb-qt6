@@ -55,4 +55,10 @@ char* eb_qt6_treeitem_text_at(void* item, int column) {
     return eb_qt6_dup_qstring(static_cast<QTreeWidgetItem*>(item)->text(column));
 }
 
+int eb_qt6_treewidget_top_level_item_count(void* tree) {
+    return static_cast<QTreeWidget*>(tree)->topLevelItemCount();
+}
+
+void eb_qt6_treewidget_clear(void* tree) { static_cast<QTreeWidget*>(tree)->clear(); }
+
 }

@@ -4,6 +4,8 @@
 #include <QIntValidator>
 #include <QLineEdit>
 #include <QObject>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
 #include <QString>
 
 extern "C" {
@@ -50,6 +52,11 @@ void eb_qt6_lineedit_set_double_validator(void* lineEdit, double bottom, double 
 
 void eb_qt6_lineedit_set_echo_mode(void* lineEdit, int mode) {
     static_cast<QLineEdit*>(lineEdit)->setEchoMode(static_cast<QLineEdit::EchoMode>(mode));
+}
+
+void eb_qt6_lineedit_set_regex_validator(void* lineEdit, const char* pattern) {
+    QLineEdit* edit = static_cast<QLineEdit*>(lineEdit);
+    edit->setValidator(new QRegularExpressionValidator(QRegularExpression(QString::fromUtf8(pattern)), edit));
 }
 
 }

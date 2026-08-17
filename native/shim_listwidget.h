@@ -17,5 +17,7 @@ void eb_qt6_listwidget_set_current_row(void* list, int row);
 // row is selected.
 char* eb_qt6_listwidget_current_text(void* list);
 void eb_qt6_listwidget_connect_current_row_changed(void* list, EbQt6IntCallback cb, void* userData);
+int eb_qt6_listwidget_count(void* list);
+void eb_qt6_listwidget_clear(void* list);
 
 }

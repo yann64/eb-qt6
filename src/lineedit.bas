@@ -67,3 +67,13 @@ CONST QtLineEditPasswordEchoOnEdit = 3
 SUB LineEditSetEchoMode(BYVAL e AS LineEdit, mode AS INTEGER)
     CALL eb_qt6_lineedit_set_echo_mode(e.handle, mode)
 END SUB
+
+''' `pattern` is a real regular expression (QRegularExpression syntax,
+''' PCRE-like) - alongside the existing LineEditSetIntValidator/
+''' SetDoubleValidator, for patterns those can't express (e.g. an email
+''' address shape). Replaces any previously-set validator. An invalid
+''' pattern makes the field accept nothing at all (real Qt behavior),
+''' not a crash.
+SUB LineEditSetRegexValidator(BYVAL e AS LineEdit, pattern AS ZSTRING)
+    CALL eb_qt6_lineedit_set_regex_validator(e.handle, pattern)
+END SUB

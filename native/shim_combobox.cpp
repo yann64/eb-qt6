@@ -60,4 +60,8 @@ void eb_qt6_combobox_connect_edit_text_changed(void* combo, EbQt6StringCallback 
                       });
 }
 
+int eb_qt6_combobox_count(void* combo) { return static_cast<QComboBox*>(combo)->count(); }
+
+void eb_qt6_combobox_clear(void* combo) { static_cast<QComboBox*>(combo)->clear(); }
+
 }

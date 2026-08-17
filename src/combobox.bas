@@ -61,3 +61,11 @@ END SUB
 SUB ComboBoxConnectEditTextChanged(BYVAL c AS ComboBox, handler AS ANY PTR, userData AS ANY PTR)
     CALL eb_qt6_combobox_connect_edit_text_changed(c.handle, handler, userData)
 END SUB
+
+FUNCTION ComboBoxCount(BYVAL c AS ComboBox) AS INTEGER
+    ComboBoxCount = eb_qt6_combobox_count(c.handle)
+END FUNCTION
+
+SUB ComboBoxClear(BYVAL c AS ComboBox)
+    CALL eb_qt6_combobox_clear(c.handle)
+END SUB

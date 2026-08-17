@@ -33,9 +33,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # anywhere in this file.
 set(CMAKE_AUTOMOC ON)
 
-# PrintSupport is needed for QPrinter (shim_printer.h) - the one shim
-# in this package needing a Qt component beyond Widgets/Gui/Core.
-find_package(Qt6 COMPONENTS Widgets PrintSupport REQUIRED)
+# PrintSupport is needed for QPrinter (shim_printer.h); Network is
+# needed for QNetworkAccessManager/QNetworkReply (shim_network.h) - the
+# two shims in this package needing a Qt component beyond Widgets/Gui/
+# Core.
+find_package(Qt6 COMPONENTS Widgets PrintSupport Network REQUIRED)
 
 add_library(ebqt6shim STATIC
     shim_common.cpp
@@ -90,6 +92,7 @@ add_library(ebqt6shim STATIC
     shim_wizard.cpp
     shim_printer.cpp
     shim_process.cpp
+    shim_network.cpp
 )
 target_include_directories(ebqt6shim PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(ebqt6shim PUBLIC Qt6::Widgets Qt6::PrintSupport)
+target_link_libraries(ebqt6shim PUBLIC Qt6::Widgets Qt6::PrintSupport Qt6::Network)

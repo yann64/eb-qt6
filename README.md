@@ -223,6 +223,28 @@ evidence of a binding defect:
   underlying text were instead confirmed via the standard
   standalone-C++-spike technique - both fired/read back exactly as
   expected.
+- **v0.16.0** - `QNetworkAccessManager`/`QNetworkReply` (a simple HTTP
+  GET, no POST/headers/auth yet - **needs no GUI interaction to verify
+  at all**, matching `QProcess`'s own v0.15.0 precedent - and the first
+  feature in this package needing a live network connection to test),
+  item-widget `Count`/`Clear` housekeeping (`ListWidget`/`ComboBox`/
+  `TreeWidget` - three real gaps found by surveying the existing
+  surface, alongside `QMessageBox::critical` (`MessageBoxCritical`,
+  alongside the existing `Information`/`Warning`/`Question`) and a
+  `QRegularExpressionValidator` for `QLineEdit`
+  (`LineEditSetRegexValidator`, alongside the existing `Int`/`Double`
+  validators). **One honest exception, a continuation of the
+  `xdotool windowactivate` flakiness pattern from v0.14.0/v0.15.0**:
+  this phase's own window hit the same intermittent
+  `XGetWindowProperty[_NET_WM_DESKTOP]` failures, and once it did,
+  keyboard `Tab`/`Space` on the "Clear list" button didn't register.
+  What confirmed fully live in a single screenshot: the real HTTP GET's
+  status code (`HTTP 200` against `https://example.com`) and the item
+  list's correct initial count. `ListWidgetClear`/`Count` and the
+  regex validator's accept/reject behavior were instead confirmed via
+  the standard standalone-C++-spike technique - both matched real Qt
+  behavior exactly (`QValidator::Acceptable`/`Invalid` on good/bad
+  input, count 3→0 after clearing).
 
 ## Why event filters, not a widget subclass
 
@@ -376,7 +398,9 @@ add `-l Qt6PrintSupport` (before `-l Qt6Widgets`, matching real
 `pkg-config --libs Qt6PrintSupport Qt6Widgets` order) - it's a separate
 Qt module the native shim links against but doesn't forward
 automatically, for the same `.libs`-sidecar reason as every other Qt6
-library here.
+library here. **If your program uses `network.bas`
+(`QNetworkAccessManager`, since v0.16.0)**, similarly add
+`-l Qt6Network` (before `-l Qt6Widgets`).
 
 **Known gap - `QT_QPA_PLATFORM=xcb` is required in this development
 environment.** This host runs a GNOME/Wayland session with XWayland
@@ -1230,6 +1254,48 @@ CALL ComboBoxSetEditable(combo, 1)
 CALL ComboBoxConnectEditTextChanged(combo, @OnEditTextChanged, 0)   ' fires per keystroke
 ```
 
+## Phase 16 features
+
+`QNetworkAccessManager`/`QNetworkReply` - a simple HTTP GET only (no
+POST/headers/auth yet). `NetworkReplyWaitForFinished` spins a local
+event loop until the reply's own `finished` signal fires - the standard
+Qt idiom for a "synchronous-looking" async request, so you don't have
+to wire up a callback just to block:
+
+```basic
+DIM manager AS NetworkManager
+manager = NewNetworkManager(win)   ' parent widget, same lifetime convention as QTimer/QProcess
+DIM reply AS NetworkReply
+reply = NetworkManagerGet(manager, "https://example.com")
+CALL NetworkReplyWaitForFinished(reply, 10000)   ' ms, or -1 to wait forever
+IF NOT NetworkReplyHasError(reply) THEN
+    PRINT NetworkReplyStatusCode(reply)   ' e.g. 200
+END IF
+CALL NetworkReplyDeleteLater(reply)   ' real Qt convention - never delete a reply directly
+```
+
+Item-widget housekeeping - `Count`/`Clear` on `ListWidget`/`ComboBox`/
+`TreeWidget` (the tree's is top-level-item count only, not recursive):
+
+```basic
+PRINT ListWidgetCount(myList)
+CALL ListWidgetClear(myList)
+```
+
+`QMessageBox::critical`, alongside the existing `Information`/
+`Warning`/`Question`:
+
+```basic
+CALL MessageBoxCritical(win, "Error", "Something went wrong.")
+```
+
+`QRegularExpressionValidator` for `QLineEdit`, alongside the existing
+`Int`/`Double` validators - for patterns those can't express:
+
+```basic
+CALL LineEditSetRegexValidator(emailEdit, "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+$")
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -1499,3 +1565,23 @@ screenshot-verified live on this host:
   exact text set via `eb_qt6_combobox_set_edit_text`, and the password
   `QLineEdit`'s real underlying `text()` read back correctly
   (`"secret42"`) despite its masked on-screen display.
+- `phase16_demo.bas` - issues a real HTTP GET to `https://example.com`
+  via `QNetworkAccessManager` at startup, shows a 3-item `ListWidget`
+  with a "Clear list" button, a "Show critical dialog" button, and an
+  email-shaped `LineEdit` validator. Confirmed live in a single
+  screenshot: the real HTTP response status (`HTTP 200`) rendered in
+  the status label, and the list's correct initial item count on the
+  Clear button's own label. **One honest exception, the same
+  `xdotool windowactivate` flakiness pattern continuing from v0.14.0/
+  v0.15.0**: this phase's window also hit intermittent
+  `XGetWindowProperty[_NET_WM_DESKTOP]` failures, and subsequent
+  `Tab`/`Space` on the "Clear list" button didn't register live.
+  `ListWidgetClear`/`Count` and the regex validator were instead
+  confirmed via a standalone C++ spike: clearing a 3-item list read
+  back count 0 afterward, and the validator correctly returned
+  `QValidator::Acceptable` for `"user@example.com"` and `Invalid` for
+  `"not valid!!"`. `MessageBoxCritical` itself wasn't separately
+  spiked - its shim function is structurally identical to the
+  already-live-confirmed `MessageBoxInformation`/`Warning`/`Question`
+  calls (Phase 1-3), just a different `QMessageBox::critical` call
+  underneath the same pattern.

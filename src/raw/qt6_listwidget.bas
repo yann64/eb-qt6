@@ -10,4 +10,6 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_listwidget_set_current_row(ByVal list AS ANY PTR, ByVal row AS INTEGER)
     Declare Function eb_qt6_listwidget_current_text(ByVal list AS ANY PTR) AS ANY PTR
     Declare Sub eb_qt6_listwidget_connect_current_row_changed(ByVal list AS ANY PTR, ByVal cb AS ANY PTR, ByVal userData AS ANY PTR)
+    Declare Function eb_qt6_listwidget_count(ByVal list AS ANY PTR) AS INTEGER
+    Declare Sub eb_qt6_listwidget_clear(ByVal list AS ANY PTR)
 End Extern

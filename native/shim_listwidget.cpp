@@ -41,4 +41,8 @@ void eb_qt6_listwidget_connect_current_row_changed(void* list, EbQt6IntCallback 
                       });
 }
 
+int eb_qt6_listwidget_count(void* list) { return static_cast<QListWidget*>(list)->count(); }
+
+void eb_qt6_listwidget_clear(void* list) { static_cast<QListWidget*>(list)->clear(); }
+
 }
