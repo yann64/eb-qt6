@@ -7,4 +7,6 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_button_set_text(ByVal button AS ANY PTR, ByVal label AS ZSTRING)
     Declare Function eb_qt6_button_get_text(ByVal button AS ANY PTR) AS ANY PTR
     Declare Sub eb_qt6_button_connect_clicked(ByVal button AS ANY PTR, ByVal cb AS ANY PTR, ByVal userData AS ANY PTR)
+    Declare Sub eb_qt6_button_set_default(ByVal button AS ANY PTR, ByVal isDefault AS INTEGER)
+    Declare Sub eb_qt6_button_set_auto_default(ByVal button AS ANY PTR, ByVal autoDefault AS INTEGER)
 End Extern

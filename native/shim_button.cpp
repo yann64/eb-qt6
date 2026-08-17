@@ -25,4 +25,12 @@ void eb_qt6_button_connect_clicked(void* button, EbQt6VoidCallback cb, void* use
                       });
 }
 
+void eb_qt6_button_set_default(void* button, int isDefault) {
+    static_cast<QPushButton*>(button)->setDefault(isDefault != 0);
+}
+
+void eb_qt6_button_set_auto_default(void* button, int autoDefault) {
+    static_cast<QPushButton*>(button)->setAutoDefault(autoDefault != 0);
+}
+
 }

@@ -23,3 +23,12 @@ END FUNCTION
 SUB SplitterAddWidget(BYVAL s AS Splitter, BYVAL widget AS QtWidget)
     CALL eb_qt6_splitter_add_widget(s.handle, widget.handle)
 END SUB
+
+''' Sets the first two panes' initial pixel sizes (covers the common
+''' two-pane case; any panes beyond the first two keep their default
+''' size). Real Qt treats these as proportional weights, not hard pixel
+''' constraints - the splitter still respects each widget's own
+''' minimum size.
+SUB SplitterSetSizes2(BYVAL s AS Splitter, firstSize AS INTEGER, secondSize AS INTEGER)
+    CALL eb_qt6_splitter_set_sizes_2(s.handle, firstSize, secondSize)
+END SUB

@@ -89,3 +89,22 @@ END FUNCTION
 SUB TreeWidgetClear(BYVAL t AS TreeWidget)
     CALL eb_qt6_treewidget_clear(t.handle)
 END SUB
+
+SUB TreeWidgetExpandAll(BYVAL t AS TreeWidget)
+    CALL eb_qt6_treewidget_expand_all(t.handle)
+END SUB
+
+SUB TreeWidgetCollapseAll(BYVAL t AS TreeWidget)
+    CALL eb_qt6_treewidget_collapse_all(t.handle)
+END SUB
+
+SUB TreeItemSetExpanded(BYVAL item AS TreeItem, expanded AS INTEGER)
+    CALL eb_qt6_treeitem_set_expanded(item.handle, expanded)
+END SUB
+
+''' Off by default in real Qt - clicking a column header does nothing
+''' until this is turned on. When on, clicking a header sorts by that
+''' column (ascending, then descending on a second click).
+SUB TreeWidgetSetSortingEnabled(BYVAL t AS TreeWidget, enabled AS INTEGER)
+    CALL eb_qt6_treewidget_set_sorting_enabled(t.handle, enabled)
+END SUB

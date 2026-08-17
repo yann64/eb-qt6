@@ -60,6 +60,7 @@
 #include once "raw/qt6_pixmap.bas"
 #include once "raw/qt6_highlighter.bas"
 #include once "raw/qt6_fontmetrics.bas"
+#include once "raw/qt6_tooltip.bas"
 
 #include once "common.bas"
 #include once "application.bas"
@@ -115,3 +116,4 @@
 #include once "pixmap.bas"
 #include once "highlighter.bas"
 #include once "fontmetrics.bas"
+#include once "tooltip.bas"

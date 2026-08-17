@@ -50,3 +50,20 @@ END SUB
 SUB ButtonSetIconFromFile(BYVAL b AS Button, path AS ZSTRING)
     CALL eb_qt6_button_set_icon_from_file(b.handle, path)
 END SUB
+
+''' Makes this button activate on Enter/Return whenever it (or nothing
+''' else focusable) has focus within its dialog/window. Only one button
+''' per dialog should be default at a time - Qt itself doesn't enforce
+''' this, setting it on a second button doesn't automatically clear the
+''' first.
+SUB ButtonSetDefault(BYVAL b AS Button, isDefault AS INTEGER)
+    CALL eb_qt6_button_set_default(b.handle, isDefault)
+END SUB
+
+''' Makes this button activate on Enter/Return only while it
+''' specifically has keyboard focus - weaker than ButtonSetDefault,
+''' which also fires when a different, non-button widget has focus. On
+''' by default for a real QPushButton.
+SUB ButtonSetAutoDefault(BYVAL b AS Button, autoDefault AS INTEGER)
+    CALL eb_qt6_button_set_auto_default(b.handle, autoDefault)
+END SUB

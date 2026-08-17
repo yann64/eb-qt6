@@ -365,6 +365,29 @@ evidence of a binding defect:
   via a standalone C++ spike - the window-state check needed the same
   real timed event-loop spin technique introduced in v0.20.0 (`WidgetShowMaximized`
   is asynchronous by real Qt/WM design, same as `WidgetUpdate`).
+- **v0.22.0** - `QPushButton` default/auto-default (`SetDefault`/
+  `SetAutoDefault` - makes a button activate on Enter/Return, the
+  standard dialog pattern), `QTreeWidget` expand/collapse/sorting
+  (`ExpandAll`/`CollapseAll`/`TreeItemSetExpanded`/
+  `SetSortingEnabled`), `QSplitter` initial pane sizing
+  (`SetSizes2`, covering the common two-pane case), and a
+  programmatic `QToolTip` (`ToolTipShowText`/`Hide`, shown at explicit
+  screen coordinates rather than requiring real mouse hover - useful
+  after a validation error or any keyboard-driven action).
+  **One honest exception, the ninth phase in a row (14-22) hitting the
+  same `xdotool windowactivate` flakiness**: `Return` on the default
+  button and `Tab`/`Space` on the other buttons didn't register live.
+  What confirmed fully live in one screenshot: the splitter's unequal
+  pane widths matching the configured `300`/`100` sizes, the tree
+  expanded and visibly sorted (descending order, not insertion order,
+  confirming `SetSortingEnabled` is really active), and the default
+  button rendering with Qt's own distinctive default-button outline.
+  `ButtonSetDefault`/`SetAutoDefault`, `TreeWidgetExpandAll`/
+  `CollapseAll`, and `ToolTipShowText` were instead confirmed via a
+  standalone C++ spike - all matched real Qt behavior exactly
+  (`isDefault()`/`autoDefault()` reflected the set values; `isExpanded()`
+  flipped true then false; `QToolTip::isVisible()`/`text()` reflected
+  the shown text).
 
 ## Why event filters, not a widget subclass
 
@@ -1599,6 +1622,37 @@ CALL ApplicationSetQuitOnLastWindowClosed(app, 0)   ' keep running with no windo
 CALL ApplicationConnectAboutToQuit(app, @OnAboutToQuit, 0)   ' last chance to run cleanup
 ```
 
+## Phase 22 features
+
+`QPushButton` default/auto-default - the standard "press Enter to
+submit this dialog" pattern:
+
+```basic
+CALL ButtonSetDefault(okButton, 1)
+```
+
+`QTreeWidget` expand/collapse/sorting:
+
+```basic
+CALL TreeWidgetExpandAll(tree)
+CALL TreeItemSetExpanded(someItem, 0)   ' collapse just one item
+CALL TreeWidgetSetSortingEnabled(tree, 1)   ' off by default in real Qt
+```
+
+`QSplitter` initial pane sizing (the common two-pane case):
+
+```basic
+CALL SplitterSetSizes2(split, 300, 100)
+```
+
+A programmatic `QToolTip`, shown at explicit screen coordinates rather
+than requiring real mouse hover:
+
+```basic
+CALL ToolTipShowText(400, 300, "Validation failed")
+CALL ToolTipHide()
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -1986,3 +2040,20 @@ screenshot-verified live on this host:
   v0.20.0, since window-state changes round-trip through the WM
   asynchronously); and `aboutToQuit` fired exactly once, right before
   the spike's own event loop actually stopped.
+- `phase22_demo.bas` - a two-pane `Splitter` sized 300/100, a sorted/
+  expanded `TreeWidget` ("Fruits" with three children), a "Show
+  tooltip" button, and a default button. Confirmed live in a single
+  screenshot: the splitter's actual pane widths matching the configured
+  sizes, the tree visibly sorted in descending order (not insertion
+  order, confirming `TreeWidgetSetSortingEnabled` is really active),
+  and the default button rendering with Qt's own distinctive outline.
+  **One honest exception, the ninth phase in a row (14-22) hitting the
+  same `xdotool windowactivate` flakiness**: neither `Return` on the
+  default button nor `Tab`/`Space` on the other buttons registered
+  live. `ButtonSetDefault`/`SetAutoDefault`, `TreeWidgetExpandAll`/
+  `CollapseAll`, and `ToolTipShowText` were instead confirmed via a
+  standalone C++ spike - all matched real Qt behavior exactly
+  (`isDefault()`/`autoDefault()` reflected the set values;
+  `isExpanded()` flipped true then false across `ExpandAll`/
+  `CollapseAll`; `QToolTip::isVisible()`/`text()` reflected the shown
+  text after `showText()`).

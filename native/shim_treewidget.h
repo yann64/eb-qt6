@@ -34,5 +34,16 @@ char* eb_qt6_treeitem_text_at(void* item, int column);
 // not a recursive count of every descendant item.
 int eb_qt6_treewidget_top_level_item_count(void* tree);
 void eb_qt6_treewidget_clear(void* tree);
+void eb_qt6_treewidget_expand_all(void* tree);
+void eb_qt6_treewidget_collapse_all(void* tree);
+void eb_qt6_treeitem_set_expanded(void* item, int expanded);
+// On by default in real Qt is OFF - clicking a column header does
+// nothing until this is turned on. When on, clicking a header sorts by
+// that column (ascending, then descending on a second click) - the
+// same real Qt::SortOrder-driven behavior QTableWidget/QListWidget
+// share, but opted into explicitly here rather than defaulted on,
+// since not every tree is meant to be sortable (e.g. one whose order
+// is itself meaningful, a file-system-like hierarchy).
+void eb_qt6_treewidget_set_sorting_enabled(void* tree, int enabled);
 
 }

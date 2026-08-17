@@ -15,4 +15,8 @@ Extern "C" Lib "ebqt6shim"
     Declare Function eb_qt6_treeitem_text_at(ByVal item AS ANY PTR, ByVal column AS INTEGER) AS ANY PTR
     Declare Function eb_qt6_treewidget_top_level_item_count(ByVal tree AS ANY PTR) AS INTEGER
     Declare Sub eb_qt6_treewidget_clear(ByVal tree AS ANY PTR)
+    Declare Sub eb_qt6_treewidget_expand_all(ByVal tree AS ANY PTR)
+    Declare Sub eb_qt6_treewidget_collapse_all(ByVal tree AS ANY PTR)
+    Declare Sub eb_qt6_treeitem_set_expanded(ByVal item AS ANY PTR, ByVal expanded AS INTEGER)
+    Declare Sub eb_qt6_treewidget_set_sorting_enabled(ByVal tree AS ANY PTR, ByVal enabled AS INTEGER)
 End Extern

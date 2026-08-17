@@ -61,4 +61,16 @@ int eb_qt6_treewidget_top_level_item_count(void* tree) {
 
 void eb_qt6_treewidget_clear(void* tree) { static_cast<QTreeWidget*>(tree)->clear(); }
 
+void eb_qt6_treewidget_expand_all(void* tree) { static_cast<QTreeWidget*>(tree)->expandAll(); }
+
+void eb_qt6_treewidget_collapse_all(void* tree) { static_cast<QTreeWidget*>(tree)->collapseAll(); }
+
+void eb_qt6_treeitem_set_expanded(void* item, int expanded) {
+    static_cast<QTreeWidgetItem*>(item)->setExpanded(expanded != 0);
+}
+
+void eb_qt6_treewidget_set_sorting_enabled(void* tree, int enabled) {
+    static_cast<QTreeWidget*>(tree)->setSortingEnabled(enabled != 0);
+}
+
 }
