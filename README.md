@@ -318,6 +318,34 @@ evidence of a binding defect:
   `LineEditSelectAll`, and `TextEditUndo`/`Redo`/`Clear` were instead
   confirmed via the standard standalone-C++-spike technique - all
   matched real Qt behavior exactly.
+- **v0.20.0** - `QSpinBox` suffix/prefix/single-step
+  (`SetSuffix`/`SetPrefix`/`SetSingleStep`), a checkable `QGroupBox`
+  (`SetCheckable`/`IsChecked`/`SetChecked`/`ConnectToggled` - a common
+  real Qt pattern, a group box acting as an on/off section toggle;
+  checking/unchecking it also automatically enables/disables its own
+  child widgets, real Qt behavior needing no extra wiring), `WidgetUpdate`
+  (schedules a repaint - useful for a `PainterWidget` whose drawing
+  depends on state that changed outside the normal event/signal flow),
+  and stateless `QFontMetrics` text measurement (`FontMetricsTextWidth`/
+  `Height`). The font-metrics functions need no handle at all - each
+  call constructs a real `QFont`/`QFontMetrics` internally and returns a
+  plain number, reusing the same `(family, pointSize, bold, italic)`
+  shape `WidgetSetFont` already uses to describe a font. **One honest
+  exception, the seventh phase in a row (14-20) hitting the same
+  `xdotool windowactivate` flakiness**: subsequent `Tab`/`Space`
+  keystrokes didn't register live. What confirmed fully live in one
+  screenshot: a custom-drawn box sized exactly to the font-metrics-
+  measured width of its own text (proving the measurement is actually
+  used, not just computed and discarded), the checkable group box
+  correctly checked with its contents visible, and the spin box showing
+  its real `" %"` suffix. `WidgetUpdate`'s real repaint-scheduling
+  effect, `GroupBoxConnectToggled`'s signal wiring, and `SpinBox`
+  prefix/single-step were instead confirmed via a standalone C++ spike -
+  the `WidgetUpdate` check needed a real (not synthetic) ~150ms event-
+  loop spin via `QTimer::singleShot`, since `update()` only schedules a
+  repaint asynchronously rather than painting synchronously, unlike
+  every prior spike in this package's history which could check state
+  immediately after the call.
 
 ## Why event filters, not a widget subclass
 
@@ -1480,6 +1508,44 @@ CALL LineEditSelectAll(myEdit)
 CALL LineEditClear(myEdit)
 ```
 
+## Phase 20 features
+
+`QSpinBox` suffix/prefix/single-step:
+
+```basic
+CALL SpinBoxSetSuffix(spin, " %")
+CALL SpinBoxSetPrefix(spin, "$")
+CALL SpinBoxSetSingleStep(spin, 5)
+```
+
+A checkable `QGroupBox` - checking/unchecking it also automatically
+enables/disables its own child widgets, real Qt behavior needing no
+extra wiring:
+
+```basic
+CALL GroupBoxSetCheckable(group, 1)
+CALL GroupBoxConnectToggled(group, @OnGroupToggled, 0)
+```
+
+`WidgetUpdate` - schedules a repaint, useful for a `PainterWidget`
+whose drawing depends on state that changed outside the normal event/
+signal flow (e.g. a `QTimer` tick, or data computed elsewhere):
+
+```basic
+gTickCount = gTickCount + 1
+CALL WidgetUpdate(myCanvas)   ' triggers a fresh paint callback call
+```
+
+Stateless `QFontMetrics` text measurement - no handle at all, reuses
+the same `(family, pointSize, bold, italic)` shape `WidgetSetFont`
+already uses:
+
+```basic
+DIM w AS INTEGER
+w = FontMetricsTextWidth("Sans", 12, 0, 0, "Hello")
+CALL PainterDrawRect(painter, 10, 10, w + 20, FontMetricsHeight("Sans", 12, 0, 0) + 10)
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -1832,3 +1898,21 @@ screenshot-verified live on this host:
   table correctly shifted row 1 up; `selectAll()` selected the field's
   full text; `undo()`/`redo()`/`clear()` all round-tripped a real
   document edit correctly).
+- `phase20_demo.bas` - a custom-drawn box sized via `FontMetricsTextWidth`/
+  `Height` to exactly fit its own text, a "Tick" button calling
+  `WidgetUpdate` to trigger a fresh repaint, a checkable `GroupBox`, and
+  a `SpinBox` with a `" %"` suffix. Confirmed live in a single
+  screenshot: the drawn box tightly wrapping "tick 0" (proving the
+  measurement is actually used for layout, not just computed and
+  discarded), the checkable group box correctly checked with its
+  contents visible, and the spin box showing "50 %". **One honest
+  exception, the seventh phase in a row (14-20) hitting the same
+  `xdotool windowactivate` flakiness**: `Tab`/`Space` on the "Tick"
+  button didn't register live. `WidgetUpdate`'s real repaint-scheduling
+  effect, `GroupBoxConnectToggled`'s signal wiring, and `SpinBox`
+  prefix/single-step were instead confirmed via a standalone C++ spike
+  - notably, the `WidgetUpdate` check needed a real ~150ms event-loop
+  spin via `QTimer::singleShot` rather than an immediate post-call
+  check, since `update()` only schedules a repaint asynchronously
+  (unlike every prior spike in this package's history, which could
+  check state synchronously right after the call).

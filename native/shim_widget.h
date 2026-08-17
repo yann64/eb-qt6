@@ -91,6 +91,13 @@ int eb_qt6_widget_height(void* widget);
 // Raises this widget above its sibling widgets in stacking order (real
 // QWidget::raise()) - for a top-level window, brings it to the front.
 void eb_qt6_widget_raise(void* widget);
+// Schedules a repaint (real QWidget::update() - Qt batches/coalesces
+// this with other pending updates, may not repaint synchronously) -
+// useful for a PainterWidget (shim_painterwidget.h) whose drawing
+// depends on state that changed from outside the normal event/signal
+// flow (e.g. a QTimer tick, or data computed elsewhere) and needs a
+// fresh paintEvent call.
+void eb_qt6_widget_update(void* widget);
 
 void* eb_qt6_mainwindow_create();
 void eb_qt6_mainwindow_set_central_widget(void* window, void* widget);

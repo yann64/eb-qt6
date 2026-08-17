@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QSpinBox>
+#include <QString>
 
 extern "C" {
 
@@ -25,6 +26,18 @@ void eb_qt6_spinbox_connect_value_changed(void* spinBox, EbQt6IntCallback cb, vo
                       [cb, userData](int value) {
                           if (cb) cb(userData, value);
                       });
+}
+
+void eb_qt6_spinbox_set_suffix(void* spinBox, const char* suffix) {
+    static_cast<QSpinBox*>(spinBox)->setSuffix(QString::fromUtf8(suffix));
+}
+
+void eb_qt6_spinbox_set_prefix(void* spinBox, const char* prefix) {
+    static_cast<QSpinBox*>(spinBox)->setPrefix(QString::fromUtf8(prefix));
+}
+
+void eb_qt6_spinbox_set_single_step(void* spinBox, int step) {
+    static_cast<QSpinBox*>(spinBox)->setSingleStep(step);
 }
 
 }

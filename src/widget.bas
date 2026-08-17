@@ -205,6 +205,15 @@ SUB WidgetRaise(BYVAL w AS QtWidget)
     CALL eb_qt6_widget_raise(w.handle)
 END SUB
 
+''' Schedules a repaint (Qt batches/coalesces this with other pending
+''' updates, may not repaint synchronously) - useful for a
+''' PainterWidget whose drawing depends on state that changed from
+''' outside the normal event/signal flow (e.g. a QTimer tick, or data
+''' computed elsewhere) and needs a fresh paint callback call.
+SUB WidgetUpdate(BYVAL w AS QtWidget)
+    CALL eb_qt6_widget_update(w.handle)
+END SUB
+
 ''' See WidgetShow's own doc comment on ownership - a widget already
 ''' parented elsewhere should be wrapped via this, not re-constructed.
 FUNCTION WrapWidget(h AS ANY PTR) AS QtWidget

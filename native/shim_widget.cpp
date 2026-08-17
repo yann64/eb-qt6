@@ -88,6 +88,8 @@ int eb_qt6_widget_height(void* widget) { return static_cast<QWidget*>(widget)->h
 
 void eb_qt6_widget_raise(void* widget) { static_cast<QWidget*>(widget)->raise(); }
 
+void eb_qt6_widget_update(void* widget) { static_cast<QWidget*>(widget)->update(); }
+
 void* eb_qt6_mainwindow_create() {
     // Qt::WA_DeleteOnClose deliberately left unset - closing hides, does
     // not delete, matching eb-gtk4's own explicit-lifetime philosophy
