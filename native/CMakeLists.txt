@@ -26,13 +26,16 @@ project(ebqt6shim CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Q_OBJECT (used by exactly one class in this shim, ShimWidget - see
-# shim_painterwidget.h's own top comment) needs moc, which AUTOMOC
-# drives automatically via the Qt6::Widgets imported target below - no
-# manual moc invocation anywhere in this file.
+# Q_OBJECT (used by ShimWidget, ShimDragSourceFilter, and
+# ShimDropTargetFilter - see shim_painterwidget.h/shim_dragdrop.h's own
+# top comments) needs moc, which AUTOMOC drives automatically via the
+# Qt6::Widgets imported target below - no manual moc invocation
+# anywhere in this file.
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt6 COMPONENTS Widgets REQUIRED)
+# PrintSupport is needed for QPrinter (shim_printer.h) - the one shim
+# in this package needing a Qt component beyond Widgets/Gui/Core.
+find_package(Qt6 COMPONENTS Widgets PrintSupport REQUIRED)
 
 add_library(ebqt6shim STATIC
     shim_common.cpp
@@ -83,6 +86,9 @@ add_library(ebqt6shim STATIC
     shim_frame.cpp
     shim_scrollbar.cpp
     shim_dragdrop.cpp
+    shim_splashscreen.cpp
+    shim_wizard.cpp
+    shim_printer.cpp
 )
 target_include_directories(ebqt6shim PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(ebqt6shim PUBLIC Qt6::Widgets)
+target_link_libraries(ebqt6shim PUBLIC Qt6::Widgets Qt6::PrintSupport)

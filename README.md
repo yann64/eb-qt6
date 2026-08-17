@@ -170,6 +170,37 @@ evidence of a binding defect:
   anyway because the implementation follows Qt's own documented,
   standard pattern for filter-based drag-and-drop, with this honestly
   weaker confidence level stated plainly rather than glossed over.
+- **v0.14.0** - `QSplashScreen`, `QWizard`/`QWizardPage` (plain pages
+  composed via `WidgetSetLayout`, no subclassing needed - the wizard
+  itself drives Next/Back/Finish/Cancel navigation), PDF printing via
+  `QPrinter` (PDF-file output only - see "Phase 14 features" below for
+  why), and multi-column `QTreeWidget` support
+  (`TreeWidgetSetColumnCount`/`SetHeaderLabels`, `TreeItemSetText`/
+  `TextAt`). **A new environment fact, not a binding defect**:
+  `QPrinter`'s constructor aborts the process if called before a
+  `QCoreApplication` exists - same requirement `QApplication` itself
+  has, just discovered on a second class this time (confirmed by direct
+  reproduction, fixed by reordering the example). **Keyboard-driven
+  live verification was flakier than every prior phase** in this
+  session specifically for the modal `QWizard` dialog - `xdotool
+  windowactivate` intermittently failed (`XGetWindowProperty
+  [_NET_WM_DESKTOP] failed`) against the wizard's own top-level window,
+  most likely because a `QWizard` dialog, like other transient Qt
+  dialogs, doesn't get `_NET_WM_DESKTOP` set the way a plain
+  `QMainWindow` does - a narrower variant of the already-documented
+  `WidgetHasFocus` WM-activation gap (see v0.10.0 above), not new in
+  kind. What *did* work live: the wizard opens via a real keyboard
+  click on its launch button, page 1 renders with the correct
+  Back-disabled/Next-enabled state, and `WidgetSetFocus` correctly
+  focused the page's `LineEdit` even nested inside a wizard page's own
+  layout. Page navigation (`next()`) and the `accepted` signal firing
+  on Finish were instead confirmed via the standard standalone-C++-spike
+  technique - calling `QWizard::next()`/`accept()` directly on the real
+  object and observing the connected callback fire exactly as expected.
+  Splash-screen show/finish and the multi-column tree were both
+  confirmed fully live (screenshot), and PDF output was confirmed by
+  writing a real file and checking it's non-empty - no interaction
+  needed for either.
 
 ## Why event filters, not a widget subclass
 
@@ -318,6 +349,12 @@ $ ebc yourprogram.bas -o yourprogram \
 ```
 
 (that `-l` order matches real `pkg-config --libs Qt6Widgets` output).
+**If your program uses `printer.bas` (`QPrinter`, since v0.14.0)**, also
+add `-l Qt6PrintSupport` (before `-l Qt6Widgets`, matching real
+`pkg-config --libs Qt6PrintSupport Qt6Widgets` order) - it's a separate
+Qt module the native shim links against but doesn't forward
+automatically, for the same `.libs`-sidecar reason as every other Qt6
+library here.
 
 **Known gap - `QT_QPA_PLATFORM=xcb` is required in this development
 environment.** This host runs a GNOME/Wayland session with XWayland
@@ -1067,6 +1104,68 @@ END SUB
 CALL WidgetEnableDropTarget(targetFrame, @OnDropped, 0)
 ```
 
+## Phase 14 features
+
+`QSplashScreen`:
+
+```basic
+DIM splash AS SplashScreen
+splash = NewSplashScreenFromFile("logo.png")
+CALL SplashScreenShowMessage(splash, "Loading...")
+CALL SplashScreenShow(splash)
+' ... construct your real main window ...
+CALL SplashScreenFinish(splash, win)   ' closes the splash automatically
+CALL WidgetShow(win)
+```
+
+`QWizard`/`QWizardPage` - pages are plain widgets composed the usual way
+(`WidgetSetLayout`), no subclassing needed; the wizard itself provides
+Next/Back/Finish/Cancel navigation:
+
+```basic
+DIM page1 AS WizardPage
+page1 = NewWizardPage("Your name")
+CALL WidgetSetLayout(page1, someLayoutWithAFieldInIt)
+
+DIM wiz AS Wizard
+wiz = NewWizard()
+CALL WizardAddPage(wiz, page1)
+CALL WizardConnectAccepted(wiz, @OnWizardAccepted, 0)   ' fires on Finish
+CALL WizardShow(wiz)
+```
+
+PDF printing via `QPrinter` - restricted to PDF-file output, no real
+printer/print dialog, since this sandbox has no real printer to test
+against and PDF-to-file is the one printing path fully testable without
+any interaction (write a file, check it's non-empty). **Must be
+constructed after `NewApplication`** - like `QApplication` itself,
+`QPrinter` aborts the process if constructed too early:
+
+```basic
+DIM p AS Printer
+p = NewPdfPrinter("output.pdf")
+DIM painter AS ANY PTR
+painter = PrinterBegin(p)          ' same handle every Painter* fn takes
+CALL PainterDrawText(painter, 100, 100, "Hello, PDF")
+CALL PrinterEnd(p)                 ' writes the file; painter now invalid
+```
+
+Multi-column `QTreeWidget` - `TreeWidgetAddTopLevelItem`/`TreeItemAddChild`
+(Phase 4) only ever set column 0; these fill in the rest:
+
+```basic
+CALL TreeWidgetSetColumnCount(tree, 2)
+DIM headers AS StringList
+headers = NewStringList()
+CALL StringListAdd(headers, "Name")
+CALL StringListAdd(headers, "Value")
+CALL TreeWidgetSetHeaderLabels(tree, headers)   ' consumed/destroyed here
+
+DIM row AS TreeItem
+row = TreeWidgetAddTopLevelItem(tree, "Alpha")
+CALL TreeItemSetText(row, 1, "100")
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -1299,3 +1398,22 @@ screenshot-verified live on this host:
   This is the most honestly *uncertain* item published in this
   package's history - flagged as such deliberately rather than
   claimed as either working or broken.
+- `phase14_demo.bas` - a splash screen shown at startup then finished
+  into the main window, a "Open wizard" button launching a 2-page
+  `QWizard`, a one-page PDF printed to a scratch path at startup, and a
+  multi-column `TreeWidget` with header labels and per-column item text.
+  Confirmed live: the splash screen correctly transitions to the main
+  window, the main window's tree renders both columns ("Name"/"Value"
+  headers, two rows with values in column 1), and the PDF file exists
+  with non-zero size after the app runs. **One honest exception, a new
+  variant of the WM-activation gap**: `xdotool windowactivate` was
+  intermittently unreliable against the wizard's own top-level window
+  specifically (`XGetWindowProperty[_NET_WM_DESKTOP] failed`), more so
+  than any plain `QMainWindow` in this README - plausibly because modal
+  Qt dialogs don't get `_NET_WM_DESKTOP` set the way a top-level main
+  window does. What *did* work live: opening the wizard via a real
+  keyboard click on its launch button, and `WidgetSetFocus` correctly
+  focusing the page's `LineEdit`. Page navigation and the `accepted`
+  signal firing on Finish were instead confirmed via a standalone C++
+  spike calling `QWizard::next()`/`accept()` directly on the real
+  object - the connected callback fired exactly as expected.

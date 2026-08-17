@@ -5,6 +5,7 @@
 
 #include once "widget.bas"
 #include once "common.bas"
+#include once "inputdialog.bas"
 #include once "raw/qt6_treewidget.bas"
 
 TYPE TreeWidget EXTENDS QtWidget
@@ -56,3 +57,25 @@ END FUNCTION
 SUB TreeWidgetConnectCurrentItemChanged(BYVAL t AS TreeWidget, handler AS ANY PTR, userData AS ANY PTR)
     CALL eb_qt6_treewidget_connect_current_item_changed(t.handle, handler, userData)
 END SUB
+
+''' Multi-column support - TreeWidgetAddTopLevelItem/TreeItemAddChild
+''' above only ever set column 0's text; these fill in the rest.
+SUB TreeWidgetSetColumnCount(BYVAL t AS TreeWidget, count AS INTEGER)
+    CALL eb_qt6_treewidget_set_column_count(t.handle, count)
+END SUB
+
+''' `labels` is consumed and destroyed by this call - see StringList's
+''' own doc comment (inputdialog.bas).
+SUB TreeWidgetSetHeaderLabels(BYVAL t AS TreeWidget, BYVAL labels AS StringList)
+    CALL eb_qt6_treewidget_set_header_labels(t.handle, labels.handle)
+END SUB
+
+SUB TreeItemSetText(BYVAL item AS TreeItem, column AS INTEGER, text AS ZSTRING)
+    CALL eb_qt6_treeitem_set_text(item.handle, column, text)
+END SUB
+
+''' See ButtonGetText's own doc comment on the owned-allocation/
+''' FreeQtString convention.
+FUNCTION TreeItemTextAt(BYVAL item AS TreeItem, column AS INTEGER) AS ANY PTR
+    TreeItemTextAt = eb_qt6_treeitem_text_at(item.handle, column)
+END FUNCTION
