@@ -6,7 +6,17 @@ managed with `ebpm`.
 ## Status
 
 Early development. Real Qt6 (6.10.2) is installed and fully working on
-the development host this was built/verified against.
+the development host this was built/verified against. **Confirmed since
+(2026-09-04, v0.26.0) to also compile, link, and run for real on Haiku**
+- real HaikuPorts `qt6_base`/`qt6_base_devel` packages, `moc` (shipped at
+`/boot/system/lib/Qt6/moc`, found automatically by CMake's own
+`find_package(Qt6)` despite not being on `PATH`) - zero source changes
+needed anywhere in this package, including its `Q_OBJECT`-based shim
+classes. `examples/hello_window` renders live with Haiku's own native
+window decorations (no `QT_QPA_PLATFORM` override needed - Qt6's Haiku
+port already defaults to its own native platform plugin). `eb-gui-qt6`
+(the universal GUI adapter built on this package) was reconfirmed working
+there too.
 
 - **v0.1.0** - `QApplication`, `QWidget`/`QMainWindow`, `QPushButton`,
   `QLabel`, `QLineEdit`, `QVBoxLayout`/`QHBoxLayout`, and a custom-paint
