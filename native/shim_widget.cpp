@@ -3,7 +3,6 @@
 #include <QBoxLayout>
 #include <QCursor>
 #include <QFont>
-#include <QMainWindow>
 #include <QString>
 #include <QWidget>
 
@@ -72,6 +71,8 @@ void eb_qt6_widget_destroy(void* widget) {
     static_cast<QWidget*>(widget)->deleteLater();
 }
 
+void eb_qt6_widget_close(void* widget) { static_cast<QWidget*>(widget)->close(); }
+
 void eb_qt6_widget_move(void* widget, int x, int y) { static_cast<QWidget*>(widget)->move(x, y); }
 
 void eb_qt6_widget_set_geometry(void* widget, int x, int y, int width, int height) {
@@ -106,15 +107,17 @@ void eb_qt6_widget_set_focus_policy(void* widget, int policy) {
     static_cast<QWidget*>(widget)->setFocusPolicy(static_cast<Qt::FocusPolicy>(policy));
 }
 
-void* eb_qt6_mainwindow_create() {
-    // Qt::WA_DeleteOnClose deliberately left unset - closing hides, does
-    // not delete, matching eb-gtk4's own explicit-lifetime philosophy
-    // (see this file's own top comment).
-    return new QMainWindow();
+void eb_qt6_widget_set_modal(void* widget, int modal) {
+    static_cast<QWidget*>(widget)->setWindowModality(static_cast<Qt::WindowModality>(modal));
 }
 
-void eb_qt6_mainwindow_set_central_widget(void* window, void* widget) {
-    static_cast<QMainWindow*>(window)->setCentralWidget(static_cast<QWidget*>(widget));
+int eb_qt6_widget_get_modal(void* widget) {
+    return static_cast<int>(static_cast<QWidget*>(widget)->windowModality());
+}
+
+void eb_qt6_widget_set_parent_window(void* widget, void* parent) {
+    QWidget* w = static_cast<QWidget*>(widget);
+    w->setParent(static_cast<QWidget*>(parent), w->windowFlags() | Qt::Window);
 }
 
 void* eb_qt6_vboxlayout_create() { return new QVBoxLayout(); }

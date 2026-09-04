@@ -439,6 +439,26 @@ evidence of a binding defect:
   `LineEdit`/`TextEdit` `SetReadOnly`, and `ScrollArea`'s scrollbar
   policies were instead confirmed via a standalone C++ spike - all
   matched real Qt behavior exactly.
+- **v0.25.0** - generic window modality (`WidgetSetModal`/
+  `WidgetGetModal`/`WidgetSetParentWindow`, working on any `QtWidget` -
+  previously only `Dialog.Exec()`'s own blocking modal loop existed, no
+  generic window-to-window modal relationship at all) and a vetoable
+  `MainWindow` close handler (`MainWindowSetCloseCallback`, plus a new
+  `WidgetClose` to trigger it - real `QWidget::close()`, distinct from
+  `WidgetDestroy`). Both are prerequisite additions for a new,
+  higher-level cross-toolkit "universal GUI API" package
+  (`eb-gui`/`eb-gui-qt6`) being built on top of this one, alongside a
+  matching pass over `eb-gtk4`. This package's 5th `Q_OBJECT` subclass
+  (`ShimMainWindow`, still well under `eb-haiku`'s own six-`Shim*`-class
+  historical budget) - unavoidable since `closeEvent` is a real virtual
+  method, not a signal. `eb_qt6_mainwindow_create()` now returns a
+  `ShimMainWindow` instead of a plain `QMainWindow` - source-compatible
+  for every existing caller. Verified via a standalone C++ spike first
+  (modal/parent-window round-trip, veto/allow/no-callback close
+  behavior, and - a real, worth-confirming detail - that
+  `WidgetSetParentWindow` genuinely does NOT reparent into the parent's
+  own widget tree, `isWindow()` still true afterward), then re-confirmed
+  at the eBasic layer (`window_lifecycle_verify.bas`).
 
 ## Why event filters, not a widget subclass
 
@@ -1771,6 +1791,27 @@ CALL ToolButtonSetMenu(btn, optionsMenu)
 CALL ToolButtonSetPopupMode(btn, QtInstantPopup)
 ```
 
+## Phase 25 features
+
+Generic window modality - works on any `QtWidget`, not just `Dialog`:
+
+```basic
+CALL WidgetSetParentWindow(childWin, parentWin)
+CALL WidgetSetModal(childWin, QtWindowModal)
+PRINT WidgetGetModal(childWin)
+```
+
+A vetoable `MainWindow` close handler:
+
+```basic
+FUNCTION OnClose(userData AS ANY PTR) AS INTEGER
+    OnClose = 0   ' nonzero = allow the close; 0 = veto it
+END FUNCTION
+
+CALL MainWindowSetCloseCallback(myWindow, @OnClose, 0)
+CALL WidgetClose(myWindow)   ' triggers it - unlike WidgetDestroy
+```
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
@@ -2215,3 +2256,11 @@ screenshot-verified live on this host:
   reflected the set policies; `QToolButton::menu()` returned the
   attached menu and a real `click()` call reached the connected
   callback).
+- `window_lifecycle_verify.bas` - `WidgetSetModal`/`WidgetGetModal`/
+  `WidgetSetParentWindow` and `MainWindowSetCloseCallback`, confirmed
+  entirely programmatically rather than via `xdotool` (every check is a
+  direct function call + printed result, no synthetic input needed):
+  modal state round-tripped correctly, `WidgetSetParentWindow`
+  genuinely didn't reparent into the parent's widget tree, and the
+  close callback's veto/allow/no-callback-at-all behaviors all matched
+  the standalone C++ spike's own results exactly.

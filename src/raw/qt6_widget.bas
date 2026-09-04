@@ -19,6 +19,7 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_widget_set_font(ByVal widget AS ANY PTR, ByVal family AS ZSTRING, ByVal pointSize AS INTEGER, ByVal bold AS INTEGER, ByVal italic AS INTEGER)
     Declare Sub eb_qt6_widget_set_cursor(ByVal widget AS ANY PTR, ByVal shape AS INTEGER)
     Declare Sub eb_qt6_widget_destroy(ByVal widget AS ANY PTR)
+    Declare Sub eb_qt6_widget_close(ByVal widget AS ANY PTR)
     Declare Sub eb_qt6_widget_move(ByVal widget AS ANY PTR, ByVal x AS INTEGER, ByVal y AS INTEGER)
     Declare Sub eb_qt6_widget_set_geometry(ByVal widget AS ANY PTR, ByVal x AS INTEGER, ByVal y AS INTEGER, ByVal width AS INTEGER, ByVal height AS INTEGER)
     Declare Function eb_qt6_widget_x(ByVal widget AS ANY PTR) AS INTEGER
@@ -34,9 +35,13 @@ Extern "C" Lib "ebqt6shim"
     Declare Function eb_qt6_widget_is_maximized(ByVal widget AS ANY PTR) AS INTEGER
     Declare Function eb_qt6_widget_is_full_screen(ByVal widget AS ANY PTR) AS INTEGER
     Declare Sub eb_qt6_widget_set_focus_policy(ByVal widget AS ANY PTR, ByVal policy AS INTEGER)
+    Declare Sub eb_qt6_widget_set_modal(ByVal widget AS ANY PTR, ByVal modal AS INTEGER)
+    Declare Function eb_qt6_widget_get_modal(ByVal widget AS ANY PTR) AS INTEGER
+    Declare Sub eb_qt6_widget_set_parent_window(ByVal widget AS ANY PTR, ByVal parent AS ANY PTR)
 
     Declare Function eb_qt6_mainwindow_create() AS ANY PTR
     Declare Sub eb_qt6_mainwindow_set_central_widget(ByVal window AS ANY PTR, ByVal widget AS ANY PTR)
+    Declare Sub eb_qt6_mainwindow_set_close_callback(ByVal window AS ANY PTR, ByVal cb AS ANY PTR, ByVal userData AS ANY PTR)
 
     Declare Function eb_qt6_vboxlayout_create() AS ANY PTR
     Declare Function eb_qt6_hboxlayout_create() AS ANY PTR

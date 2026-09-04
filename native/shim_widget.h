@@ -78,6 +78,11 @@ void eb_qt6_widget_set_cursor(void* widget, int shape);
 // Only meaningful for a widget that hasn't been parented into a layout/
 // central-widget slot yet - see this file's own top comment.
 void eb_qt6_widget_destroy(void* widget);
+// Requests a close (real QWidget::close(), which - for a top-level
+// window - triggers closeEvent, the path ShimMainWindow's close
+// callback (shim_mainwindow.h) hooks into) - unlike eb_qt6_widget_destroy,
+// this can be vetoed and never directly deletes anything itself.
+void eb_qt6_widget_close(void* widget);
 // Window position/geometry - meaningful for a top-level window; for a
 // child widget managed by a layout, the layout itself controls
 // position/size and these calls are ignored by Qt (real
@@ -122,9 +127,22 @@ int eb_qt6_widget_is_full_screen(void* widget);
 // QtNoFocus/QtTabFocus/QtClickFocus/QtStrongFocus/QtWheelFocus
 // constants (widget.bas) rather than hand-rolling these values.
 void eb_qt6_widget_set_focus_policy(void* widget, int policy);
-
-void* eb_qt6_mainwindow_create();
-void eb_qt6_mainwindow_set_central_widget(void* window, void* widget);
+// A modal widget blocks interaction with (real Qt::WindowModal) its own
+// window-modality scope, or (Qt::ApplicationModal) the entire
+// application, until closed/hidden - see eb_qt6_widget_set_parent_window
+// for the companion "which window does this block" relationship, the Qt
+// equivalent of GTK4's transient-parent concept (a real association for
+// stacking/centering/modality, NOT reparenting this widget into the
+// parent's own child-widget/layout tree). `modal` is a real
+// Qt::WindowModality value (0=NonModal, 1=WindowModal, 2=ApplicationModal).
+void eb_qt6_widget_set_modal(void* widget, int modal);
+int eb_qt6_widget_get_modal(void* widget);
+// CONFIRMED (via a standalone spike, not assumed): safe to call only
+// before `widget` is first shown - real Qt documents changing a shown
+// widget's parent as unsafe. Re-applies Qt::Window so `widget` stays a
+// real top-level window (not reparented into parent's own widget tree)
+// while still being associated with it for stacking/centering purposes.
+void eb_qt6_widget_set_parent_window(void* widget, void* parent);
 
 void* eb_qt6_vboxlayout_create();
 void* eb_qt6_hboxlayout_create();

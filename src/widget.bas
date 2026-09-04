@@ -170,6 +170,14 @@ SUB WidgetDestroy(BYVAL w AS QtWidget)
     CALL eb_qt6_widget_destroy(w.handle)
 END SUB
 
+''' Requests a close (real QWidget::close(), which - for a top-level
+''' window - triggers a MainWindowSetCloseCallback handler if one is
+''' connected) - unlike WidgetDestroy, this can be vetoed and never
+''' directly deletes anything itself.
+SUB WidgetClose(BYVAL w AS QtWidget)
+    CALL eb_qt6_widget_close(w.handle)
+END SUB
+
 ''' Window position - meaningful for a top-level window; ignored for a
 ''' child widget managed by a layout (the layout itself controls
 ''' position there, real Qt semantics, not a limitation of this shim).
@@ -261,6 +269,40 @@ SUB WidgetSetFocusPolicy(BYVAL w AS QtWidget, policy AS INTEGER)
     CALL eb_qt6_widget_set_focus_policy(w.handle, policy)
 END SUB
 
+''' Matches real Qt::WindowModality values (confirmed sequential, not a
+''' bitmask like QtFocusPolicy - checked against Qt6's own qnamespace.h
+''' before writing this, per this package's standing enum-verification
+''' practice) - pass to WidgetSetModal.
+CONST QtNonModal = 0
+CONST QtWindowModal = 1
+CONST QtApplicationModal = 2
+
+''' Makes `w` modal - blocks interaction with `parent` (QtWindowModal) or
+''' the whole application (QtApplicationModal) until `w` is closed/hidden
+''' or WidgetSetModal is called again with QtNonModal. For QtWindowModal,
+''' also call WidgetSetParentWindow(w, parent) first - real Qt's window
+''' modality has no visible effect without a parent association, the
+''' same precondition GTK4's own gtk_window_set_modal has.
+SUB WidgetSetModal(BYVAL w AS QtWidget, modality AS INTEGER)
+    CALL eb_qt6_widget_set_modal(w.handle, modality)
+END SUB
+
+FUNCTION WidgetGetModal(BYVAL w AS QtWidget) AS INTEGER
+    WidgetGetModal = eb_qt6_widget_get_modal(w.handle)
+END FUNCTION
+
+''' Associates `w` with `parent` for stacking/centering/modality purposes
+''' - the Qt equivalent of GTK4's transient-parent concept. Does NOT
+''' reparent `w` into `parent`'s own child-widget/layout tree; `w`
+''' remains a real top-level window.
+'''
+''' CONFIRMED (via a standalone spike, not assumed): only safe to call
+''' before `w` is first shown - real Qt documents changing a shown
+''' widget's parent as unsafe.
+SUB WidgetSetParentWindow(BYVAL w AS QtWidget, BYVAL parent AS QtWidget)
+    CALL eb_qt6_widget_set_parent_window(w.handle, parent.handle)
+END SUB
+
 ''' See WidgetShow's own doc comment on ownership - a widget already
 ''' parented elsewhere should be wrapped via this, not re-constructed.
 FUNCTION WrapWidget(h AS ANY PTR) AS QtWidget
@@ -284,6 +326,17 @@ END FUNCTION
 ''' (see this file's own top comment on ownership).
 SUB MainWindowSetCentralWidget(BYVAL win AS MainWindow, BYVAL widget AS QtWidget)
     CALL eb_qt6_mainwindow_set_central_widget(win.handle, widget.handle)
+END SUB
+
+''' Connects a vetoable close handler: `handler` is `@YourFunctionName`,
+''' `FUNCTION(userData AS ANY PTR) AS INTEGER`, returning nonzero to
+''' ALLOW the close (matches eb-haiku's own BWindow::QuitRequested
+''' polarity - NOT GTK4's "close-request" signal, which is the other way
+''' around). With no handler connected, closing behaves exactly as
+''' before this existed: hides, does not delete (see this file's own top
+''' comment).
+SUB MainWindowSetCloseCallback(BYVAL win AS MainWindow, handler AS ANY PTR, userData AS ANY PTR)
+    CALL eb_qt6_mainwindow_set_close_callback(win.handle, handler, userData)
 END SUB
 
 TYPE BoxLayout EXTENDS QtObject
