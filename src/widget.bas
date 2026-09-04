@@ -335,6 +335,17 @@ END SUB
 ''' around). With no handler connected, closing behaves exactly as
 ''' before this existed: hides, does not delete (see this file's own top
 ''' comment).
+'''
+''' CONFIRMED (via direct reproduction, not assumed): real
+''' QCoreApplication::quit()/ApplicationQuit implicitly tries to close
+''' every *visible* top-level window as part of shutting down - if
+''' `win` is shown and this handler vetoes (returns 0), ApplicationQuit
+''' is silently blocked too, not just WidgetClose, for as long as `win`
+''' stays open and vetoing. An invisible (never-shown, or already
+''' hidden) window's veto has no such effect. Real GTK4 has no
+''' equivalent negotiation - ApplicationQuit there always stops the
+''' loop unconditionally regardless of any window's close-request
+''' handler.
 SUB MainWindowSetCloseCallback(BYVAL win AS MainWindow, handler AS ANY PTR, userData AS ANY PTR)
     CALL eb_qt6_mainwindow_set_close_callback(win.handle, handler, userData)
 END SUB

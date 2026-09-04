@@ -1812,6 +1812,15 @@ CALL MainWindowSetCloseCallback(myWindow, @OnClose, 0)
 CALL WidgetClose(myWindow)   ' triggers it - unlike WidgetDestroy
 ```
 
+**Found while building `eb-gui-qt6` on top of this**: real
+`QCoreApplication::quit()`/`ApplicationQuit` implicitly tries to close
+every *visible* top-level window first - a vetoing close callback on a
+shown window silently blocks `ApplicationQuit` too, not just
+`WidgetClose` (confirmed by direct reproduction, not assumed). An
+invisible/hidden window's veto has no such effect. Real GTK4 has no
+equivalent negotiation - `ApplicationQuit` there always stops
+unconditionally.
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless
