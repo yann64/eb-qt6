@@ -382,6 +382,20 @@ SUB BoxLayoutSetContentsMargins(BYVAL layout AS BoxLayout, left AS INTEGER, top 
     CALL eb_qt6_boxlayout_set_contents_margins(layout.handle, left, top, right, bottom)
 END SUB
 
+''' Like BoxLayoutAddWidget, but also sets the widget's relative growth
+''' weight along the layout's own main axis (`stretch` - 0 = fixed
+''' size) and its alignment on the CROSS axis (Qt::Alignment bitmask,
+''' see label.bas's QtAlign* constants - pass 0 to fill the cross axis,
+''' real Qt's own default when no alignment flag is given).
+SUB BoxLayoutAddWidgetEx(BYVAL layout AS BoxLayout, BYVAL widget AS QtWidget, stretch AS INTEGER, alignment AS INTEGER)
+    CALL eb_qt6_boxlayout_add_widget_stretch_align(layout.handle, widget.handle, stretch, alignment)
+END SUB
+
+''' Changes the stretch factor of a widget already added to the layout.
+SUB BoxLayoutSetStretchFactor(BYVAL layout AS BoxLayout, BYVAL widget AS QtWidget, stretch AS INTEGER)
+    CALL eb_qt6_boxlayout_set_stretch_factor(layout.handle, widget.handle, stretch)
+END SUB
+
 ''' Applies a constructed layout to a widget - the widget now owns the
 ''' layout (and, transitively, everything ever added to it). Accepts
 ''' any real QLayout-backed TYPE (BoxLayout, GridLayout, FormLayout) via

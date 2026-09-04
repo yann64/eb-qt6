@@ -49,4 +49,6 @@ Extern "C" Lib "ebqt6shim"
     Declare Sub eb_qt6_boxlayout_set_spacing(ByVal layout AS ANY PTR, ByVal spacing AS INTEGER)
     Declare Sub eb_qt6_boxlayout_set_contents_margins(ByVal layout AS ANY PTR, ByVal left AS INTEGER, ByVal top AS INTEGER, ByVal right AS INTEGER, ByVal bottom AS INTEGER)
     Declare Sub eb_qt6_widget_set_layout(ByVal widget AS ANY PTR, ByVal layout AS ANY PTR)
+    Declare Sub eb_qt6_boxlayout_add_widget_stretch_align(ByVal layout AS ANY PTR, ByVal widget AS ANY PTR, ByVal stretch AS INTEGER, ByVal alignment AS INTEGER)
+    Declare Sub eb_qt6_boxlayout_set_stretch_factor(ByVal layout AS ANY PTR, ByVal widget AS ANY PTR, ByVal stretch AS INTEGER)
 End Extern

@@ -136,6 +136,14 @@ void eb_qt6_boxlayout_set_contents_margins(void* layout, int left, int top, int 
     static_cast<QBoxLayout*>(layout)->setContentsMargins(left, top, right, bottom);
 }
 
+void eb_qt6_boxlayout_add_widget_stretch_align(void* layout, void* widget, int stretch, int alignment) {
+    static_cast<QBoxLayout*>(layout)->addWidget(static_cast<QWidget*>(widget), stretch, static_cast<Qt::Alignment>(alignment));
+}
+
+void eb_qt6_boxlayout_set_stretch_factor(void* layout, void* widget, int stretch) {
+    static_cast<QBoxLayout*>(layout)->setStretchFactor(static_cast<QWidget*>(widget), stretch);
+}
+
 void eb_qt6_widget_set_layout(void* widget, void* layout) {
     static_cast<QWidget*>(widget)->setLayout(static_cast<QLayout*>(layout));
 }

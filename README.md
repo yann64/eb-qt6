@@ -1879,6 +1879,39 @@ menu action and a tool bar action; `ActionSetEnabled`/`ActionIsEnabled`
 round-trip; `MainWindowToolBar` returns the identical handle on repeated
 calls).
 
+## Phase 27 features: layout constraints (stretch + alignment)
+
+Added specifically to give `eb-gui-qt6` real per-child layout
+constraints (expand/weight + alignment) - previously `BoxLayoutAddWidget`/
+`GridLayoutAddWidget` had no way to express either:
+
+```basic
+' stretch: relative growth weight along the box's own main axis
+' (0 = fixed size) - real Qt::QBoxLayout::addWidget's own stretch
+' factor, a genuine proportional ratio (unlike GTK4's boolean-only
+' hexpand/vexpand).
+CALL BoxLayoutAddWidgetEx(vbox, myButton, 1, 0)          ' grows, fills cross axis
+CALL BoxLayoutAddWidgetEx(vbox, myLabel, 0, QtAlignHCenter)  ' fixed, centered
+
+CALL BoxLayoutSetStretchFactor(vbox, myButton, 2)  ' change it after adding
+
+' Real QGridLayout::setRowStretch/setColumnStretch - independent of
+' which widget(s) occupy that row/column.
+CALL GridLayoutSetColumnStretch(grid, 0, 1)
+CALL GridLayoutAddWidgetEx(grid, myEntry, 0, 0, 1, 1, QtAlignVCenter)
+```
+
+Alignment reuses `label.bas`'s existing real `Qt::AlignmentFlag`
+constants (`QtAlignLeft`/`Right`/`HCenter`/`Top`/`Bottom`/`VCenter`) -
+no new constants needed, since real Qt's own layout-alignment param and
+`QLabel::setAlignment`'s param are both plain `Qt::Alignment` bitmasks.
+Two new native shim functions per layout type
+(`eb_qt6_boxlayout_add_widget_stretch_align`/`set_stretch_factor` in
+`shim_widget.cpp`; `eb_qt6_gridlayout_add_widget_align`/
+`set_row_stretch`/`set_column_stretch` in `shim_gridlayout.cpp`) call
+straight through to the real, already-existing Qt overloads - no new
+Qt behavior, just previously-unbound entry points.
+
 ## Verifying
 
 There is no automated test suite yet (GUI widgets have no real headless

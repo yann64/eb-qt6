@@ -155,6 +155,15 @@ void eb_qt6_boxlayout_set_spacing(void* layout, int spacing);
 // Pixel padding between the layout's own edge and its container
 // widget's edge, one value per side.
 void eb_qt6_boxlayout_set_contents_margins(void* layout, int left, int top, int right, int bottom);
+// Real QBoxLayout::addWidget's 3-arg overload - `stretch` is the
+// widget's relative growth weight along the layout's own main axis
+// (0 = fixed size), `alignment` is a Qt::Alignment bitmask (see
+// src/label.bas's QtAlign* constants, reused here) applied on the
+// CROSS axis - real Qt fills the cross axis by default when no
+// alignment flag for that axis is given.
+void eb_qt6_boxlayout_add_widget_stretch_align(void* layout, void* widget, int stretch, int alignment);
+// Changes the stretch factor of a widget already in the layout.
+void eb_qt6_boxlayout_set_stretch_factor(void* layout, void* widget, int stretch);
 // Applies a constructed layout to a widget - the widget now owns the
 // layout (and, transitively, everything ever added to it).
 void eb_qt6_widget_set_layout(void* widget, void* layout);
