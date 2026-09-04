@@ -43,6 +43,18 @@ int eb_qt6_action_is_checked(void* action) {
     return static_cast<QAction*>(action)->isChecked() ? 1 : 0;
 }
 
+void eb_qt6_action_set_enabled(void* action, int enabled) {
+    static_cast<QAction*>(action)->setEnabled(enabled != 0);
+}
+
+int eb_qt6_action_is_enabled(void* action) {
+    return static_cast<QAction*>(action)->isEnabled() ? 1 : 0;
+}
+
+void eb_qt6_action_trigger(void* action) {
+    static_cast<QAction*>(action)->trigger();
+}
+
 void eb_qt6_action_set_shortcut(void* action, const char* keySequence) {
     static_cast<QAction*>(action)->setShortcut(QKeySequence(QString::fromUtf8(keySequence)));
 }

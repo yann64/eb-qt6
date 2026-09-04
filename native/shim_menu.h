@@ -31,6 +31,13 @@ void eb_qt6_action_connect_triggered(void* action, EbQt6VoidCallback cb, void* u
 void eb_qt6_action_set_checkable(void* action, int checkable);
 void eb_qt6_action_set_checked(void* action, int checked);
 int eb_qt6_action_is_checked(void* action);
+void eb_qt6_action_set_enabled(void* action, int enabled);
+int eb_qt6_action_is_enabled(void* action);
+// Fires the action's own triggered signal, the same path a real menu
+// item/toolbar button click goes through - lets a connected
+// eb_qt6_action_connect_triggered handler be exercised/tested
+// programmatically, without needing a real click.
+void eb_qt6_action_trigger(void* action);
 // `keySequence` is a real QKeySequence string (e.g. "Ctrl+S",
 // "Ctrl+Shift+N") - shows in the menu alongside the action's text and
 // activates it from anywhere in the window, the same real Qt mechanism

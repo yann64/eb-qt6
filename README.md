@@ -459,6 +459,14 @@ evidence of a binding defect:
   `WidgetSetParentWindow` genuinely does NOT reparent into the parent's
   own widget tree, `isWindow()` still true afterward), then re-confirmed
   at the eBasic layer (`window_lifecycle_verify.bas`).
+- **v0.26.0** - `ActionSetEnabled`/`ActionIsEnabled`/`ActionTrigger`
+  (the last one fires an action's own `triggered` signal
+  programmatically, the same path a real click goes through) and
+  `MainWindowToolBar` (the window's own single, auto-created-once tool
+  bar - unlike `MainWindowAddToolBar`, which always creates a fresh
+  one). All three are prerequisite additions for the same `eb-gui-qt6`
+  Menu/Toolbar work `v0.25.0` began, alongside a matching Menu/Toolbar
+  pass over `eb-gtk4`. See "Phase 26 features" below.
 
 ## Why event filters, not a widget subclass
 
@@ -1820,6 +1828,46 @@ shown window silently blocks `ApplicationQuit` too, not just
 invisible/hidden window's veto has no such effect. Real GTK4 has no
 equivalent negotiation - `ApplicationQuit` there always stops
 unconditionally.
+
+## Phase 26 features
+
+Small `Action`/`ToolBar` additions, added specifically to give
+`eb-gui-qt6` (the universal cross-toolkit GUI adapter) a full Menu/
+Toolbar contract surface without gaps:
+
+```basic
+CALL ActionSetEnabled(act, 0)
+PRINT ActionIsEnabled(act)   ' 0
+
+' Fires the action's own `triggered` signal - the same path a real
+' menu-item/toolbar-button click goes through - so a connected
+' ActionConnectTriggered handler can be exercised/tested
+' programmatically, without needing a real click.
+CALL ActionTrigger(act)
+```
+
+`MainWindowToolBar(win)` - the window's own single, untitled tool bar,
+auto-created the first time it's called for `win` (unlike
+`MainWindowAddToolBar`, which always creates a fresh one on every call)
+- matches `MainWindowMenuBar`'s own auto-created-once convention. Real
+`QMainWindow` has no built-in concept of "the" tool bar the way it does
+for the menu bar, so this is implemented via a small per-window lookup
+in the native shim (`shim_toolbar.h`'s
+`eb_qt6_mainwindow_get_or_create_toolbar`), not a Qt feature:
+
+```basic
+DIM tb1 AS ToolBar
+tb1 = MainWindowToolBar(win)
+DIM tb2 AS ToolBar
+tb2 = MainWindowToolBar(win)
+' tb1.handle = tb2.handle - the same tool bar both times
+```
+
+Verified via `examples/menu_toolbar_verify.bas` (headless: `ActionTrigger`
+genuinely reaches a connected `ActionConnectTriggered` handler for both a
+menu action and a tool bar action; `ActionSetEnabled`/`ActionIsEnabled`
+round-trip; `MainWindowToolBar` returns the identical handle on repeated
+calls).
 
 ## Verifying
 

@@ -18,6 +18,18 @@ FUNCTION MainWindowAddToolBar(BYVAL win AS MainWindow, title AS ZSTRING) AS Tool
     MainWindowAddToolBar = t
 END FUNCTION
 
+''' Returns the window's own, single, untitled tool bar - auto-created
+''' the first time this is called for `win` (unlike MainWindowAddToolBar,
+''' which always creates a fresh one; real QMainWindow has no built-in
+''' concept of "the" tool bar, so this adds one on top via a small
+''' native-side per-window lookup - see shim_toolbar.h). Matches
+''' MainWindowMenuBar's own auto-created-once convention.
+FUNCTION MainWindowToolBar(BYVAL win AS MainWindow) AS ToolBar
+    DIM t AS ToolBar
+    t.handle = eb_qt6_mainwindow_get_or_create_toolbar(win.handle)
+    MainWindowToolBar = t
+END FUNCTION
+
 ''' Creates a new action on the tool bar - owned by the tool bar, see
 ''' this file's own top comment. Connect it with ActionConnectTriggered.
 FUNCTION ToolBarAddAction(BYVAL t AS ToolBar, text AS ZSTRING) AS Action

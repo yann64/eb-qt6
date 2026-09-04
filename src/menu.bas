@@ -104,3 +104,19 @@ END FUNCTION
 SUB ActionSetShortcut(BYVAL a AS Action, keySequence AS ZSTRING)
     CALL eb_qt6_action_set_shortcut(a.handle, keySequence)
 END SUB
+
+SUB ActionSetEnabled(BYVAL a AS Action, enabled AS INTEGER)
+    CALL eb_qt6_action_set_enabled(a.handle, enabled)
+END SUB
+
+FUNCTION ActionIsEnabled(BYVAL a AS Action) AS INTEGER
+    ActionIsEnabled = eb_qt6_action_is_enabled(a.handle)
+END FUNCTION
+
+''' Fires the action's own `triggered` signal, the same path a real
+''' menu-item/toolbar-button click goes through - lets a connected
+''' ActionConnectTriggered handler be exercised/tested programmatically,
+''' without needing a real click.
+SUB ActionTrigger(BYVAL a AS Action)
+    CALL eb_qt6_action_trigger(a.handle)
+END SUB
